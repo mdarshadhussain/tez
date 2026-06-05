@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+/dist
+/.svelte-kit
+/build
+
+# Local Databases & State
+*.db
+*.db-journal
+*.log
+
+# Env & Secrets
+.env
+.env.*
+.DS_Store
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

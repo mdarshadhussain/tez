@@ -1,0 +1,528 @@
+/* TEZCLUB.IN Master Plump-Neon-Violet Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg-base: #0e081c; /* Deep dark violet-black */
+  --bg-surface: #170f2b; /* Frosted violet card background */
+  --bg-sidebar: #090514; /* Darker midnight-violet */
+  --action-highlight: #ff0066; /* Plump Hot Pink / Magenta */
+  --action-hover: #e0005a;
+  --success-layer: #00E5FF; /* Cyber Cyan */
+  --vip-status: #D4AF37; /* Metallic Liquid Gold */
+  --purple-accent: #a826ff; /* Vibrant Electric Purple */
+  
+  --text-main: #E2E2E9;
+  --text-mute: #9284ad;
+  --text-inverse: #0e081c;
+
+  --font-primary: 'Outfit', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --border-glass: rgba(255, 0, 102, 0.1); /* Pink-tinted subtle border */
+  --border-glow: rgba(255, 0, 102, 0.25);
+}
+
+[data-theme="light"] {
+  --bg-base: #f4f0ff;
+  --bg-surface: #ffffff;
+  --bg-sidebar: #eae5f8;
+  --text-main: #170f2b;
+  --text-mute: #76698f;
+  --text-inverse: #ffffff;
+
+  --border-glass: rgba(168, 38, 255, 0.15);
+  --border-glow: rgba(168, 38, 255, 0.4);
+  --success-layer: #00b0ff;
+  --purple-accent: #8e24aa;
+}
+
+/* Base Body Adjustments */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  font-family: var(--font-primary);
+  overflow: hidden; /* App view fixed heights */
+}
+
+/* Core grid layout */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-base);
+}
+
+/* LEFT SIDEBAR */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background-color: var(--bg-sidebar);
+  border-right: 2px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 20px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-menu-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #5d4f7a;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Plump Rounded Sidebar Items */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 20px; /* Plump geometry */
+  color: #9284ad;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 0, 102, 0.03);
+  border-color: rgba(255, 0, 102, 0.05);
+  color: #fff;
+}
+
+.sidebar-item.active {
+  background: linear-gradient(135deg, rgba(255, 0, 102, 0.1) 0%, rgba(168, 38, 255, 0.1) 100%);
+  color: #fff;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 4px 15px rgba(255, 0, 102, 0.1);
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 2px solid var(--border-glass);
+  padding-top: 20px;
+}
+
+/* MAIN CONTENT WORKSPACE */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* TOP HEADER BAR */
+.header-bar {
+  height: 76px;
+  border-bottom: 2px solid var(--border-glass);
+  background-color: rgba(14, 8, 28, 0.85);
+  backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+/* Monospaced ledger classes to prevent screen jitter */
+.monospace-ledger {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/* Plump Rounded frosted glass containers */
+.frosted-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-glass);
+  border-radius: 24px; /* Plump geometry */
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.frosted-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 10px 35px rgba(255, 0, 102, 0.05);
+}
+
+/* Hero section cards styling */
+.hero-card {
+  background: linear-gradient(135deg, rgba(23, 15, 43, 0.9) 0%, rgba(14, 8, 28, 0.95) 100%);
+  border: 2px solid var(--border-glass);
+  border-radius: 32px; /* Super plump rounded frame */
+  padding: 48px;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+}
+
+.hero-card:hover {
+  border-color: var(--border-glow);
+}
+
+/* Plump tactile neon buttons */
+.action-btn {
+  background: linear-gradient(135deg, var(--action-highlight) 0%, #d80052 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 20px; /* Plump geometry */
+  padding: 16px 28px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(255, 0, 102, 0.3);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 0, 102, 0.45);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.cyan-btn {
+  background: transparent;
+  color: var(--success-layer);
+  border: 2px solid var(--success-layer);
+  box-shadow: none;
+}
+
+.cyan-btn:hover {
+  background: rgba(0, 229, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+}
+
+.form-input {
+  background: rgba(255, 255, 255, 0.01);
+  border: 2px solid var(--border-glass);
+  border-radius: 20px; /* Plump geometry */
+  padding: 16px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: var(--action-highlight);
+  box-shadow: 0 0 15px rgba(255, 0, 102, 0.15);
+}
+
+/* Grid Matrix */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .game-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .game-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Rain envelope adjustments */
+.rain-packet {
+  position: absolute;
+  width: 65px;
+  height: 85px;
+  background: linear-gradient(135deg, #30081d, #520930);
+  border: 2px solid var(--action-highlight);
+  border-radius: 16px; /* Plump */
+  box-shadow: 0 6px 20px rgba(255, 0, 102, 0.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: fall 4s linear forwards;
+}
+
+/* Floating Coin Logo Row styling */
+.coin-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  opacity: 0.7;
+}
+
+.coin-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile responsive collapses */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-240px);
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gap-8 { gap: 8px; }
+.mt-12 { margin-top: 12px; }
+.mb-12 { margin-bottom: 12px; }
+.p-12 { padding: 12px; }
+
+/* Premium Animations System */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-anim {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float-delayed {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.float-delayed-anim {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+@keyframes float-fast {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-6px) scale(1.04); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+.float-fast-anim {
+  animation: float-fast 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 15px rgba(255, 0, 102, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(255, 0, 102, 0.4); }
+  100% { box-shadow: 0 0 15px rgba(255, 0, 102, 0.2); }
+}
+
+.glow-pulse-anim {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes rotate-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+/* Shimmer Light Sweep Effect */
+@keyframes shimmer {
+  0% { left: -150%; }
+  50% { left: -150%; }
+  100% { left: 150%; }
+}
+
+.shimmer-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -150%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shimmer 6s infinite linear;
+  pointer-events: none;
+}
+
+/* Glowing Border for Premium Cards */
+.glowing-border-pink {
+  position: relative;
+}
+.glowing-border-pink::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--action-highlight), var(--purple-accent));
+  z-index: -1;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+.glowing-border-pink:hover::before {
+  opacity: 0.5;
+}
+
+.glowing-border-cyan {
+  position: relative;
+}
+.glowing-border-cyan::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--success-layer), var(--purple-accent));
+  z-index: -1;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+.glowing-border-cyan:hover::before {
+  opacity: 0.5;
+}
+
+/* Live Win Row Ticker */
+.ticker-container {
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
+  padding: 12px 16px;
+  margin-bottom: 28px;
+  position: relative;
+  background: linear-gradient(90deg, rgba(23, 15, 43, 0.4) 0%, rgba(14, 8, 28, 0.6) 50%, rgba(23, 15, 43, 0.4) 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 0, 102, 0.05);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.ticker-track {
+  display: flex;
+  gap: 16px;
+  white-space: nowrap;
+  animation: ticker-slide 40s linear infinite;
+}
+
+@keyframes ticker-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(14, 8, 28, 0.8);
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.ticker-item:hover {
+  border-color: var(--action-highlight);
+  background: rgba(23, 15, 43, 0.9);
+}
+
+.ticker-item .win-amount {
+  color: var(--success-layer);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+/* Plump tactile hover card upgrades */
+.card-plump-hover {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-plump-hover:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: var(--action-highlight);
+  box-shadow: 0 15px 35px rgba(255, 0, 102, 0.15);
+}

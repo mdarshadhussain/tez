@@ -1,0 +1,13 @@
+{
+  "name": "tezclub-monorepo",
+  "version": "1.0.0",
+  "description": "TEZCLUB.IN iGaming Monorepo",
+  "scripts": {
+    "bootstrap": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev": "node start.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
