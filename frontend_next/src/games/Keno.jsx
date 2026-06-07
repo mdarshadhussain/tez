@@ -1,46 +1,192 @@
 'use client';
-import React, { useState } from 'react';
-import { Shield, Sparkles, HelpCircle, Coins, Award, RefreshCw } from 'lucide-react';
 
-const MULTIPLIERS = {
-  0: [0, 0], // selected count -> payouts based on hits
-  1: [0, 1.8],
-  2: [0, 1.2, 2.5],
-  3: [0, 1.0, 2.0, 5.0],
-  4: [0, 0.5, 1.8, 4.0, 10.0],
-  5: [0, 0, 1.5, 3.5, 8.0, 20.0],
-  6: [0, 0, 1.2, 3.0, 6.0, 15.0, 45.0],
-  7: [0, 0, 1.0, 2.0, 5.0, 12.0, 30.0, 75.0],
-  8: [0, 0, 0.8, 1.8, 4.0, 10.0, 25.0, 60.0, 100.0],
-  9: [0, 0, 0.5, 1.5, 3.0, 8.0, 20.0, 45.0, 85.0, 150.0],
-  10: [0, 0, 0, 1.2, 2.5, 6.0, 15.0, 35.0, 75.0, 120.0, 200.0]
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Shield, Sparkles, HelpCircle, Coins, Award, RefreshCw, ChevronLeft, Volume2, Settings, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { playClick, playWinChime, playTick, playHitSound, playLossSound } from '../utils/audio';
+
+// Animated particle burst when a ball is hit
+function HitParticles({ active }) {
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-visible">
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1.5 h-1.5 rounded-full bg-[#3de796] top-1/2 left-1/2"
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{
+            x: Math.cos((i / 8) * Math.PI * 2) * 22,
+            y: Math.sin((i / 8) * Math.PI * 2) * 22,
+            opacity: 0,
+            scale: 0,
+          }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Keno win result overlay popup (wins only)
+function KenoResultPopup({ winPayout, hitCount, selectedCount, onClose }) {
+  if (!winPayout) return null;
+  const isWin = winPayout.payout > 0;
+  if (!isWin) return null;
+  return (
+    <AnimatePresence>
+      <motion.div
+        key="keno-popup"
+        initial={{ opacity: 0, y: 20, scale: 0.85 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -10, scale: 0.9 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        onClick={onClose}
+        className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 cursor-pointer"
+      >
+        <div className={`rounded-2xl px-6 py-4 border text-center shadow-2xl min-w-[180px] ${
+          isWin
+            ? 'bg-[#3de796]/10 border-[#3de796]/30 backdrop-blur-sm'
+            : 'bg-red-500/10 border-red-500/30 backdrop-blur-sm'
+        }`}>
+          <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+            isWin ? 'text-[#3de796]/70' : 'text-red-400/70'
+          }`}>
+            {hitCount} / {selectedCount} Hits
+          </div>
+          <div className={`font-black text-2xl ${
+            isWin ? 'text-[#3de796] drop-shadow-[0_0_16px_rgba(61,231,150,0.6)]' : 'text-red-400'
+          }`}>
+            {isWin ? `+₹${winPayout.payout.toFixed(2)}` : 'No Win'}
+          </div>
+          {isWin && (
+            <div className="text-white/40 text-[10px] font-bold mt-1">{winPayout.mult}x Multiplier</div>
+          )}
+          <div className="text-white/20 text-[9px] font-bold tracking-widest uppercase mt-2">Tap to dismiss</div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// Payout Multiplier Matrix per Risk Level and Selection Count
+const MULTIPLIER_TABLES = {
+  classic: {
+    1: [0, 1.8],
+    2: [0, 1.2, 2.5],
+    3: [0, 1.0, 2.0, 5.0],
+    4: [0, 0.5, 1.8, 4.0, 10.0],
+    5: [0, 0, 1.5, 3.5, 8.0, 20.0],
+    6: [0, 0, 1.2, 3.0, 6.0, 15.0, 45.0],
+    7: [0, 0, 1.0, 2.0, 5.0, 12.0, 30.0, 75.0],
+    8: [0, 0, 0.8, 1.8, 4.0, 10.0, 25.0, 60.0, 100.0],
+    9: [0, 0, 0.5, 1.5, 3.0, 8.0, 20.0, 45.0, 85.0, 150.0],
+    10: [0, 0, 0, 1.2, 2.5, 6.0, 15.0, 35.0, 75.0, 120.0, 200.0]
+  },
+  low: {
+    1: [0.7, 1.2],
+    2: [0.5, 1.0, 1.8],
+    3: [0.4, 0.8, 1.5, 2.8],
+    4: [0.3, 0.7, 1.2, 2.2, 5.0],
+    5: [0.2, 0.6, 1.0, 1.8, 3.5, 8.0],
+    6: [0.1, 0.5, 0.9, 1.5, 2.8, 6.0, 12.0],
+    7: [0.1, 0.4, 0.8, 1.3, 2.2, 4.5, 10.0, 20.0],
+    8: [0.1, 0.3, 0.7, 1.1, 1.8, 3.5, 8.0, 16.0, 35.0],
+    9: [0.1, 0.3, 0.6, 1.0, 1.5, 2.8, 6.0, 12.0, 28.0, 60.0],
+    10: [0.1, 0.2, 0.5, 0.8, 1.3, 2.2, 4.5, 9.0, 20.0, 45.0, 100.0]
+  },
+  medium: {
+    1: [0, 1.9],
+    2: [0, 1.5, 3.2],
+    3: [0, 1.2, 2.5, 6.5],
+    4: [0, 0.8, 2.0, 5.0, 15.0],
+    5: [0, 0.5, 1.8, 4.5, 12.0, 30.0],
+    6: [0, 0, 1.5, 3.5, 9.0, 25.0, 70.0],
+    7: [0, 0, 1.2, 2.8, 7.0, 20.0, 55.0, 150.0],
+    8: [0, 0, 1.0, 2.2, 5.5, 15.0, 45.0, 120.0, 350.0],
+    9: [0, 0, 0.8, 1.8, 4.5, 12.0, 35.0, 95.0, 280.0, 700.0],
+    10: [0, 0, 0.5, 1.5, 3.5, 9.5, 28.0, 75.0, 220.0, 550.0, 1000.0]
+  },
+  high: {
+    1: [0, 2.2],
+    2: [0, 0, 4.5],
+    3: [0, 0, 3.0, 11.0],
+    4: [0, 0, 2.0, 8.5, 30.0],
+    5: [0, 0, 0, 5.0, 22.0, 85.0],
+    6: [0, 0, 0, 3.5, 15.0, 60.0, 250.0],
+    7: [0, 0, 0, 2.0, 10.0, 40.0, 180.0, 600.0],
+    8: [0, 0, 0, 0, 7.0, 30.0, 130.0, 450.0, 1200.0],
+    9: [0, 0, 0, 0, 5.0, 22.0, 95.0, 350.0, 1000.0, 3000.0],
+    10: [0, 0, 0, 0, 0, 15.0, 70.0, 280.0, 800.0, 2500.0, 5000.0]
+  }
 };
 
 export default function Keno({ token, playableBalance, setPlayableBalance, isDemo }) {
+  const [tab, setTab] = useState('manual'); // manual, autoplay
+  const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [betAmount, setBetAmount] = useState('50');
+  const [riskLevel, setRiskLevel] = useState('classic'); // classic, low, medium, high
+  const [sliderPickCount, setSliderPickCount] = useState(5);
+  
+  // Autoplay config
+  const [numberOfBets, setNumberOfBets] = useState('0'); // '0' represents infinite
+  const [onWinReset, setOnWinReset] = useState(true);
+  const [onWinIncrease, setOnWinIncrease] = useState('0.00');
+  const [onLossReset, setOnLossReset] = useState(true);
+  const [onLossIncrease, setOnLossIncrease] = useState('0.00');
+  const [stopProfit, setStopProfit] = useState('0.00');
+  const [stopLoss, setStopLoss] = useState('0.00');
+  const [autoBetsRemaining, setAutoBetsRemaining] = useState(0);
+  const [isAutoplayRunning, setIsAutoplayRunning] = useState(false);
+  const [totalWagered, setTotalWagered] = useState(0);
+  const [totalProfit, setTotalProfit] = useState(0);
+
+  // Game active state
   const [selectedNums, setSelectedNums] = useState([]);
   const [drawnNums, setDrawnNums] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [winPayout, setWinPayout] = useState(null);
   const [hitCount, setHitCount] = useState(0);
 
+  // Autoplay loops
+  const isAutoplayRef = useRef(isAutoplayRunning);
+  const balanceRef = useRef(playableBalance);
+  const startBalanceRef = useRef(playableBalance);
+
+  useEffect(() => {
+    isAutoplayRef.current = isAutoplayRunning;
+  }, [isAutoplayRunning]);
+
+  useEffect(() => {
+    balanceRef.current = playableBalance;
+  }, [playableBalance]);
+
   const toggleNum = (num) => {
-    if (isDrawing) return;
+    if (isDrawing || isAutoplayRunning) return;
+    playClick();
+    let newNums;
     if (selectedNums.includes(num)) {
-      setSelectedNums(selectedNums.filter(n => n !== num));
+      newNums = selectedNums.filter(n => n !== num);
     } else {
       if (selectedNums.length >= 10) {
         alert('You can select a maximum of 10 numbers.');
         return;
       }
-      setSelectedNums([...selectedNums, num]);
+      newNums = [...selectedNums, num];
+    }
+    setSelectedNums(newNums);
+    setWinPayout(null);
+    if (newNums.length >= 1) {
+      setSliderPickCount(newNums.length);
     }
   };
 
-  const autoPick = () => {
-    if (isDrawing) return;
+  const autoPick = (count) => {
+    if (isDrawing || isAutoplayRunning) return;
+    playClick();
+    const pickCount = count || sliderPickCount;
     const nums = [];
-    while (nums.length < 10) {
+    while (nums.length < pickCount) {
       const rand = Math.floor(Math.random() * 40) + 1;
       if (!nums.includes(rand)) nums.push(rand);
     }
@@ -48,19 +194,36 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
   };
 
   const clearSelection = () => {
-    if (isDrawing) return;
+    if (isDrawing || isAutoplayRunning) return;
+    playClick();
     setSelectedNums([]);
     setDrawnNums([]);
     setWinPayout(null);
   };
 
+  // Multiplication adjustment utils
+  const multiplyBet = (multiplier) => {
+    playClick();
+    const current = parseFloat(betAmount);
+    if (!isNaN(current)) {
+      setBetAmount((current * multiplier).toFixed(2));
+    }
+  };
+
+  const currentMultiplierTable = MULTIPLIER_TABLES[riskLevel][selectedNums.length] || [];
+
   const startDraw = async () => {
     const amt = parseFloat(betAmount);
     if (selectedNums.length === 0) return alert('Select at least 1 number');
     if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
-    if (amt > playableBalance) return alert('Insufficient balance');
+    if (amt > balanceRef.current) {
+      setIsAutoplayRunning(false);
+      return alert('Insufficient balance');
+    }
 
-    setPlayableBalance(playableBalance - amt);
+    playClick();
+    setPlayableBalance(prev => prev - amt);
+    setTotalWagered(prev => prev + amt);
     setIsDrawing(true);
     setDrawnNums([]);
     setWinPayout(null);
@@ -72,246 +235,741 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
       if (!targetDraw.includes(rand)) targetDraw.push(rand);
     }
 
-    // Draw numbers one by one with speed animation
+    // Draw numbers step by step
     let count = 0;
-    const interval = setInterval(async () => {
-      setDrawnNums(prev => [...prev, targetDraw[count]]);
-      count++;
-
-      if (count === 10) {
-        clearInterval(interval);
+    return new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        const drawnVal = targetDraw[count];
+        setDrawnNums(prev => [...prev, drawnVal]);
         
-        // Calculate hits
-        const hits = selectedNums.filter(n => targetDraw.includes(n)).length;
-        setHitCount(hits);
+        // Play draw sound for each play/ball draw
+        if (selectedNums.includes(drawnVal)) {
+          playHitSound();
+        } else {
+          playTick();
+        }
+        
+        count++;
 
-        const table = MULTIPLIERS[selectedNums.length] || [];
-        const mult = table[hits] || 0;
-        const payout = parseFloat((amt * mult).toFixed(2));
+        if (count === 10) {
+          clearInterval(interval);
+          
+          // Calculate hits
+          const hits = selectedNums.filter(n => targetDraw.includes(n)).length;
+          setHitCount(hits);
 
-        setWinPayout({ payout, mult });
-        setIsDrawing(false);
+          const table = MULTIPLIER_TABLES[riskLevel][selectedNums.length] || [];
+          const mult = table[hits] || 0;
+          const payout = parseFloat((amt * mult).toFixed(2));
 
-        if (payout > 0) {
-          if (isDemo) {
-            setPlayableBalance(prev => prev + payout);
-          } else {
-            try {
-              const res = await fetch('http://localhost:3001/api/games/record-bet', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  game: 'keno',
-                  bet_amount: amt,
-                  payout_multiplier: mult,
-                  payout_amount: payout,
-                  is_won: true,
-                  raw_selection: { selected: selectedNums, hits }
-                })
-              });
-              const data = await res.json();
-              if (data.success) {
-                setPlayableBalance(data.balance);
+          setWinPayout({ payout, mult });
+          setTimeout(() => {
+            setWinPayout(null);
+          }, 2000);
+          setIsDrawing(false);
+
+          if (payout > 0) {
+            playWinChime();
+            setTotalProfit(prev => prev + (payout - amt));
+            if (isDemo) {
+              setPlayableBalance(prev => prev + payout);
+            } else {
+              try {
+                const res = await fetch('http://localhost:3001/api/games/record-bet', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                    game: 'keno',
+                    bet_amount: amt,
+                    payout_multiplier: mult,
+                    payout_amount: payout,
+                    is_won: true,
+                    raw_selection: { selected: selectedNums, hits }
+                  })
+                });
+                const data = await res.json();
+                if (data.success) {
+                  setPlayableBalance(data.balance);
+                }
+              } catch (e) {
+                console.error(e);
               }
-            } catch (e) {
-              console.error(e);
+            }
+          } else {
+            playLossSound();
+            setTotalProfit(prev => prev - amt);
+            if (!isDemo) {
+              try {
+                await fetch('http://localhost:3001/api/games/record-bet', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                    game: 'keno',
+                    bet_amount: amt,
+                    payout_multiplier: 0.00,
+                    payout_amount: 0.00,
+                    is_won: false,
+                    raw_selection: { selected: selectedNums, hits }
+                  })
+                });
+              } catch (e) {
+                console.error(e);
+              }
             }
           }
-          alert(`Congratulations! You got ${hits} hits and won ₹${payout.toFixed(2)} (${mult}x)!`);
-        } else {
-          if (!isDemo) {
-            await fetch('http://localhost:3001/api/games/record-bet', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                game: 'keno',
-                bet_amount: amt,
-                payout_multiplier: 0.00,
-                payout_amount: 0.00,
-                is_won: false,
-                raw_selection: { selected: selectedNums, hits }
-              })
-            });
-          }
-          alert(`No luck this time! Matches: ${hits}.`);
+
+          resolve({ payout, hits });
         }
-      }
-    }, 250);
+      }, 433);
+    });
   };
 
-  const currentMultiplierTable = MULTIPLIERS[selectedNums.length] || [];
+  const handleAutoplayLoop = async () => {
+    if (isAutoplayRunning) {
+      setIsAutoplayRunning(false);
+      return;
+    }
+
+    if (selectedNums.length === 0) return alert('Select at least 1 number to play');
+    const amt = parseFloat(betAmount);
+    if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
+
+    setIsAutoplayRunning(true);
+    startBalanceRef.current = balanceRef.current;
+    setTotalWagered(0);
+    setTotalProfit(0);
+    
+    let betsCount = parseInt(numberOfBets);
+    let infinite = betsCount === 0;
+    let currentBet = amt;
+
+    let remaining = infinite ? 999999 : betsCount;
+    setAutoBetsRemaining(remaining);
+
+    while (remaining > 0 && isAutoplayRef.current) {
+      if (balanceRef.current < currentBet) {
+        alert('Insufficient balance for autoplay');
+        break;
+      }
+
+      // Check Stop conditions
+      const currentProfit = balanceRef.current - startBalanceRef.current;
+      const profitStop = parseFloat(stopProfit);
+      const lossStop = parseFloat(stopLoss);
+
+      if (profitStop > 0 && currentProfit >= profitStop) {
+        alert(`Autoplay profit limit of ₹${profitStop} hit!`);
+        break;
+      }
+      if (lossStop > 0 && Math.abs(currentProfit) >= lossStop && currentProfit < 0) {
+        alert(`Autoplay loss limit of ₹${lossStop} hit!`);
+        break;
+      }
+
+      const result = await startDraw();
+      if (!result) break;
+
+      // Adjust next bet size
+      if (result.payout > 0) {
+        // Win
+        if (onWinReset) {
+          currentBet = amt;
+        } else {
+          const inc = parseFloat(onWinIncrease) / 100;
+          currentBet = currentBet * (1 + inc);
+        }
+      } else {
+        // Loss
+        if (onLossReset) {
+          currentBet = amt;
+        } else {
+          const inc = parseFloat(onLossIncrease) / 100;
+          currentBet = currentBet * (1 + inc);
+        }
+      }
+      setBetAmount(currentBet.toFixed(2));
+
+      if (!infinite) {
+        remaining--;
+        setAutoBetsRemaining(remaining);
+      }
+
+      if (remaining > 0 && isAutoplayRef.current) {
+        // Wait 1s between rounds
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+
+    setIsAutoplayRunning(false);
+  };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
       
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Shield size={20} color="var(--action-highlight)" />
-          <span style={{ fontWeight: 900, color: '#fff', fontSize: '18px' }}>SPRIBE KENO</span>
-          <span style={{ fontSize: '9px', background: 'rgba(0,122,255,0.1)', color: '#007aff', padding: '3px 8px', borderRadius: '6px', fontWeight: 800 }}>LOTTERY</span>
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '20px' }}>
-        
-        {/* Left Control Column */}
-        <div className="frosted-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <span style={{ fontSize: '11px', color: '#8a9ca8', fontWeight: 700 }}>STAKE (₹)</span>
-            <input
-              type="number"
-              className="form-input mt-8"
-              value={betAmount}
-              onChange={(e) => setBetAmount(e.target.value)}
-              disabled={isDrawing}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button className="cyan-btn" onClick={autoPick} disabled={isDrawing}>
-              Auto Pick
-            </button>
-            <button className="cyan-btn" style={{ borderColor: 'rgba(255,59,48,0.2)' }} onClick={clearSelection} disabled={isDrawing}>
-              Clear All
-            </button>
-          </div>
-
-          <button 
-            className="action-btn" 
-            style={{ background: '#007aff', color: '#fff' }} 
-            onClick={startDraw}
-            disabled={isDrawing || selectedNums.length === 0}
-          >
-            {isDrawing ? 'Drawing balls...' : `Play (₹${betAmount})`}
-          </button>
-
-          {/* Multiplier list matching selected hit list */}
-          {selectedNums.length > 0 && (
-            <div style={{ marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-              <span style={{ fontSize: '11px', color: '#8a9ca8', fontWeight: 800 }}>PAYOUT STRUCTURE ({selectedNums.length} Selected)</span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
-                {currentMultiplierTable.map((m, hits) => {
-                  if (hits === 0) return null;
-                  const isCurrentHit = winPayout && hitCount === hits;
-                  return (
-                    <div 
-                      key={hits} 
-                      style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        fontSize: '12px',
-                        background: isCurrentHit ? 'rgba(0,229,255,0.1)' : 'transparent',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        border: isCurrentHit ? '1px solid var(--action-highlight)' : 'none'
-                      }}
-                    >
-                      <span style={{ color: '#8a9ca8' }}>{hits} Hits</span>
-                      <span style={{ color: m > 0 ? 'var(--success-layer)' : '#8a8a93', fontWeight: 800 }}>{m}x</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Playing Grid */}
-        <div className="frosted-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Left Console Panel (4 Columns) */}
+      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-hidden order-2 lg:order-1">
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '8px' }}>
+          <AnimatePresence mode="wait">
+            {!showAutoConfig ? (
+              <motion.div
+                key="main-console"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="flex flex-col flex-1 gap-4"
+              >
+                {/* Manual / Auto Tab Toggles */}
+                <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5 order-5 lg:order-1">
+                  <button
+                    onClick={() => { playClick(); setTab('manual'); }}
+                    disabled={isDrawing || isAutoplayRunning}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
+                      tab === 'manual'
+                        ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
+                        : 'bg-transparent text-text-muted hover:text-white'
+                    }`}
+                  >
+                    Manual
+                  </button>
+                  <button
+                    onClick={() => { playClick(); setTab('autoplay'); }}
+                    disabled={isDrawing || isAutoplayRunning}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
+                      tab === 'autoplay'
+                        ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
+                        : 'bg-transparent text-text-muted hover:text-white'
+                    }`}
+                  >
+                    Autoplay
+                  </button>
+                </div>
+
+                {/* Bet Amount Input */}
+                <div className="space-y-2 order-2 lg:order-2">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                    <span>Bet Amount</span>
+                    <span>0.00 INR</span>
+                  </div>
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 px-1 font-bold text-[#3de796] text-sm select-none">
+                      ₹
+                    </div>
+                    <input
+                      type="number"
+                      disabled={isDrawing || isAutoplayRunning}
+                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => multiplyBet(0.5)}
+                        disabled={isDrawing || isAutoplayRunning}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                      >
+                        1/2
+                      </button>
+                      <button
+                        onClick={() => multiplyBet(2.0)}
+                        disabled={isDrawing || isAutoplayRunning}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                      >
+                        X2
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Risk Level Selector */}
+                <div className="space-y-2 order-3 lg:order-3">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Risk Level</span>
+                  <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+                    {['classic', 'low', 'medium', 'high'].map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => { playClick(); setRiskLevel(level); }}
+                        disabled={isDrawing || isAutoplayRunning}
+                        className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border-0 cursor-pointer ${
+                          riskLevel === level
+                            ? 'bg-[#3de796] text-black shadow-sm'
+                            : 'bg-transparent text-text-muted hover:text-white'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Number Picker Slider */}
+                <div className="space-y-2.5 order-4 lg:order-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number Picker</span>
+                    <button
+                      onClick={clearSelection}
+                      disabled={isDrawing || isAutoplayRunning}
+                      className="bg-transparent border-0 text-text-muted hover:text-[#3de796] text-[10px] font-bold cursor-pointer transition-colors underline"
+                    >
+                      Clear Picks
+                    </button>
+                  </div>
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2.5 flex items-center justify-between gap-3">
+                    <span className="text-white font-black text-xs select-none w-4">{sliderPickCount}</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      disabled={isDrawing || isAutoplayRunning}
+                      value={sliderPickCount || 1}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        setSliderPickCount(val);
+                        if (!(isDrawing || isAutoplayRunning)) {
+                          playClick();
+                          const nums = [];
+                          while (nums.length < val) {
+                            const rand = Math.floor(Math.random() * 40) + 1;
+                            if (!nums.includes(rand)) nums.push(rand);
+                          }
+                          setSelectedNums(nums);
+                          setWinPayout(null);
+                        }
+                      }}
+                      className="flex-1 h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-[#3de796]"
+                    />
+                    <button
+                      onClick={() => autoPick()}
+                      disabled={isDrawing || isAutoplayRunning}
+                      className="bg-[#242938] hover:bg-[#2e3549] text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-0 cursor-pointer transition-all tracking-wider"
+                    >
+                      Pick
+                    </button>
+                  </div>
+                </div>
+
+                {/* Autoplay controls block */}
+                {tab === 'autoplay' && (
+                  <div className="space-y-3 order-4 lg:order-4">
+                    {/* Number of Bets */}
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number of Bets</span>
+                      <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                        <input
+                          type="number"
+                          disabled={isAutoplayRunning}
+                          className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                          value={numberOfBets}
+                          onChange={(e) => setNumberOfBets(e.target.value)}
+                        />
+                        <div className="flex gap-1">
+                          <button onClick={() => { playClick(); setNumberOfBets('10'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">10</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">20</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">50</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">∞</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live autoplay stats */}
+                    <div className="grid grid-cols-3 gap-2 bg-zinc-950/20 p-3 rounded-2xl border border-white/5">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Wagered</span>
+                        <span className="text-white font-black text-xs">₹{totalWagered.toFixed(2)}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Profit</span>
+                        <span className={`font-black text-xs ${totalProfit >= 0 ? 'text-[#3de796]' : 'text-red-400'}`}>
+                          {totalProfit >= 0 ? '+' : ''}₹{totalProfit.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Remaining</span>
+                        <span className="text-white font-black text-xs">
+                          {isAutoplayRunning ? (autoBetsRemaining === 999999 ? '∞' : autoBetsRemaining) : (numberOfBets === '0' ? '∞' : numberOfBets)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+
+                {/* Footer launch button */}
+                <div className="order-1 lg:order-5 lg:mt-auto lg:pt-4 space-y-2">
+                  {tab === 'manual' ? (
+                    <button
+                      onClick={startDraw}
+                      disabled={isDrawing || selectedNums.length === 0}
+                      className="w-full bg-[#3de796] hover:bg-[#3de796]/80 text-black py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg shadow-[#3de796]/10 border-0 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isDrawing ? 'Drawing balls...' : 'PLAY'}
+                    </button>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => { playClick(); setShowAutoConfig(true); }}
+                        disabled={isAutoplayRunning}
+                        className="w-full bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all disabled:opacity-40"
+                      >
+                        CONFIGURE AUTO
+                      </button>
+                      <button
+                        onClick={handleAutoplayLoop}
+                        disabled={!isAutoplayRunning && (isDrawing || selectedNums.length === 0)}
+                        className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all disabled:opacity-50 ${
+                          isAutoplayRunning
+                            ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/20'
+                            : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
+                        }`}
+                      >
+                        {isAutoplayRunning
+                          ? `STOP${isDrawing ? ' (finishing round...)' : ''}`
+                          : 'START AUTOPLAY'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+              </motion.div>
+            ) : (
+              // Autoplay Advanced configuration view
+              <motion.div
+                key="auto-config"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="space-y-4 flex flex-col flex-1"
+              >
+                {/* Header Back button */}
+                <div className="flex items-center gap-2 border-b border-white/5 pb-2 mb-1 select-none">
+                  <button
+                    onClick={() => { playClick(); setShowAutoConfig(false); }}
+                    className="bg-transparent border-0 text-text-muted hover:text-white cursor-pointer"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-black text-white uppercase tracking-wider">Configure Auto</span>
+                </div>
+
+                {/* ON WIN selector */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Win</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { playClick(); setOnWinReset(true); }}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
+                        onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                      }`}
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => { playClick(); setOnWinReset(false); }}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
+                        !onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                      }`}
+                    >
+                      Increase By
+                    </button>
+                  </div>
+                  {!onWinReset && (
+                    <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
+                      <input
+                        type="number"
+                        className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                        value={onWinIncrease}
+                        onChange={(e) => setOnWinIncrease(e.target.value)}
+                      />
+                      <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ON LOSS selector */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Loss</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { playClick(); setOnLossReset(true); }}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
+                        onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                      }`}
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => { playClick(); setOnLossReset(false); }}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
+                        !onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                      }`}
+                    >
+                      Increase By
+                    </button>
+                  </div>
+                  {!onLossReset && (
+                    <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
+                      <input
+                        type="number"
+                        className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                        value={onLossIncrease}
+                        onChange={(e) => setOnLossIncrease(e.target.value)}
+                      />
+                      <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Stop on profit */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Profit</span>
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">
+                      ₹
+                    </div>
+                    <input
+                      type="number"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      value={stopProfit}
+                      onChange={(e) => setStopProfit(e.target.value)}
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 0.5).toFixed(2)); }}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                      >
+                        1/2
+                      </button>
+                      <button
+                        onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 2.0).toFixed(2)); }}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                      >
+                        X2
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stop on loss */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Loss</span>
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">
+                      ₹
+                    </div>
+                    <input
+                      type="number"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      value={stopLoss}
+                      onChange={(e) => setStopLoss(e.target.value)}
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 0.5).toFixed(2)); }}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                      >
+                        1/2
+                      </button>
+                      <button
+                        onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 2.0).toFixed(2)); }}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                      >
+                        X2
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Apply buttons */}
+                <div className="mt-auto pt-4 flex gap-2">
+                  <button
+                    onClick={() => { playClick(); setShowAutoConfig(false); }}
+                    className="flex-1 bg-[#3de796] hover:bg-[#3de796]/80 text-black py-3 rounded-xl font-black text-xs tracking-wider border-0 cursor-pointer transition-all"
+                  >
+                    APPLY
+                  </button>
+                  <button
+                    onClick={() => {
+                      playClick();
+                      setOnWinReset(true);
+                      setOnWinIncrease('0.00');
+                      setOnLossReset(true);
+                      setOnLossIncrease('0.00');
+                      setStopProfit('0.00');
+                      setStopLoss('0.00');
+                    }}
+                    className="flex-1 bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
+                  >
+                    RESET ALL
+                  </button>
+                </div>
+
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+        </div>
+
+        {/* Right Playing Grid & Multipliers Panel (8 Columns) */}
+        <div className="lg:col-span-8 p-4 md:p-5 flex flex-col gap-6 relative justify-between order-1 lg:order-2">
+          
+          {/* Numbers Playing board 8x5 Grid */}
+          <div className="grid grid-cols-8 gap-1.5 md:gap-3 flex-1 select-none">
             {Array(40).fill(null).map((_, i) => {
               const num = i + 1;
               const isSelected = selectedNums.includes(num);
               const isHit = isSelected && drawnNums.includes(num);
               const isDrawn = drawnNums.includes(num);
+              const justDrawn = drawnNums[drawnNums.length - 1] === num;
 
-              let bg = 'rgba(255, 255, 255, 0.02)';
-              let border = '1px solid rgba(255, 255, 255, 0.05)';
-              let color = '#fff';
+              let styleClasses = "bg-[#242938] text-white border border-white/5 hover:border-[#3de796]/40 hover:bg-[#242938]/80";
 
               if (isSelected) {
-                bg = 'rgba(0, 122, 255, 0.15)';
-                border = '1px solid #007aff';
+                styleClasses = "bg-[#3de796]/10 text-[#3de796] border border-[#3de796] shadow-[0_0_10px_rgba(61,231,150,0.15)]";
               }
-              if (isDrawn) {
-                bg = 'rgba(255, 59, 48, 0.15)';
-                border = '1px solid #ff3b30';
+              if (isDrawn && !isHit) {
+                styleClasses = "bg-accent-red/15 text-accent-red border border-accent-red/30";
               }
               if (isHit) {
-                bg = 'rgba(48, 209, 88, 0.2)';
-                border = '1px solid #30d158';
-                color = '#30d158';
+                styleClasses = "bg-[#3de796] text-[#0f111a] border border-[#3de796] shadow-[0_0_20px_rgba(61,231,150,0.55)]";
               }
 
               return (
-                <div
+                <motion.button
                   key={num}
                   onClick={() => toggleNum(num)}
-                  style={{
-                    aspectRatio: '1',
-                    background: bg,
-                    border,
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: isDrawing ? 'default' : 'pointer',
-                    fontWeight: 900,
-                    fontSize: '14px',
-                    color,
-                    transition: 'all 0.15s ease'
+                  disabled={isDrawing || isAutoplayRunning}
+                  whileHover={!(isDrawing || isAutoplayRunning) ? { scale: 1.1, y: -3 } : {}}
+                  whileTap={!(isDrawing || isAutoplayRunning) ? { scale: 0.9 } : {}}
+                  animate={
+                    justDrawn && isHit
+                      ? {
+                          scale: [1, 1.4, 0.95, 1.1, 1],
+                          rotate: [0, -8, 8, -4, 0],
+                          boxShadow: [
+                            '0 0 0px rgba(61,231,150,0)',
+                            '0 0 30px rgba(61,231,150,0.8)',
+                            '0 0 15px rgba(61,231,150,0.4)',
+                          ],
+                        }
+                      : justDrawn && !isHit
+                      ? {
+                          scale: [1, 1.2, 0.9, 1],
+                          rotate: [0, 6, -6, 0],
+                        }
+                      : isHit
+                      ? {
+                          scale: 1,
+                          boxShadow: '0 0 18px rgba(61,231,150,0.45)',
+                        }
+                      : { scale: 1, rotate: 0, boxShadow: '0 0 0px rgba(0,0,0,0)' }
+                  }
+                  transition={{
+                    duration: justDrawn ? 0.55 : 0.2,
+                    ease: 'easeOut',
                   }}
+                  className={`relative aspect-square rounded-xl flex items-center justify-center font-extrabold text-sm transition-colors duration-200 cursor-pointer overflow-visible ${styleClasses}`}
                 >
+                  {/* Particle burst only on the most recently drawn hit */}
+                  {justDrawn && isHit && <HitParticles active={true} />}
+                  
+                  {/* Ripple on just-drawn miss */}
+                  {justDrawn && !isHit && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl border-2 border-red-400"
+                      initial={{ opacity: 0.8, scale: 1 }}
+                      animate={{ opacity: 0, scale: 1.6 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  )}
+
                   {num}
-                </div>
+                </motion.button>
               );
             })}
           </div>
 
-          {/* Draw Board Tracker */}
-          {drawnNums.length > 0 && (
-            <div style={{ marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-              <span style={{ fontSize: '11px', color: '#8a9ca8', display: 'block', marginBottom: '8px' }}>DRAWN BALLS</span>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {drawnNums.map((n, idx) => {
-                  const wasHit = selectedNums.includes(n);
-                  return (
-                    <div
-                      key={idx}
-                      className="float-anim"
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        background: wasHit ? '#30d158' : '#ff3b30',
-                        color: '#000',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 900,
-                        fontSize: '13px',
-                        boxShadow: wasHit ? '0 0 10px rgba(48,209,88,0.4)' : 'none'
-                      }}
-                    >
-                      {n}
-                    </div>
-                  );
-                })}
+          {/* Lower layout footer containing the Multiplier capsules */}
+          <div className="border-t border-white/5 pt-4 space-y-3 relative">
+
+            {/* Win/Loss popup */}
+            <KenoResultPopup
+              winPayout={winPayout}
+              hitCount={hitCount}
+              selectedCount={selectedNums.length}
+              onClose={() => setWinPayout(null)}
+            />
+            
+            {selectedNums.length === 0 ? (
+              <div className="text-center text-xs text-text-muted py-2 select-none">
+                Select 1–10 Numbers To Play
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="space-y-3">
+                {/* Progress bar for hit tracking */}
+                <div className="relative h-1.5 bg-zinc-950 rounded-full w-full select-none overflow-visible">
+                  <motion.div
+                    className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#3de796] to-emerald-400 rounded-full"
+                    animate={{
+                      width: `${winPayout !== null && selectedNums.length > 0 ? Math.min(100, (hitCount / selectedNums.length) * 100) : 0}%`
+                    }}
+                    transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+                  />
+                  <motion.div
+                    className="absolute w-3 h-3 rounded-full bg-[#3de796] -top-[3px] shadow-lg shadow-[#3de796]/60"
+                    animate={{
+                      left: `calc(${winPayout !== null && selectedNums.length > 0 ? Math.min(100, (hitCount / selectedNums.length) * 100) : 0}% - 6px)`
+                    }}
+                    transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+                  />
+                </div>
+
+                {/* Horizontal multiplier table */}
+                <div className="flex gap-1.5 justify-between overflow-x-auto scrollbar-none pb-1 select-none">
+                  {currentMultiplierTable.map((m, hits) => {
+                    const isActiveHit = hitCount === hits && winPayout !== null;
+                    return (
+                      <motion.div
+                        key={hits}
+                        animate={isActiveHit ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="flex flex-col items-center gap-1 shrink-0 min-w-[46px]"
+                      >
+                        <span
+                          className={`text-[10px] font-black px-2 py-1.5 rounded-lg border text-center transition-all w-full ${
+                            isActiveHit
+                              ? 'bg-[#3de796] text-[#0f111a] border-[#3de796] shadow-[0_0_12px_rgba(61,231,150,0.4)]'
+                              : m > 0
+                              ? 'bg-[#242938] text-slate-300 border-white/5'
+                              : 'bg-[#1a1c25] text-white/20 border-white/[0.03]'
+                          }`}
+                        >
+                          {m > 0 ? `${m}x` : '—'}
+                        </span>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full border transition-all ${
+                              isActiveHit ? 'bg-[#3de796] border-[#3de796]' : 'bg-[#242938] border-white/10'
+                            }`}
+                          />
+                          <span className={`text-[8px] font-bold ${isActiveHit ? 'text-[#3de796]' : 'text-text-muted'}`}>
+                            {hits}
+                          </span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+          </div>
 
         </div>
-
-      </div>
 
     </div>
   );

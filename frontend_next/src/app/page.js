@@ -10,6 +10,7 @@ import {
   Calendar,
   LogOut,
   ArrowLeft,
+  ArrowRight,
   Shield,
   Volume2,
   VolumeX,
@@ -34,7 +35,11 @@ import {
   PlayCircle,
   Bookmark,
   Rocket,
-  CircleDot
+  CircleDot,
+  Settings,
+  BarChart2,
+  Maximize2,
+  Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -45,6 +50,7 @@ import Affiliate from '../components/pages/Affiliate';
 import Wallet from '../components/pages/Wallet';
 import VIPTasks from '../components/pages/VIPTasks';
 import AdminDashboard from '../components/pages/AdminDashboard';
+import SportsLobby from '../components/pages/SportsLobby';
 
 // Game components
 import WinGo from '../games/WinGo';
@@ -61,9 +67,11 @@ import Keno from '../games/Keno';
 import Goal from '../games/Goal';
 import Hotline from '../games/Hotline';
 import Chicken from '../games/Chicken';
+import Baccarat from '../games/Baccarat';
 
 // Shell components
 import ChatRain from '../components/ChatRain';
+import SupportChat from '../components/SupportChat';
 import AdminPanel from '../components/AdminPanel';
 import { toggleAudio, playClick } from '../utils/audio';
 
@@ -167,6 +175,11 @@ export default function App() {
   const [soundOn, setSoundOn] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showBalanceDropdown, setShowBalanceDropdown] = useState(false);
+  const [lobbyTab, setLobbyTab] = useState('casino'); // casino or sports
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [sidebarActiveKey, setSidebarActiveKey] = useState('lobby'); // lobby, recents, favourites, bets, leaderboard, affiliate, wallet, tasks, admin, originals
 
   // Load client states
   useEffect(() => {
@@ -301,19 +314,35 @@ export default function App() {
 
   // Render sub page routes
   const renderActiveTab = () => {
+    if (lobbyTab === 'sports' && activeTab === 'home') {
+      return (
+        <SportsLobby 
+          token={token} 
+          balance={playableBalance} 
+          setBalance={setPlayableBalance} 
+        />
+      );
+    }
+
     switch (activeTab) {
       case 'home':
-        return <Home setGameMode={(mode) => actionGuard(() => setGameMode(mode))} />;
+        return (
+          <Home 
+            filter={lobbyTab === 'casino' ? sidebarActiveKey : 'lobby'} 
+            setFilter={setSidebarActiveKey} 
+            setGameMode={(mode) => actionGuard(() => setGameMode(mode))} 
+          />
+        );
       case 'leaderboard':
         return <Leaderboard />;
       case 'affiliate':
         return <Affiliate token={token} />;
       case 'wallet':
-        return <Wallet token={token} balance={playableBalance} setBalance={setPlayableBalance} />;
+        return <Wallet token={token} balance={playableBalance} setBalance={setPlayableBalance} user={user} />;
       case 'tasks':
         return <VIPTasks balance={playableBalance} setBalance={setPlayableBalance} />;
       case 'admin':
-        return <AdminDashboard token={token} />;
+        return <AdminDashboard token={token} socket={socket} />;
       default:
         return <Home setGameMode={(mode) => actionGuard(() => setGameMode(mode))} />;
     }
@@ -325,126 +354,399 @@ export default function App() {
     const activeSetBalance = isDemo ? updateDemoBalance : setPlayableBalance;
     const demoUser = user || { id: 'demo_user', phone_number: 'Demo User' };
 
+    let gameComponent = null;
     switch (gameMode) {
       case 'wingo':
       case 'bigsmall':
-        return <WinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <WinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'trx':
-        return <TrxWinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <TrxWinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'crash':
-        return <Crash socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Crash socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'mines':
-        return <Mines token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Mines token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'plinko':
-        return <Plinko token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Plinko token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'limbo':
-        return <Limbo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Limbo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'roulette':
-        return <Roulette socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Roulette socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'dice':
-        return <Dice token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Dice token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'coin':
-        return <CoinFlip token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <CoinFlip socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'hilo':
-        return <Hilo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Hilo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'keno':
-        return <Keno token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Keno token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'goal':
-        return <Goal token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Goal token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'hotline':
-        return <Hotline token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Hotline token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       case 'chicken':
-        return <Chicken token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Chicken token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
+      case 'baccarat':
+        gameComponent = <Baccarat token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        break;
       default:
         return null;
     }
+
+    return (
+      <div className="max-w-6xl mx-auto p-4 md:p-6 pb-24 space-y-4">
+        {/* Large Unified Game Card Container — fixed height across all games */}
+        <div className="bg-[#1a1d29] border border-white/[0.03] rounded-[24px] md:rounded-[32px] p-4 md:p-6 shadow-2xl overflow-hidden" style={{ minHeight: '680px', height: '680px' }}>
+          <div className="h-full overflow-auto scrollbar-none">
+            {gameComponent}
+          </div>
+        </div>
+        
+        {/* Game Footer / Metadata */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2 px-2 select-none">
+          <div className="flex items-center gap-4">
+            <div>
+              <h2 className="text-base font-black text-white leading-none capitalize">{gameMode === 'wingo' ? 'Win Go' : gameMode === 'trx' ? 'TRX Win Go' : gameMode}</h2>
+              <span className="text-[10px] text-text-muted font-bold block mt-1">By Thrill Originals</span>
+            </div>
+            <div className="bg-[#3de796]/10 border border-[#3de796]/20 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[#3de796] text-[9px] font-black uppercase tracking-wider">
+              <Shield size={11} />
+              <span>Provably Fair</span>
+            </div>
+          </div>
+          
+          {/* Bottom Tool Bar */}
+          <div className="flex items-center gap-2.5">
+            <div className="bg-[#171a25] px-2.5 py-1.5 rounded-xl border border-white/5 flex items-center gap-1 text-[10px] font-black text-white cursor-pointer hover:bg-white/5 transition-all">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />
+              <span>INR</span>
+              <svg className="w-3 h-3 text-[#94a3b8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            
+            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+              <Heart size={14} />
+            </button>
+            
+            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+              <BarChart2 size={14} />
+            </button>
+
+            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+              <Maximize2 size={14} />
+            </button>
+
+            <button 
+              onClick={() => setSoundOn(!soundOn)}
+              className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all"
+            >
+              {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+            </button>
+
+            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+              <Share2 size={14} />
+            </button>
+
+            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+              <Settings size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
-  const sideIcons = [
-    { icon: FilledHome, tab: 'home', label: 'Lobby' },
-    { icon: FilledTrophy, tab: 'leaderboard', label: 'Leaderboard' },
-    { icon: FilledUsers, tab: 'affiliate', label: 'Affiliate' },
-    { icon: FilledWallet, tab: 'wallet', label: 'Wallet' },
-    { icon: FilledGift, tab: 'tasks', label: 'Promotions' },
-  ];
 
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-bg-body text-white font-sans">
       
-      {/* Normal Full-Size Left Sidebar */}
-      <aside 
-        className={`fixed md:relative top-0 left-0 h-full bg-bg-sidebar rounded-r-[32px] flex flex-col justify-between py-6 z-40 transition-all duration-300 shrink-0 w-[240px] ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        }`}
-      >
-        <div className="flex flex-col gap-8 items-start w-full">
-          {/* Logo Brand Title styled like a premium logo */}
-          <button 
-            onClick={() => { setGameMode(null); setActiveTab('home'); }}
-            className="bg-transparent border-0 cursor-pointer hover:scale-102 active:scale-98 transition-all select-none min-h-[36px] px-6 self-start"
-          >
-            <div className="flex items-center font-black tracking-tighter uppercase select-none">
-              <span className="text-white text-2xl font-black font-sans tracking-tight">tez</span>
-              <span className="text-[#3de796] bg-[#3de796]/10 border border-[#3de796]/20 px-2 py-1 rounded-lg text-xs font-black ml-1.5 tracking-wider shadow-inner">club</span>
+      {/* Collapsible Left Sidebar */}
+      {lobbyTab === 'casino' && (
+        <aside 
+          className={`fixed md:relative top-0 left-0 h-full bg-bg-sidebar rounded-r-[32px] flex flex-col justify-between py-5 z-40 transition-all duration-300 shrink-0 ${
+            isSidebarExpanded ? 'w-[240px]' : 'w-[84px]'
+          } ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          }`}
+        >
+          <div className="flex flex-col gap-6 items-start w-full overflow-hidden h-full">
+            {/* Header Row (Gift, Logo, Bell) */}
+            {isSidebarExpanded ? (
+              <div className="flex justify-between items-center w-full px-6 shrink-0 select-none">
+                {/* Gift Button */}
+                <button 
+                  onClick={() => { setGameMode(null); setActiveTab('tasks'); }}
+                  className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all"
+                  title="VIP Tasks & Promotions"
+                >
+                  <FilledGift size={18} />
+                </button>
+
+                {/* brand logo */}
+                <button 
+                  onClick={() => { setGameMode(null); setActiveTab('home'); setLobbyTab('casino'); }}
+                  className="bg-transparent border-0 cursor-pointer hover:scale-102 active:scale-98 transition-all select-none"
+                >
+                  <span className="text-white text-2xl font-black font-sans tracking-tight italic select-none">
+                    thrill
+                  </span>
+                </button>
+
+                {/* Bell Button */}
+                <button 
+                  onClick={() => { setGameMode(null); setActiveTab('home'); }}
+                  className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all"
+                  title="Notifications"
+                >
+                  <FilledBell size={18} />
+                </button>
+              </div>
+            ) : (
+              <div className="w-full flex justify-center py-2 shrink-0 select-none">
+                <button 
+                  onClick={() => { setGameMode(null); setActiveTab('home'); setLobbyTab('casino'); }}
+                  className="bg-transparent border-0 cursor-pointer font-black text-xl text-white italic"
+                >
+                  t
+                </button>
+              </div>
+            )}
+
+            {/* Switch Button (Casino / Sports) */}
+            <div className="w-full px-4 shrink-0">
+              <motion.div 
+                layoutId="lobby-switcher-box"
+                className={`bg-black/30 p-1 rounded-2xl flex border border-white/5 relative overflow-hidden ${isSidebarExpanded ? 'flex-row' : 'flex-col gap-1.5'}`}
+              >
+                <button
+                  onClick={() => { setLobbyTab('casino'); setGameMode(null); setActiveTab('home'); }}
+                  className={`flex-1 py-2 rounded-xl flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
+                    lobbyTab === 'casino'
+                      ? 'text-[#0f111a] font-bold'
+                      : 'text-text-secondary hover:text-white bg-transparent'
+                  }`}
+                  title="Casino Lobby"
+                >
+                  {lobbyTab === 'casino' && (
+                    <motion.div 
+                      layoutId="lobby-active-pill"
+                      className="absolute inset-0 bg-[#3de796] rounded-xl shadow-md shadow-[#3de796]/10 -z-10"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  {/* Club Card Logo for Casino */}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <rect x="5" y="3" width="14" height="18" rx="2" fill="currentColor" fillOpacity="0.15" />
+                    <circle cx="12" cy="9.5" r="1.8" fill="currentColor" stroke="none" />
+                    <circle cx="9.5" cy="12.5" r="1.8" fill="currentColor" stroke="none" />
+                    <circle cx="14.5" cy="12.5" r="1.8" fill="currentColor" stroke="none" />
+                    <path d="M12 12.5v3.5m-1.5 0h3" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                  {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider ml-1.5">Casino</span>}
+                </button>
+
+                <button
+                  onClick={() => { setLobbyTab('sports'); setGameMode(null); setActiveTab('home'); }}
+                  className={`flex-1 py-2 rounded-xl flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
+                    lobbyTab === 'sports'
+                      ? 'text-[#0f111a] font-bold'
+                      : 'text-text-secondary hover:text-white bg-transparent'
+                  }`}
+                  title="Sports Betting"
+                >
+                  {lobbyTab === 'sports' && (
+                    <motion.div 
+                      layoutId="lobby-active-pill"
+                      className="absolute inset-0 bg-[#3de796] rounded-xl shadow-md shadow-[#3de796]/10 -z-10"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  {/* Rupee Coin Logo for Sports */}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.15" />
+                    <path d="M8.5 8h7M8.5 11h6M8.5 8c3.5 0 5.5 1.5 5.5 3.25s-2 3.25-5.5 3.25M12 14.5l-4.5 4.5" />
+                  </svg>
+                  {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider ml-1.5">Sports</span>}
+                </button>
+              </motion.div>
             </div>
-          </button>
 
           {/* Sidebar Menu items */}
-          <div className="flex flex-col gap-1.5 w-full px-4">
-            {sideIcons.map((item, idx) => {
-              const isActive = item.tab === activeTab && !gameMode;
+          <div className="flex-1 overflow-y-auto w-full px-3 space-y-1 scrollbar-none">
+            {[
+              { label: 'Recents', icon: Clock, tab: 'home', key: 'recents', lobby: 'casino' },
+              { label: 'Favourites', icon: Heart, tab: 'home', key: 'favourites', lobby: 'casino' },
+              { label: 'My Bets', icon: Calendar, tab: 'home', key: 'bets', lobby: 'casino' },
+              { label: 'Leaderboard', icon: Trophy, tab: 'leaderboard', key: 'leaderboard' },
+              { label: 'Affiliate', icon: Users, tab: 'affiliate', key: 'affiliate' },
+              { label: 'Wallet', icon: WalletIcon, tab: 'wallet', key: 'wallet' },
+              { label: 'VIP Tasks', icon: Gift, tab: 'tasks', key: 'tasks' },
+            ].map((item, idx) => {
+              const isActive = !gameMode && activeTab === item.tab && (item.tab === 'home' ? sidebarActiveKey === item.key : true);
               return (
                 <button
                   key={idx}
                   onClick={() => {
                     setGameMode(null);
                     setActiveTab(item.tab);
+                    if (item.lobby) setLobbyTab(item.lobby);
+                    if (item.key) setSidebarActiveKey(item.key);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl cursor-pointer group transition-all duration-200 border-0 outline-none ${
+                  className={`w-full flex items-center justify-start rounded-2xl cursor-pointer transition-all duration-200 border-0 outline-none ${
+                    isSidebarExpanded ? 'px-4 py-3 gap-3.5' : 'p-3 justify-center'
+                  } ${
                     isActive
                       ? 'bg-[#3de796] text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
                       : 'text-text-muted hover:text-white hover:bg-white/5 font-semibold'
                   }`}
+                  title={item.label}
                 >
-                  <item.icon size={20} />
-                  <span className="text-[10px] font-black uppercase tracking-wider">
-                    {item.label}
-                  </span>
+                  <item.icon size={18} />
+                  {isSidebarExpanded && (
+                    <span className="text-[10px] font-black uppercase tracking-wider">
+                      {item.label}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Games Section */}
+            {isSidebarExpanded && (
+              <div className="text-[9px] font-black uppercase tracking-[2px] text-text-dim px-4 pt-4 pb-1.5 select-none">
+                Games
+              </div>
+            )}
+
+            {[
+              { label: 'Thrill Originals', icon: Sparkles, tab: 'home', game: null, key: 'originals' },
+              { label: 'Roulette', icon: CircleDot, game: 'roulette' },
+              { label: 'Crash Rocket', icon: Rocket, game: 'crash' },
+              { label: 'Mines Gold', icon: Target, game: 'mines' },
+              { label: 'Plinko Drop', icon: PlayCircle, game: 'plinko' },
+              { label: 'Limbo multipliers', icon: ArrowRight, game: 'limbo' },
+              { label: 'Predict Dice', icon: Coins, game: 'dice' },
+              { label: 'Baccarat', icon: Sword, game: 'baccarat' },
+            ].map((item, idx) => {
+              const isActive = item.game === null 
+                ? (!gameMode && activeTab === 'home' && sidebarActiveKey === 'originals')
+                : (gameMode === item.game);
+              return (
+                <button
+                  key={`game-${idx}`}
+                  onClick={() => {
+                    if (item.game) {
+                      actionGuard(() => {
+                        setGameMode(item.game);
+                        setSidebarOpen(false);
+                      });
+                    } else {
+                      setGameMode(null);
+                      setActiveTab('home');
+                      setLobbyTab('casino');
+                      setSidebarActiveKey('originals');
+                      setSidebarOpen(false);
+                    }
+                  }}
+                  className={`w-full flex items-center justify-start rounded-2xl cursor-pointer transition-all duration-200 border-0 outline-none ${
+                    isSidebarExpanded ? 'px-4 py-3 gap-3.5' : 'p-3 justify-center'
+                  } ${
+                    isActive
+                      ? 'bg-[#3de796] text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
+                      : 'text-text-muted hover:text-white hover:bg-white/5 font-semibold'
+                  }`}
+                  title={item.label}
+                >
+                  {item.label === 'Roulette' ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2"/>
+                      <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M12 3v18M3 12h18" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  ) : (
+                    <item.icon size={18} />
+                  )}
+                  {isSidebarExpanded && (
+                    <span className="text-[10px] font-black uppercase tracking-wider truncate">
+                      {item.label}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Sidebar Footer settings */}
-        <div className="flex flex-col gap-4 w-full px-6">
+        {/* Sidebar Footer settings / Collapse toggle */}
+        <div className="flex flex-col gap-3 w-full px-4 shrink-0 mt-4">
           {user && user.phone_number === '9999999999' && (
             <button
               onClick={() => { setGameMode(null); setActiveTab('admin'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-white/5 text-accent-orange ${
-                activeTab === 'admin' && !gameMode ? 'bg-orange-500/10' : 'bg-transparent'
+              className={`w-full flex items-center justify-start rounded-xl cursor-pointer hover:bg-white/5 text-accent-orange border-0 bg-transparent ${
+                isSidebarExpanded ? 'px-4 py-3 gap-3' : 'p-3 justify-center'
+              } ${
+                activeTab === 'admin' && !gameMode ? 'bg-orange-500/10' : ''
               }`}
               title="Admin Board"
             >
-              <Shield size={20} />
-              <span className="text-[10px] font-black uppercase tracking-wider">Admin</span>
+              <Shield size={18} />
+              {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider">Admin</span>}
             </button>
           )}
 
           {/* Sound toggle */}
           <button
             onClick={() => setSoundOn(!soundOn)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-text-muted hover:text-white bg-transparent border-0 cursor-pointer"
+            className={`w-full flex items-center justify-start rounded-xl text-text-muted hover:text-white bg-transparent border-0 cursor-pointer ${
+              isSidebarExpanded ? 'px-4 py-3 gap-3' : 'p-3 justify-center'
+            }`}
             title="Toggle Sound"
           >
-            {soundOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
-            <span className="text-[10px] font-black uppercase tracking-wider">Sound</span>
+            {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider">Sound</span>}
           </button>
+
+          {/* Collapse Button */}
+          <div className={`flex w-full pt-2 border-t border-white/5 ${isSidebarExpanded ? 'justify-end pr-2' : 'justify-center'}`}>
+            <button
+              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+              className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all outline-none"
+              title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+            >
+              {isSidebarExpanded ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="M16 15l-3-3 3-3" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M9 3v18" />
+                  <path d="M13 9l3 3-3 3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </aside>
+      )}
 
       {/* Background overlay for mobile */}
       <AnimatePresence>
@@ -468,14 +770,79 @@ export default function App() {
 
         {/* THRILL TOP HEADER */}
         <header className="h-[72px] bg-bg-body flex justify-between items-center px-6 sticky top-0 z-30 border-0">
-          {/* Left spacer / mobile menu */}
+          {/* Left spacer / mobile menu / logo and switcher */}
           <div className="flex items-center gap-4">
-            <button 
-              className="text-white bg-transparent border-0 cursor-pointer p-1.5 md:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={20} />
-            </button>
+            {lobbyTab === 'casino' && (
+              <button 
+                className="text-white bg-transparent border-0 cursor-pointer p-1.5 md:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu size={20} />
+              </button>
+            )}
+
+            {/* Combined Logo & Switcher Toggle - Only show when in Sports Mode */}
+            {lobbyTab === 'sports' && (
+              <div className="bg-[#171a25]/90 py-2.5 pl-6 pr-2.5 rounded-[24px] flex items-center gap-4 shadow-lg relative overflow-hidden">
+                <span className="text-white text-[27px] font-black font-sans tracking-tight italic select-none leading-none">
+                  thrill
+                </span>
+
+                <motion.div 
+                  layoutId="lobby-switcher-box"
+                  className="bg-black/35 p-1 rounded-[18px] flex items-center gap-1.5 relative overflow-hidden"
+                >
+                  <button
+                    onClick={() => { setLobbyTab('casino'); setGameMode(null); setActiveTab('home'); }}
+                    className={`px-4 py-2.5 rounded-[14px] flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
+                      lobbyTab === 'casino'
+                        ? 'text-[#0f111a] font-bold'
+                        : 'text-text-secondary hover:text-white bg-transparent'
+                    }`}
+                    title="Casino Lobby"
+                  >
+                    {lobbyTab === 'casino' && (
+                      <motion.div 
+                        layoutId="lobby-active-pill"
+                        className="absolute inset-0 bg-[#3de796] rounded-[14px] shadow-md shadow-[#3de796]/10 -z-10"
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    {/* Club Card Logo for Casino */}
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <rect x="5" y="3" width="14" height="18" rx="2" fill="currentColor" fillOpacity="0.15" />
+                      <circle cx="12" cy="9.5" r="1.8" fill="currentColor" stroke="none" />
+                      <circle cx="9.5" cy="12.5" r="1.8" fill="currentColor" stroke="none" />
+                      <circle cx="14.5" cy="12.5" r="1.8" fill="currentColor" stroke="none" />
+                      <path d="M12 12.5v3.5m-1.5 0h3" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </button>
+
+                  <button
+                    onClick={() => { setLobbyTab('sports'); setGameMode(null); setActiveTab('home'); }}
+                    className={`px-4 py-2.5 rounded-[14px] flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
+                      lobbyTab === 'sports'
+                        ? 'text-[#0f111a] font-bold'
+                        : 'text-text-secondary hover:text-white bg-transparent'
+                    }`}
+                    title="Sports Betting"
+                  >
+                    {lobbyTab === 'sports' && (
+                      <motion.div 
+                        layoutId="lobby-active-pill"
+                        className="absolute inset-0 bg-[#3de796] rounded-[14px] shadow-md shadow-[#3de796]/10 -z-10"
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    {/* Rupee Coin Logo for Sports */}
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.15" />
+                      <path d="M8.5 8h7M8.5 11h6M8.5 8c3.5 0 5.5 1.5 5.5 3.25s-2 3.25-5.5 3.25M12 14.5l-4.5 4.5" />
+                    </svg>
+                  </button>
+                </motion.div>
+              </div>
+            )}
           </div>
           
           {/* Center authentication and notification hub (Hanging Tab Style) */}
@@ -486,17 +853,163 @@ export default function App() {
             </button>
 
             {/* Auth Hanging Tab */}
-            <div className="flex items-center bg-[#171a25] px-8 py-3 rounded-b-[36px] shadow-2xl gap-5 min-h-[48px] self-start -mt-4 pt-6 relative z-10">
+            <div className="flex items-center bg-[#171a25] px-6 py-3 rounded-b-[36px] shadow-2xl gap-4 min-h-[48px] self-start -mt-4 pt-6 relative z-10">
               {/* Concave U-curves */}
               <div className="tab-curve-left" />
               <div className="tab-curve-right" />
               {token ? (
-                <button 
-                  onClick={handleLogout}
-                  className="bg-transparent border-0 text-text-muted hover:text-accent-red text-xs font-black uppercase tracking-wider cursor-pointer transition-all"
-                >
-                  Sign Out
-                </button>
+                <div className="flex items-center gap-3.5 relative">
+                  {/* Balance Dropdown Trigger */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowBalanceDropdown(!showBalanceDropdown)}
+                      className="bg-black/30 hover:bg-black/50 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/5 cursor-pointer transition-all outline-none"
+                    >
+                      {/* Rupee green icon */}
+                      <div className="w-5 h-5 rounded-full bg-[#3de796]/20 flex items-center justify-center text-[#3de796] font-bold text-xs select-none">
+                        ₹
+                      </div>
+                      <span className="font-extrabold text-[13px] tracking-tight monospace-ledger text-white">
+                        {isDemo ? `₹${demoBalance.toFixed(2)}` : `₹${playableBalance.toFixed(2)}`}
+                      </span>
+                      <svg className={`w-3 h-3 text-[#94a3b8] transition-transform duration-200 ${showBalanceDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {/* Balance Dropdown Options */}
+                    <AnimatePresence>
+                      {showBalanceDropdown && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowBalanceDropdown(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute top-full left-0 mt-2 bg-[#171a25] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[150px] z-50 py-1"
+                          >
+                            <button
+                              onClick={() => {
+                                setIsDemo(false);
+                                setShowBalanceDropdown(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${!isDemo ? 'text-[#3de796] bg-white/5' : 'text-text-secondary hover:text-white hover:bg-white/5'}`}
+                            >
+                              <span>REAL Account</span>
+                              {!isDemo && <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsDemo(true);
+                                setShowBalanceDropdown(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${isDemo ? 'text-[#3de796] bg-white/5' : 'text-text-secondary hover:text-white hover:bg-white/5'}`}
+                            >
+                              <span>DEMO Account</span>
+                              {isDemo && <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />}
+                            </button>
+                            {isDemo && (
+                              <button
+                                onClick={() => {
+                                  updateDemoBalance(10000.00);
+                                  alert('Demo Balance refilled!');
+                                  setShowBalanceDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-[10px] text-accent-orange hover:bg-white/5 font-extrabold uppercase border-t border-white/5"
+                              >
+                                Refill Demo (₹10,000)
+                              </button>
+                            )}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Wallet Button */}
+                  <button
+                    onClick={() => { setGameMode(null); setActiveTab('wallet'); }}
+                    className="bg-[#3de796] hover:bg-[#5cf2aa] text-[#0f111a] font-black uppercase text-[11px] tracking-wider rounded-xl px-4 py-2 flex items-center gap-2 transition-all hover:scale-102 active:scale-98 shadow-md shadow-[#3de796]/10 cursor-pointer border-0"
+                  >
+                    <FilledWallet size={15} />
+                    <span>WALLET</span>
+                  </button>
+
+                  {/* Avatar Dropdown Trigger */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                      className="flex items-center gap-1.5 bg-transparent border-0 cursor-pointer p-0.5 hover:opacity-85 transition-all outline-none"
+                    >
+                      {/* Custom adorable Robot Avatar SVG matching user's image color palette */}
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1.5px] shadow-md shadow-indigo-500/20">
+                        <div className="w-full h-full rounded-full bg-[#0b1021] flex items-center justify-center overflow-hidden relative">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            {/* Antenna */}
+                            <circle cx="12" cy="5" r="1.5" fill="#3b82f6" />
+                            <path d="M12 5V8" stroke="#3b82f6" strokeWidth="1" />
+                            {/* Robot Head */}
+                            <rect x="6" y="8" width="12" height="10" rx="3" fill="#3b82f6" />
+                            {/* Visor */}
+                            <rect x="7.5" y="10" width="9" height="5" rx="1.5" fill="#0f172a" />
+                            {/* Neon glowing eyes */}
+                            <rect x="9.2" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff" />
+                            <rect x="12.8" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff" />
+                            {/* Earcups */}
+                            <rect x="4.5" y="10.5" width="1.5" height="5" rx="0.75" fill="#ffffff" />
+                            <rect x="18" y="10.5" width="1.5" height="5" rx="0.75" fill="#ffffff" />
+                            {/* Cheek details */}
+                            <path d="M9 16.5H15" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                      </div>
+                      <svg className={`w-3 h-3 text-[#94a3b8] transition-transform duration-200 ${showProfileDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {/* Profile Dropdown Options */}
+                    <AnimatePresence>
+                      {showProfileDropdown && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowProfileDropdown(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute top-full right-0 mt-2 bg-[#171a25] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[160px] z-50 py-1"
+                          >
+                            <div className="px-4 py-2 border-b border-white/5 bg-white/[0.01]">
+                              <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Account</div>
+                              <div className="text-xs font-black text-white truncate mt-0.5">{user?.phone_number || 'Tester'}</div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setGameMode(null);
+                                setActiveTab('wallet');
+                                setShowProfileDropdown(false);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-xs text-[#94a3b8] hover:text-white hover:bg-white/5 font-bold flex items-center gap-2 cursor-pointer bg-transparent border-0"
+                            >
+                              <FilledWallet size={14} className="text-[#94a3b8]" />
+                              <span>My Wallet</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleLogout();
+                                setShowProfileDropdown(false);
+                              }}
+                              className="w-full text-left px-4 py-2.5 text-xs text-accent-red hover:bg-red-500/10 font-bold flex items-center gap-2 border-t border-white/5 cursor-pointer bg-transparent border-0"
+                            >
+                              <LogOut size={14} />
+                              <span>Sign Out</span>
+                            </button>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
               ) : (
                 <>
                   <button 
@@ -521,48 +1034,17 @@ export default function App() {
             </button>
           </div>
 
-          {/* Right actions (Search, Profile/Settings, Balance if logged in) */}
+          {/* Right actions (Search, Chat) */}
           <div className="flex items-center gap-3">
-            {token && (
-              <div className="flex items-center gap-1.5 bg-[#06080c] py-1 px-2.5 rounded-xl text-[10px] font-black tracking-wider">
-                <span className={isDemo ? 'text-text-muted' : 'text-accent-green'}>REAL</span>
-                <button 
-                  onClick={() => { playClick(); setIsDemo(!isDemo); }} 
-                  className="w-7 h-3.5 rounded-full relative cursor-pointer border-0 bg-white/10"
-                >
-                  <motion.div 
-                    animate={{ left: isDemo ? '14px' : '2px' }}
-                    className="w-3 h-3 rounded-full bg-white absolute top-[1px]"
-                  />
-                </button>
-                <span className={isDemo ? 'text-accent-green' : 'text-text-muted'}>DEMO</span>
-              </div>
-            )}
-
-            {token && (
-              <button
-                onClick={() => {
-                  if (isDemo) { updateDemoBalance(10000.00); alert('Demo Balance refilled!'); }
-                  else { setGameMode(null); setActiveTab('wallet'); }
-                }}
-                className="bg-[#171a25] flex items-center gap-2 py-1.5 px-3 rounded-xl text-xs cursor-pointer transition-all"
-              >
-                <Coins size={20} className={isDemo ? 'text-[#3de796]' : 'text-accent-orange'} />
-                <span className="monospace-ledger font-extrabold text-white">
-                  {isDemo ? `₹${demoBalance.toFixed(2)}` : `₹${playableBalance.toFixed(2)}`}
-                </span>
-              </button>
-            )}
-
             {/* Search Icon (Filled) */}
-            <button className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all">
+            <button className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all border-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-[#94a3b8]"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
             </button>
             
             {/* Chat Icon (Filled) */}
             <button 
                onClick={() => setChatOpen(!chatOpen)} 
-               className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all"
+               className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all border-0"
                title="Toggle Live Chat"
             >
               <div className="relative">
@@ -599,6 +1081,12 @@ export default function App() {
         setPlayableBalance={setPlayableBalance}
         chatOpen={chatOpen}
         setChatOpen={setChatOpen}
+      />
+
+      {/* Support Chat Widget */}
+      <SupportChat
+        socket={socket}
+        user={user}
       />
 
       {/* LOGIN/REGISTER MODAL OVERLAY */}

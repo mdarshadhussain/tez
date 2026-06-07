@@ -118,14 +118,68 @@ app.get('/api/affiliate/stats', authenticateToken, async (req, res) => {
   }
 });
 
-// Post a deposit (Simulated Gateway)
+// Post a deposit (Creates pending review record)
 app.post('/api/wallet/deposit', authenticateToken, async (req, res) => {
-  const { amount } = req.body;
+  const { amount, reference_id } = req.body;
   if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
+  if (!reference_id) return res.status(400).json({ error: 'Reference ID/UTR is required' });
 
   try {
-    const newBalance = await db.adjustWalletBalance(req.user.id, amount, 'deposit', 'completed', `dep_${Date.now()}`);
-    res.json({ success: true, new_balance: newBalance });
+    const currentBalance = await db.createPendingDeposit(req.user.id, amount, reference_id);
+    res.json({ success: true, new_balance: currentBalance });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get pending deposits (admin only)
+app.get('/api/admin/deposits/pending', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const list = await db.getPendingDeposits();
+    res.json({ success: true, deposits: list });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Take action (approve/reject) on a pending deposit (admin only)
+app.post('/api/admin/deposits/action', authenticateToken, verifyAdmin, async (req, res) => {
+  const { transaction_id, action } = req.body;
+  if (!transaction_id || !action) return res.status(400).json({ error: 'Missing required parameters' });
+
+  try {
+    if (action === 'approve') {
+      const newBalance = await db.approveDeposit(transaction_id);
+      res.json({ success: true, message: 'Deposit approved successfully', new_balance: newBalance });
+    } else if (action === 'reject') {
+      await db.rejectDeposit(transaction_id);
+      res.json({ success: true, message: 'Deposit rejected successfully' });
+    } else {
+      res.status(400).json({ error: 'Invalid action. Must be approve or reject' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get payment settings
+app.get('/api/payment/settings', async (req, res) => {
+  try {
+    const settings = await db.getPaymentSettings();
+    res.json({ success: true, settings });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update payment settings (admin only)
+app.post('/api/payment/settings', authenticateToken, verifyAdmin, async (req, res) => {
+  const { upi_id, qr_url } = req.body;
+  if (!upi_id) return res.status(400).json({ error: 'UPI ID is required' });
+
+  try {
+    await db.updatePaymentSettings(upi_id, qr_url || '');
+    res.json({ success: true, message: 'Payment settings updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -194,6 +248,21 @@ app.post('/api/admin/override', authenticateToken, verifyAdmin, (req, res) => {
   res.json({ success: true, nextWinGoColor, nextCrashMultiplier });
 });
 
+// Admin toggle block status of a user
+app.post('/api/admin/toggle-block', authenticateToken, verifyAdmin, async (req, res) => {
+  const { target_user_id } = req.body;
+  if (!target_user_id) return res.status(400).json({ error: 'target_user_id required' });
+  try {
+    const user = await db.dbGet("SELECT is_blocked FROM users WHERE id = ?", [target_user_id]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const nextStatus = user.is_blocked ? 0 : 1;
+    await db.dbRun("UPDATE users SET is_blocked = ? WHERE id = ?", [nextStatus, target_user_id]);
+    res.json({ success: true, is_blocked: nextStatus });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin test control panel - deposit credits instantly
 app.post('/api/admin/mint-credits', authenticateToken, async (req, res) => {
   const { amount, target_user_id } = req.body;
@@ -201,6 +270,27 @@ app.post('/api/admin/mint-credits', authenticateToken, async (req, res) => {
     const target = target_user_id || req.user.id;
     const newBalance = await db.adjustWalletBalance(target, amount, 'vip_bonus', 'completed', `mint_${Date.now()}`);
     res.json({ success: true, balance: newBalance });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all support threads for admin
+app.get('/api/admin/support/threads', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const threads = await db.getAllSupportThreads();
+    res.json({ threads });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get message history for a user support session
+app.get('/api/support/messages/:sessionId', async (req, res) => {
+  const { sessionId } = req.params;
+  try {
+    const messages = await db.getSupportMessages(sessionId);
+    res.json({ messages });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -259,6 +349,11 @@ app.post('/api/games/record-bet', authenticateToken, async (req, res) => {
 
     const betId = result.lastID;
 
+    // Deduct bet amount if it wasn't already deducted at game start (Mines handles its own deduction at start)
+    if (game !== 'mines') {
+      await db.adjustWalletBalance(req.user.id, -bet_amount, 'bet_place', 'completed', `solo_place_${betId}`);
+    }
+
     // Award winning balance if won
     let newBalance;
     if (is_won && payout_amount > 0) {
@@ -304,8 +399,13 @@ let rouletteTimer = 15;
 let rouletteHistory = ['red', 'black', 'red', 'gold', 'black'];
 let activeRouletteBets = [];
 
+// CoinFlip state
+let coinFlipTimer = 15;
+let coinFlipHistory = ['heads', 'tails', 'heads', 'heads', 'tails'];
+let activeCoinFlipBets = [];
+
 // Crash multiplier engine state
-let crashState = 'waiting'; // waiting, playing, crashed
+let crashState = 'playing'; // waiting, playing, crashed
 let crashMultiplier = 1.00;
 let crashLimit = 1.00;
 let activeCrashBets = []; // { userId, socketId, betAmount, cashedOut: false }
@@ -339,11 +439,19 @@ setInterval(() => {
     rouletteTimer = 15;
   }
 
+  // 4. CoinFlip Tick
+  coinFlipTimer--;
+  if (coinFlipTimer <= 0) {
+    handleCoinFlipResolution();
+    coinFlipTimer = 15;
+  }
+
   // Broadcast timers
   io.emit('game_timers', {
     wingo: winGoTimer,
     trx: trxWinGoTimer,
-    roulette: rouletteTimer
+    roulette: rouletteTimer,
+    coinflip: coinFlipTimer
   });
 }, 1000);
 
@@ -552,6 +660,49 @@ async function handleRouletteResolution() {
   activeRouletteBets = [];
 }
 
+// Resolve CoinFlip
+async function handleCoinFlipResolution() {
+  const flipped = Math.random() < 0.5 ? 'heads' : 'tails';
+  const roundId = `CF-${Date.now()}`;
+
+  for (const bet of activeCoinFlipBets) {
+    const won = bet.selection === flipped;
+    const rate = 1.95;
+    const payoutAmount = won ? bet.amount * rate : 0.00;
+
+    try {
+      const result = await db.dbRun(`
+        INSERT INTO bets (user_id, game, game_round_id, bet_amount, payout_multiplier, payout_amount, is_won, raw_selection)
+        VALUES (?, 'coin_flip', ?, ?, ?, ?, ?, ?)
+      `, [bet.userId, roundId, bet.amount, won ? rate : 0.00, payoutAmount, won ? 1 : 0, JSON.stringify({ selection: bet.selection, flipped })]);
+
+      const betId = result.lastID;
+      await db.processReferralCommissions(bet.userId, bet.amount, betId);
+
+      if (won) {
+        const newBalance = await db.adjustWalletBalance(bet.userId, payoutAmount, 'bet_win', 'completed', `cf_win_${betId}`);
+        io.to(bet.socketId).emit('bet_result', { game: 'coinflip', won: true, payout: payoutAmount, balance: newBalance });
+      } else {
+        io.to(bet.socketId).emit('bet_result', { game: 'coinflip', won: false, payout: 0 });
+      }
+    } catch (e) {
+      console.error("Error resolving coinflip bet:", e.message);
+    }
+  }
+
+  coinFlipHistory.unshift(flipped);
+  if (coinFlipHistory.length > 20) coinFlipHistory.pop();
+
+  io.emit('coinflip_resolution', {
+    game: 'coinflip',
+    history: coinFlipHistory,
+    lastOutcome: flipped,
+    outcome: flipped
+  });
+
+  activeCoinFlipBets = [];
+}
+
 // --- CRASH MULTIPLIER MULTIPLAYER GAME LOOP ---
 function runCrashLoop() {
   crashState = 'waiting';
@@ -630,12 +781,24 @@ io.on('connection', (socket) => {
     wingo: winGoHistory,
     trx: trxHistory,
     roulette: rouletteHistory,
+    coinflip: coinFlipHistory,
     chat: chatMessages
   });
 
   // Chat message listener
-  socket.on('send_chat', (data) => {
-    // data: { sender, text, vip_level }
+  socket.on('send_chat', async (data) => {
+    // data: { userId, sender, text, vip_level }
+    if (data.userId) {
+      try {
+        const u = await db.dbGet("SELECT is_blocked FROM users WHERE id = ?", [data.userId]);
+        if (u && u.is_blocked) {
+          socket.emit('chat_error', { error: 'You are blocked from chatting by the administrator.' });
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
     const msg = {
       sender: data.sender || 'Player',
       text: data.text,
@@ -677,6 +840,10 @@ io.on('connection', (socket) => {
       return socket.emit('bet_error', { error: 'Minimum bet is ₹10.00' });
     }
 
+    if (game === 'coinflip' && coinFlipTimer <= 4) {
+      return socket.emit('bet_error', { error: 'Betting is closed for this round' });
+    }
+
     try {
       const wallet = await db.dbGet("SELECT playable_balance FROM wallets WHERE user_id = ?", [userId]);
       if (!wallet || wallet.playable_balance < amount) {
@@ -697,6 +864,8 @@ io.on('connection', (socket) => {
         activeRouletteBets.push({ userId, selection, amount, socketId: socket.id });
       } else if (game === 'crash') {
         activeCrashBets.push({ userId, betAmount: amount, socketId: socket.id, cashedOut: false });
+      } else if (game === 'coinflip') {
+        activeCoinFlipBets.push({ userId, selection, amount, socketId: socket.id });
       }
 
       socket.emit('bet_placed_success', { balance: newBalance, game, amount });
@@ -731,6 +900,75 @@ io.on('connection', (socket) => {
       socket.emit('crash_cashout_success', { balance: newBalance, payout, multiplier: crashMultiplier });
     } catch (e) {
       socket.emit('crash_cashout_error', { error: e.message });
+    }
+  });
+
+  // Support Room Join
+  socket.on('join_support', (data) => {
+    const { sessionId } = data;
+    if (sessionId) {
+      socket.join(sessionId);
+      console.log(`Socket ${socket.id} joined support session room: ${sessionId}`);
+    }
+  });
+
+  // Support message event
+  socket.on('send_support_message', async (data) => {
+    // data: { sessionId, userId, sender, text }
+    const { sessionId, userId, sender, text } = data;
+    if (!sessionId || !text) return;
+
+    try {
+      // Save message to DB
+      await db.saveSupportMessage(userId, sessionId, sender, text);
+
+      // Broadcast to room
+      const msgObj = {
+        sessionId,
+        userId,
+        sender,
+        text,
+        created_at: new Date().toISOString()
+      };
+      io.to(sessionId).emit('receive_support_message', msgObj);
+
+      // Notify admin
+      io.emit('support_new_message_notification', msgObj);
+
+      // Auto AI support agent responder if sent by user
+      if (sender === 'user') {
+        setTimeout(async () => {
+          let responseText = "👋 Hello! Our support team has been notified and will reply to you shortly. In the meantime, you can search for help topics above.";
+          
+          const cleanText = text.toLowerCase();
+          if (cleanText.includes('deposit') || cleanText.includes('payment') || cleanText.includes('recharge') || cleanText.includes('add money')) {
+            responseText = "💳 Deposits at TezClub are processed automatically within 1-5 minutes. If your payment is successful but not credited, please make sure you uploaded the correct UTR/transaction ID in the wallet portal.";
+          } else if (cleanText.includes('withdraw') || cleanText.includes('withdrawal') || cleanText.includes('bank') || cleanText.includes('upi')) {
+            responseText = "💰 Withdrawals are processed instantly on our end but can take up to 2 hours depending on bank routing delays. If your withdrawal failed, the credits will be returned to your wallet.";
+          } else if (cleanText.includes('bonus') || cleanText.includes('free') || cleanText.includes('promo') || cleanText.includes('code') || cleanText.includes('referral')) {
+            responseText = "🎁 TezClub features a premium 3-tier lifetime referral program! You get 0.6% on Tier 1 wagers, 0.3% on Tier 2, and 0.1% on Tier 3. Check out the Affiliate tab for your invite link!";
+          } else if (cleanText.includes('vip') || cleanText.includes('level') || cleanText.includes('rewards') || cleanText.includes('xp')) {
+            responseText = "👑 Our Live VIP program awards level-up bonuses and special benefits. Completing VIP daily missions (check VIP Tasks) will reward you with direct playable balances!";
+          } else if (cleanText.includes('game') || cleanText.includes('crash') || cleanText.includes('wingo') || cleanText.includes('mines') || cleanText.includes('plinko')) {
+            responseText = "🎮 All our instant games (Mines, Plinko, Crash, WinGo) are built using provably fair algorithms to ensure absolute transparency. Good luck in the lobby!";
+          }
+
+          // Save bot response to DB
+          await db.saveSupportMessage(null, sessionId, 'support', responseText);
+
+          // Broadcast bot response to room
+          const botMsgObj = {
+            sessionId,
+            userId: null,
+            sender: 'support',
+            text: responseText,
+            created_at: new Date().toISOString()
+          };
+          io.to(sessionId).emit('receive_support_message', botMsgObj);
+        }, 1200); // realistic bot response delay
+      }
+    } catch (e) {
+      console.error('Error handling support message', e);
     }
   });
 

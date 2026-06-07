@@ -38,10 +38,52 @@ const initialWinners = [
   { user: '@gamedolr', amount: '₹9,876', game: 'Aviator', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&fit=crop&q=80' },
 ];
 
-export default function Home({ setGameMode }) {
-  const [filter, setFilter] = useState('lobby');
+export default function Home({ setGameMode, filter: parentFilter, setFilter: setParentFilter }) {
+  const [localFilter, setLocalFilter] = useState('lobby');
+  const filter = parentFilter !== undefined ? parentFilter : localFilter;
+  const setFilter = setParentFilter !== undefined ? setParentFilter : setLocalFilter;
+
   const [hoveredId, setHoveredId] = useState(null);
   const [winners, setWinners] = useState(initialWinners);
+
+  // Dynamic scroll controls states
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const scrollRef = React.useRef(null);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftScroll(scrollLeft > 1);
+      setShowRightScroll(scrollLeft + clientWidth < scrollWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      checkScroll();
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      const observer = new MutationObserver(checkScroll);
+      observer.observe(el, { childList: true, subtree: true });
+
+      // Trigger a delayed check as layout elements render
+      const timer = setTimeout(checkScroll, 100);
+
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+        observer.disconnect();
+        clearTimeout(timer);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+  }, [filter]);
 
   // Live winners feed simulation
   useEffect(() => {
@@ -243,7 +285,11 @@ export default function Home({ setGameMode }) {
         <div className="bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-800 rounded-[24px] p-6 md:p-8 flex items-center justify-between border border-white/5 shadow-2xl relative overflow-hidden group min-h-[190px]">
           <div className="space-y-3 max-w-[65%] z-10">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/30 text-[9px] font-black tracking-widest text-white/95 uppercase bg-white/5">
-              🏁 PROMOTION
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+              </svg>
+              PROMOTION
             </span>
             <h2 className="text-2xl md:text-3.5xl font-black text-white leading-none tracking-tighter uppercase select-none">
               $75,000<br/>Weekly Race
@@ -267,7 +313,10 @@ export default function Home({ setGameMode }) {
         <div className="bg-[#bcf74c] rounded-[24px] p-6 md:p-8 flex items-center justify-between shadow-2xl relative overflow-hidden group min-h-[190px] text-black border-0">
           <div className="space-y-3 max-w-[60%] z-10">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-black/15 text-[9px] font-black tracking-widest text-black/80 bg-black/5 uppercase">
-              ⚡ FEATURED
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" className="text-black">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+              FEATURED
             </span>
             <h2 className="text-2xl md:text-3.5xl font-black text-black leading-none tracking-tighter uppercase select-none">
               Boosted RTP
@@ -303,19 +352,34 @@ export default function Home({ setGameMode }) {
       {/* ══════ THRILL-STYLE HORIZONTAL CATEGORIES ══════ */}
       <div className="space-y-4 pt-2 relative">
         <div className="relative flex items-center">
-          {/* Left Navigation Arrow */}
-          <button 
-            onClick={() => {
-              const el = document.getElementById('category-scroll-container');
-              if (el) el.scrollBy({ left: -240, behavior: 'smooth' });
-            }}
-            className="absolute -left-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-text-secondary hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
-          >
-            ◀
-          </button>
+          {/* Left Navigation Arrow & Shadow Overlay */}
+          <AnimatePresence>
+            {showLeftScroll && (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute left-0 top-0 bottom-4 w-16 bg-gradient-to-r from-[#0f111a] via-[#0f111a]/70 to-transparent pointer-events-none z-10"
+                />
+                <motion.button 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => {
+                    if (scrollRef.current) scrollRef.current.scrollBy({ left: -240, behavior: 'smooth' });
+                  }}
+                  className="absolute -left-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-[#94a3b8] hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
+                >
+                  ◀
+                </motion.button>
+              </>
+            )}
+          </AnimatePresence>
 
           {/* Category Tabs Scroll Box */}
           <div 
+            ref={scrollRef}
             id="category-scroll-container"
             className="flex-1 flex gap-2.5 overflow-x-auto pb-4 scrollbar-none select-none scroll-smooth px-6"
           >
@@ -442,39 +506,42 @@ export default function Home({ setGameMode }) {
             })}
           </div>
 
-          {/* Right Navigation Arrow */}
-          <button 
-            onClick={() => {
-              const el = document.getElementById('category-scroll-container');
-              if (el) el.scrollBy({ left: 240, behavior: 'smooth' });
-            }}
-            className="absolute -right-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-text-secondary hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
-          >
-            ▶
-          </button>
+          {/* Right Navigation Arrow & Shadow Overlay */}
+          <AnimatePresence>
+            {showRightScroll && (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute right-0 top-0 bottom-4 w-16 bg-gradient-to-l from-[#0f111a] via-[#0f111a]/70 to-transparent pointer-events-none z-10"
+                />
+                <motion.button 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => {
+                    if (scrollRef.current) scrollRef.current.scrollBy({ left: 240, behavior: 'smooth' });
+                  }}
+                  className="absolute -right-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-[#94a3b8] hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
+                >
+                  ▶
+                </motion.button>
+              </>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* ══════ SORT & FILTER TOOLBAR ══════ */}
-        <div className="flex items-center gap-2.5 pt-1 select-none">
-          <button className="w-10 h-10 rounded-xl bg-[#171a25] border border-transparent flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all hover:bg-[#1d2130]">
-            <Search size={14} />
-          </button>
-          
-          <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#171a25] border border-transparent text-xs font-black text-text-secondary hover:text-white cursor-pointer transition-all hover:bg-[#1d2130] uppercase tracking-wider">
-            <SlidersHorizontal size={12} /> Sort <ChevronDown size={10} />
-          </button>
-          
-          <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#171a25] border border-transparent text-xs font-black text-text-secondary hover:text-white cursor-pointer transition-all hover:bg-[#1d2130] uppercase tracking-wider">
-            <Filter size={12} /> Filter <ChevronDown size={10} />
-          </button>
-        </div>
       </div>
 
       {/* ══════ TEZCLUB ORIGINALS SECTION ══════ */}
       <div className="space-y-4 pt-4">
         <div className="flex items-center justify-between select-none">
-          <h3 className="text-base font-black text-white tracking-tighter uppercase flex items-center gap-2">
-            💎 TEZCLUB ORIGINALS
+          <h3 className="text-sm font-black text-white tracking-tighter uppercase flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#3de796]">
+              <path d="M19 3H5L2.04 8.78L12 22L21.96 8.78L19 3ZM6.12 5H17.88L19.46 8H4.54L6.12 5ZM12 19.3L5.47 10.63H18.53L12 19.3Z" />
+            </svg>
+            TEZCLUB ORIGINALS
           </h3>
           <div className="flex gap-1.5">
             <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all text-xs font-bold">

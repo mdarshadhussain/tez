@@ -70,8 +70,8 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
 
-  --font-primary: 'Outfit', 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-primary: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
 }
 
 /* Light Theme Variables */
@@ -98,6 +98,7 @@ body {
   background-color: var(--bg-body);
   color: var(--text-primary);
   font-family: var(--font-primary);
+  font-size: 14.5px;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }

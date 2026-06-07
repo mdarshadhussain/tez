@@ -21,10 +21,16 @@ function initDatabase() {
         referred_by_id INTEGER,
         vip_level INTEGER DEFAULT 1,
         lifetime_turnover REAL DEFAULT 0.00,
+        is_blocked INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (referred_by_id) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
+
+    // Upgrade existing database if needed
+    db.run("ALTER TABLE users ADD COLUMN is_blocked INTEGER DEFAULT 0;", (err) => {
+      // Ignore error if column already exists
+    });
 
     // 2. Unified Financial Wallets Table
     db.run(`
@@ -72,7 +78,7 @@ function initDatabase() {
       CREATE TABLE IF NOT EXISTS bets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
-        game TEXT NOT NULL CHECK (game IN ('wingo', 'big_small', 'trx_wingo', 'crash', 'mines', 'plinko', 'limbo', 'roulette', 'dice', 'coin_flip')),
+        game TEXT NOT NULL,
         game_round_id TEXT NOT NULL,
         bet_amount REAL NOT NULL CHECK (bet_amount >= 10.00),
         payout_multiplier REAL DEFAULT 0.00,
@@ -84,11 +90,42 @@ function initDatabase() {
       )
     `);
 
+    // 6. Support Messages Table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS support_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        session_id TEXT NOT NULL,
+        sender TEXT NOT NULL CHECK (sender IN ('user', 'support')),
+        text TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+
+    // 7. Payment Settings Table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS payment_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        upi_id TEXT DEFAULT 'tezclub@upi',
+        qr_url TEXT DEFAULT '',
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Seed default payment config if empty
+    db.get("SELECT COUNT(*) as count FROM payment_settings", (err, row) => {
+      if (row && row.count === 0) {
+        db.run("INSERT INTO payment_settings (upi_id, qr_url) VALUES ('tezclub@upi', '')");
+      }
+    });
+
     // Essential Performance Optimization Indexes
     db.run("CREATE INDEX IF NOT EXISTS idx_users_invite ON users(invite_code);");
     db.run("CREATE INDEX IF NOT EXISTS idx_bets_round_lookup ON bets(user_id, game_round_id);");
     db.run("CREATE INDEX IF NOT EXISTS idx_referral_depth ON referral_mappings(ancestor_id, depth);");
     db.run("CREATE INDEX IF NOT EXISTS idx_tx_tracking ON transactions(reference_id);");
+    db.run("CREATE INDEX IF NOT EXISTS idx_support_session ON support_messages(session_id);");
 
     // Add administrative test seeds if no users exist
     db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
@@ -338,12 +375,100 @@ async function getUserTransactions(userId) {
 
 // List all users
 async function getAllUsers() {
-  return await dbAll("SELECT id, phone_number, vip_level, lifetime_turnover, created_at FROM users ORDER BY id DESC");
+  return await dbAll("SELECT id, phone_number, vip_level, lifetime_turnover, is_blocked, created_at FROM users ORDER BY id DESC");
 }
 
 // Check crash floor (returns true 10% of the time to force 1.00x instant crash)
 function checkCrashFloor() {
   return Math.random() < 0.10;
+}
+
+// Save support message
+async function saveSupportMessage(userId, sessionId, sender, text) {
+  return await dbRun(`
+    INSERT INTO support_messages (user_id, session_id, sender, text)
+    VALUES (?, ?, ?, ?)
+  `, [userId, sessionId, sender, text]);
+}
+
+// Get support messages for a session
+async function getSupportMessages(sessionId) {
+  return await dbAll("SELECT id, user_id, session_id, sender, text, created_at FROM support_messages WHERE session_id = ? ORDER BY id ASC", [sessionId]);
+}
+
+// Get all active support threads for admin
+async function getAllSupportThreads() {
+  return await dbAll(`
+    SELECT DISTINCT sm.session_id, u.phone_number, MAX(sm.created_at) as last_msg_time,
+           (SELECT text FROM support_messages WHERE session_id = sm.session_id ORDER BY id DESC LIMIT 1) as last_msg
+    FROM support_messages sm
+    LEFT JOIN users u ON u.id = sm.user_id
+    GROUP BY sm.session_id
+    ORDER BY last_msg_time DESC
+  `);
+}
+
+// Get Payment Settings
+async function getPaymentSettings() {
+  let settings = await dbGet("SELECT * FROM payment_settings ORDER BY id ASC LIMIT 1");
+  if (!settings) {
+    await dbRun("INSERT INTO payment_settings (upi_id, qr_url) VALUES ('tezclub@upi', '')");
+    settings = await dbGet("SELECT * FROM payment_settings ORDER BY id ASC LIMIT 1");
+  }
+  return settings;
+}
+
+// Update Payment Settings
+async function updatePaymentSettings(upiId, qrUrl) {
+  const settings = await getPaymentSettings();
+  return await dbRun("UPDATE payment_settings SET upi_id = ?, qr_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", [upiId, qrUrl, settings.id]);
+}
+
+// Pending deposit functions
+async function createPendingDeposit(userId, amount, refId) {
+  const wallet = await dbGet("SELECT id, playable_balance FROM wallets WHERE user_id = ?", [userId]);
+  if (!wallet) throw new Error("Wallet not found");
+
+  await dbRun(
+    "INSERT INTO transactions (wallet_id, type, status, amount, previous_balance, new_balance, reference_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [wallet.id, 'deposit', 'pending', amount, wallet.playable_balance, wallet.playable_balance, refId]
+  );
+  return wallet.playable_balance;
+}
+
+async function getPendingDeposits() {
+  return await dbAll(`
+    SELECT t.id, t.amount, t.reference_id, t.created_at, u.phone_number, t.wallet_id
+    FROM transactions t
+    JOIN wallets w ON t.wallet_id = w.id
+    JOIN users u ON w.user_id = u.id
+    WHERE t.status = 'pending' AND t.type = 'deposit'
+    ORDER BY t.id DESC
+  `);
+}
+
+async function approveDeposit(transactionId) {
+  const txn = await dbGet("SELECT wallet_id, amount, status FROM transactions WHERE id = ?", [transactionId]);
+  if (!txn) throw new Error("Transaction not found");
+  if (txn.status !== 'pending') throw new Error("Transaction is already processed");
+
+  const wallet = await dbGet("SELECT playable_balance FROM wallets WHERE id = ?", [txn.wallet_id]);
+  const newBalance = wallet.playable_balance + txn.amount;
+
+  await dbRun("UPDATE wallets SET playable_balance = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", [newBalance, txn.wallet_id]);
+  await dbRun(
+    "UPDATE transactions SET status = 'completed', previous_balance = ?, new_balance = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?",
+    [wallet.playable_balance, newBalance, transactionId]
+  );
+  return newBalance;
+}
+
+async function rejectDeposit(transactionId) {
+  const txn = await dbGet("SELECT status FROM transactions WHERE id = ?", [transactionId]);
+  if (!txn) throw new Error("Transaction not found");
+  if (txn.status !== 'pending') throw new Error("Transaction is already processed");
+
+  await dbRun("UPDATE transactions SET status = 'failed' WHERE id = ?", [transactionId]);
 }
 
 module.exports = {
@@ -359,5 +484,14 @@ module.exports = {
   checkCrashFloor,
   getPlatformStats,
   getUserTransactions,
-  getAllUsers
+  getAllUsers,
+  saveSupportMessage,
+  getSupportMessages,
+  getAllSupportThreads,
+  getPaymentSettings,
+  updatePaymentSettings,
+  createPendingDeposit,
+  getPendingDeposits,
+  approveDeposit,
+  rejectDeposit
 };
