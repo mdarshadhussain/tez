@@ -12,7 +12,7 @@ const backend = spawn('node', ['server.js'], {
 
 // Spawn Frontend
 const frontend = spawn('npm', ['run', 'dev'], {
-  cwd: path.join(__dirname, 'frontend'),
+  cwd: path.join(__dirname, 'frontend_next'),
   stdio: 'inherit',
   shell: true
 });

@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { Shield, HelpCircle, Dice5 } from 'lucide-react';
 
