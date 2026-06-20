@@ -189,21 +189,69 @@ export const playExplosion = () => {
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+
+    const now = ctx.currentTime;
     
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(120, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.3);
+    // 1. Noise Generator for debris/blast hiss
+    const bufferSize = ctx.sampleRate * 0.8; // 0.8 seconds
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
     
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    const noiseNode = ctx.createBufferSource();
+    noiseNode.buffer = buffer;
     
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.setValueAtTime(800, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(10, now + 0.7);
     
-    osc.start();
-    osc.stop(ctx.currentTime + 0.4);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.3, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    
+    noiseNode.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    
+    // 2. Heavy Sub Bass Boom
+    const oscBoom = ctx.createOscillator();
+    const gainBoom = ctx.createGain();
+    
+    oscBoom.type = 'sawtooth';
+    oscBoom.frequency.setValueAtTime(160, now);
+    oscBoom.frequency.exponentialRampToValueAtTime(10, now + 0.65);
+    
+    gainBoom.gain.setValueAtTime(0.25, now);
+    gainBoom.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+    
+    // Distort the boom slightly for crunchiness
+    const dist = ctx.createWaveShaper();
+    const makeDistortionCurve = (amount) => {
+      const k = typeof amount === 'number' ? amount : 50;
+      const n_samples = 44100;
+      const curve = new Float32Array(n_samples);
+      const deg = Math.PI / 180;
+      for (let i = 0; i < n_samples; ++i) {
+        const x = (i * 2) / n_samples - 1;
+        curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+      }
+      return curve;
+    };
+    dist.curve = makeDistortionCurve(40);
+    dist.oversample = '4x';
+    
+    oscBoom.connect(dist);
+    dist.connect(gainBoom);
+    gainBoom.connect(ctx.destination);
+    
+    noiseNode.start(now);
+    oscBoom.start(now);
+    
+    noiseNode.stop(now + 0.8);
+    oscBoom.stop(now + 0.8);
   } catch (e) {
     console.error(e);
   }
@@ -334,6 +382,155 @@ export const playBombSound = () => {
     osc2.start(now);
     osc.stop(now + 0.6);
     osc2.stop(now + 0.6);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+// Keno-specific Thrill Originals sound assets programmatically synthesized
+export const playKenoPick = () => {
+  if (!masterEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1000, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.06);
+    
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.06);
+  } catch (e) {}
+};
+
+export const playKenoBet = () => {
+  if (!masterEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(450, ctx.currentTime + 0.15);
+    
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch (e) {}
+};
+
+export const playKenoTick = () => {
+  if (!masterEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.02);
+    
+    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.02);
+  } catch (e) {}
+};
+
+export const playKenoMatch = () => {
+  if (!masterEnabled) return;
+  try {
+    const snd = new Audio('https://cdn.originals.thrill-games.com/v1.1.0/assets/BLcJ-tkX.mp3');
+    snd.volume = 0.55;
+    snd.play();
+  } catch (e) {}
+};
+
+export const playKenoWin = () => {
+  if (!masterEnabled) return;
+  try {
+    const snd = new Audio('https://cdn.originals.thrill-games.com/v1.1.0/assets/DoyfwkGB.mp3');
+    snd.volume = 0.6;
+    snd.play();
+  } catch (e) {}
+};
+
+// Play synthesized roulette spin sound (whirr + pocket bounce clicks)
+export const playRouletteSpinSound = () => {
+  if (!masterEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    
+    // Whirring noise generator for 2.2 seconds (representing the ball spinning in the outer track)
+    const oscWhirr = ctx.createOscillator();
+    const gainWhirr = ctx.createGain();
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    
+    oscWhirr.type = 'triangle';
+    oscWhirr.frequency.setValueAtTime(600, now);
+    oscWhirr.frequency.exponentialRampToValueAtTime(150, now + 2.0); // pitch drops as it slows
+    
+    lfo.frequency.setValueAtTime(25, now); // rotation speed modulation
+    lfoGain.gain.setValueAtTime(100, now);
+    
+    lfo.connect(lfoGain);
+    lfoGain.connect(oscWhirr.frequency);
+    
+    gainWhirr.gain.setValueAtTime(0.04, now);
+    gainWhirr.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+    
+    oscWhirr.connect(gainWhirr);
+    gainWhirr.connect(ctx.destination);
+    
+    lfo.start(now);
+    oscWhirr.start(now);
+    
+    lfo.stop(now + 2.2);
+    oscWhirr.stop(now + 2.2);
+    
+    // Pocket drop clicks (pocket settle bounces) starting around 2.2 seconds to 2.8 seconds
+    const clickTimes = [2.2, 2.32, 2.45, 2.58, 2.72, 2.85];
+    clickTimes.forEach((time, idx) => {
+      const oscClick = ctx.createOscillator();
+      const gainClick = ctx.createGain();
+      
+      oscClick.type = 'sine';
+      const freq = 600 - idx * 60;
+      oscClick.frequency.setValueAtTime(freq, now + time);
+      oscClick.frequency.exponentialRampToValueAtTime(80, now + time + 0.04);
+      
+      gainClick.gain.setValueAtTime(0.06 - idx * 0.008, now + time);
+      gainClick.gain.exponentialRampToValueAtTime(0.0001, now + time + 0.04);
+      
+      oscClick.connect(gainClick);
+      gainClick.connect(ctx.destination);
+      
+      oscClick.start(now + time);
+      oscClick.stop(now + time + 0.045);
+    });
   } catch (e) {
     console.error(e);
   }

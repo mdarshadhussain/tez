@@ -1,4 +1,5 @@
 import { Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const primaryFont = Space_Grotesk({
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-bg-body text-text-primary" suppressHydrationWarning>
+        <Script id="remove-bis-skin-checked" src="/remove-bis.js" strategy="beforeInteractive" />
         {children}
       </body>
     </html>

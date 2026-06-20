@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Shield, Sparkles, HelpCircle, Coins, Award, RefreshCw, ChevronLeft, Volume2, Settings, Info } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Shield, Sparkles, HelpCircle, Coins, Award, RefreshCw, ChevronLeft, Volume2, Settings, Info, Timer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { playClick, playWinChime, playTick, playHitSound, playLossSound } from '../utils/audio';
+import { playClick, playWinChime, playTick, playHitSound, playLossSound, playKenoPick, playKenoBet, playKenoTick, playKenoMatch, playKenoWin } from '../utils/audio';
 
 // Animated particle burst when a ball is hit
 function HitParticles({ active }) {
@@ -121,13 +121,22 @@ const MULTIPLIER_TABLES = {
   }
 };
 
-export default function Keno({ token, playableBalance, setPlayableBalance, isDemo }) {
+export default function Keno({ socket, user, token, playableBalance, setPlayableBalance, isDemo }) {
   const [tab, setTab] = useState('manual'); // manual, autoplay
   const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [betAmount, setBetAmount] = useState('50');
   const [riskLevel, setRiskLevel] = useState('classic'); // classic, low, medium, high
   const [sliderPickCount, setSliderPickCount] = useState(5);
   
+  // Timed Multiplayer state
+  const [timer, setTimer] = useState(15);
+  const [hasBet, setHasBet] = useState(false);
+  const [activeBetAmount, setActiveBetAmount] = useState(0);
+  const [activeBetSelection, setActiveBetSelection] = useState([]);
+  const [activeBetRisk, setActiveBetRisk] = useState('classic');
+  const [balanceAtRoundEnd, setBalanceAtRoundEnd] = useState(null);
+  const [history, setHistory] = useState([]);
+
   // Autoplay config
   const [numberOfBets, setNumberOfBets] = useState('0'); // '0' represents infinite
   const [onWinReset, setOnWinReset] = useState(true);
@@ -148,22 +157,204 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
   const [winPayout, setWinPayout] = useState(null);
   const [hitCount, setHitCount] = useState(0);
 
-  // Autoplay loops
-  const isAutoplayRef = useRef(isAutoplayRunning);
-  const balanceRef = useRef(playableBalance);
-  const startBalanceRef = useRef(playableBalance);
+  // Unified State Ref to prevent stale closures in socket events
+  const stateRef = useRef();
+  stateRef.current = {
+    selectedNums,
+    hasBet,
+    activeBetSelection,
+    activeBetRisk,
+    activeBetAmount,
+    balanceAtRoundEnd,
+    isDemo,
+    playableBalance,
+    isAutoplayRunning,
+    autoBetsRemaining,
+    betAmount,
+    onWinReset,
+    onWinIncrease,
+    onLossReset,
+    onLossIncrease,
+    riskLevel,
+    user,
+    socket
+  };
 
   useEffect(() => {
-    isAutoplayRef.current = isAutoplayRunning;
-  }, [isAutoplayRunning]);
+    if (!socket) return;
 
-  useEffect(() => {
-    balanceRef.current = playableBalance;
-  }, [playableBalance]);
+    const handleTimers = (timers) => {
+      setTimer(timers.keno);
+    };
+
+    const handleOutcome = (data) => {
+      const drawn = data.outcome || data.lastOutcome;
+      if (!drawn || drawn.length === 0) return;
+
+      // Update history
+      const newHistory = (data.history || []).map((val, idx) => ({
+        id: `outcome_${idx}_${Date.now()}_${Math.random()}`,
+        val
+      }));
+      setHistory(newHistory);
+
+      // Start drawing animation
+      setIsDrawing(true);
+      setDrawnNums([]);
+      setWinPayout(null);
+
+      let count = 0;
+      const interval = setInterval(() => {
+        const drawnVal = drawn[count];
+        setDrawnNums(prev => [...prev, drawnVal]);
+
+        // play sound based on latest numbers picked
+        if (stateRef.current.selectedNums.includes(drawnVal)) {
+          playKenoMatch();
+        } else {
+          playKenoTick();
+        }
+
+        count++;
+
+        if (count === 10) {
+          clearInterval(interval);
+          setIsDrawing(false);
+
+          const curState = stateRef.current;
+
+          // Resolve active bets at the end of the drawing animation
+          if (curState.hasBet) {
+            const hits = curState.activeBetSelection.filter(n => drawn.includes(n)).length;
+            setHitCount(hits);
+
+            const table = MULTIPLIER_TABLES[curState.activeBetRisk][curState.activeBetSelection.length] || [];
+            const mult = table[hits] || 0;
+            const payout = parseFloat((curState.activeBetAmount * mult).toFixed(2));
+
+            setWinPayout({ payout, mult });
+
+            if (payout > 0) {
+              playKenoWin();
+              setTotalProfit(prev => prev + (payout - curState.activeBetAmount));
+              if (curState.isDemo) {
+                setPlayableBalance(prev => prev + payout);
+              } else if (curState.balanceAtRoundEnd !== null) {
+                setPlayableBalance(curState.balanceAtRoundEnd);
+              }
+            } else {
+              playLossSound();
+              setTotalProfit(prev => prev - curState.activeBetAmount);
+            }
+
+            setTimeout(() => {
+              setWinPayout(null);
+            }, 2500);
+
+            setHasBet(false);
+            setBalanceAtRoundEnd(null);
+
+            // Handle Autoplay Next Step
+            if (curState.isAutoplayRunning) {
+              let nextBet = curState.activeBetAmount;
+              if (payout > 0) {
+                if (!curState.onWinReset) {
+                  nextBet = nextBet * (1 + parseFloat(curState.onWinIncrease) / 100);
+                } else {
+                  nextBet = parseFloat(curState.betAmount) || 50;
+                }
+              } else {
+                if (!curState.onLossReset) {
+                  nextBet = nextBet * (1 + parseFloat(curState.onLossIncrease) / 100);
+                } else {
+                  nextBet = parseFloat(curState.betAmount) || 50;
+                }
+              }
+              setBetAmount(nextBet.toFixed(2));
+
+              const nextRemaining = curState.autoBetsRemaining - 1;
+              if (nextRemaining <= 0) {
+                setIsAutoplayRunning(false);
+                setAutoBetsRemaining(0);
+              } else {
+                setAutoBetsRemaining(nextRemaining);
+                setTimeout(() => {
+                  autoPlaceBet(nextBet);
+                }, 800);
+              }
+            }
+          } else {
+            if (curState.isAutoplayRunning) {
+              const nextRemaining = curState.autoBetsRemaining;
+              if (nextRemaining > 0) {
+                setTimeout(() => {
+                  autoPlaceBet(parseFloat(curState.betAmount) || 50);
+                }, 800);
+              }
+            }
+          }
+        }
+      }, 230);
+    };
+
+    const handleBetResult = (data) => {
+      if (data.game === 'keno' && !isDemo) {
+        if (data.won) {
+          setBalanceAtRoundEnd(data.balance);
+        }
+      }
+    };
+
+    const handleBetPlacedSuccess = (data) => {
+      if (data.game === 'keno' && !isDemo) {
+        setPlayableBalance(data.balance);
+      }
+    };
+
+    const handleInitData = (data) => {
+      const mapped = (data.keno || []).map((val, idx) => ({
+        id: `init_${idx}`,
+        val
+      }));
+      setHistory(mapped);
+    };
+
+    const handleBetCancelled = (data) => {
+      if (data.game === 'keno' && !isDemo) {
+        setPlayableBalance(data.balance);
+        setHasBet(false);
+        setActiveBetAmount(0);
+      }
+    };
+
+    const handleCancelBetError = (data) => {
+      alert(data.error);
+    };
+
+    socket.on('game_timers', handleTimers);
+    socket.on('keno_resolution', handleOutcome);
+    socket.on('bet_result', handleBetResult);
+    socket.on('bet_placed_success', handleBetPlacedSuccess);
+    socket.on('init_data', handleInitData);
+    socket.on('bet_cancelled_success', handleBetCancelled);
+    socket.on('cancel_bet_error', handleCancelBetError);
+
+    socket.emit('request_init_data');
+
+    return () => {
+      socket.off('game_timers', handleTimers);
+      socket.off('keno_resolution', handleOutcome);
+      socket.off('bet_result', handleBetResult);
+      socket.off('bet_placed_success', handleBetPlacedSuccess);
+      socket.off('init_data', handleInitData);
+      socket.off('bet_cancelled_success', handleBetCancelled);
+      socket.off('cancel_bet_error', handleCancelBetError);
+    };
+  }, [socket, isDemo, setPlayableBalance]);
 
   const toggleNum = (num) => {
-    if (isDrawing || isAutoplayRunning) return;
-    playClick();
+    if (isDrawing || isAutoplayRunning || hasBet || timer <= 4) return;
+    playKenoPick();
     let newNums;
     if (selectedNums.includes(num)) {
       newNums = selectedNums.filter(n => n !== num);
@@ -182,7 +373,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
   };
 
   const autoPick = (count) => {
-    if (isDrawing || isAutoplayRunning) return;
+    if (isDrawing || isAutoplayRunning || hasBet || timer <= 4) return;
     playClick();
     const pickCount = count || sliderPickCount;
     const nums = [];
@@ -194,14 +385,13 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
   };
 
   const clearSelection = () => {
-    if (isDrawing || isAutoplayRunning) return;
+    if (isDrawing || isAutoplayRunning || hasBet || timer <= 4) return;
     playClick();
     setSelectedNums([]);
     setDrawnNums([]);
     setWinPayout(null);
   };
 
-  // Multiplication adjustment utils
   const multiplyBet = (multiplier) => {
     playClick();
     const current = parseFloat(betAmount);
@@ -212,125 +402,87 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
 
   const currentMultiplierTable = MULTIPLIER_TABLES[riskLevel][selectedNums.length] || [];
 
-  const startDraw = async () => {
-    const amt = parseFloat(betAmount);
-    if (selectedNums.length === 0) return alert('Select at least 1 number');
-    if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
-    if (amt > balanceRef.current) {
-      setIsAutoplayRunning(false);
-      return alert('Insufficient balance');
+  const cancelBet = () => {
+    if (!hasBet || timer <= 4) return;
+    playKenoPick();
+
+    if (isDemo) {
+      setPlayableBalance(prev => prev + activeBetAmount);
+      setHasBet(false);
+      setActiveBetAmount(0);
+    } else {
+      if (!user) return;
+      socket.emit('cancel_bet', { userId: user.id, game: 'keno' });
     }
-
-    playClick();
-    setPlayableBalance(prev => prev - amt);
-    setTotalWagered(prev => prev + amt);
-    setIsDrawing(true);
-    setDrawnNums([]);
-    setWinPayout(null);
-
-    // Pick 10 random winning numbers
-    const targetDraw = [];
-    while (targetDraw.length < 10) {
-      const rand = Math.floor(Math.random() * 40) + 1;
-      if (!targetDraw.includes(rand)) targetDraw.push(rand);
-    }
-
-    // Draw numbers step by step
-    let count = 0;
-    return new Promise((resolve) => {
-      const interval = setInterval(async () => {
-        const drawnVal = targetDraw[count];
-        setDrawnNums(prev => [...prev, drawnVal]);
-        
-        // Play draw sound for each play/ball draw
-        if (selectedNums.includes(drawnVal)) {
-          playHitSound();
-        } else {
-          playTick();
-        }
-        
-        count++;
-
-        if (count === 10) {
-          clearInterval(interval);
-          
-          // Calculate hits
-          const hits = selectedNums.filter(n => targetDraw.includes(n)).length;
-          setHitCount(hits);
-
-          const table = MULTIPLIER_TABLES[riskLevel][selectedNums.length] || [];
-          const mult = table[hits] || 0;
-          const payout = parseFloat((amt * mult).toFixed(2));
-
-          setWinPayout({ payout, mult });
-          setTimeout(() => {
-            setWinPayout(null);
-          }, 2000);
-          setIsDrawing(false);
-
-          if (payout > 0) {
-            playWinChime();
-            setTotalProfit(prev => prev + (payout - amt));
-            if (isDemo) {
-              setPlayableBalance(prev => prev + payout);
-            } else {
-              try {
-                const res = await fetch('http://localhost:3001/api/games/record-bet', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify({
-                    game: 'keno',
-                    bet_amount: amt,
-                    payout_multiplier: mult,
-                    payout_amount: payout,
-                    is_won: true,
-                    raw_selection: { selected: selectedNums, hits }
-                  })
-                });
-                const data = await res.json();
-                if (data.success) {
-                  setPlayableBalance(data.balance);
-                }
-              } catch (e) {
-                console.error(e);
-              }
-            }
-          } else {
-            playLossSound();
-            setTotalProfit(prev => prev - amt);
-            if (!isDemo) {
-              try {
-                await fetch('http://localhost:3001/api/games/record-bet', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify({
-                    game: 'keno',
-                    bet_amount: amt,
-                    payout_multiplier: 0.00,
-                    payout_amount: 0.00,
-                    is_won: false,
-                    raw_selection: { selected: selectedNums, hits }
-                  })
-                });
-              } catch (e) {
-                console.error(e);
-              }
-            }
-          }
-
-          resolve({ payout, hits });
-        }
-      }, 433);
-    });
   };
 
-  const handleAutoplayLoop = async () => {
+  const placeBet = () => {
+    if (hasBet) return;
+    if (timer <= 4) return;
+
+    if (selectedNums.length === 0) return alert('Select at least 1 number');
+    const amt = parseFloat(betAmount);
+    if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
+    if (amt > playableBalance) return alert('Insufficient balance');
+
+    playKenoBet();
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetSelection(selectedNums);
+    setActiveBetRisk(riskLevel);
+
+    if (isDemo) {
+      setPlayableBalance(prev => prev - amt);
+      setTotalWagered(prev => prev + amt);
+    } else {
+      if (!user) return alert('Please login to place real bets');
+      socket.emit('place_bet', {
+        userId: user.id,
+        game: 'keno',
+        selection: { selectedNums, riskLevel },
+        amount: amt
+      });
+    }
+  };
+
+  const autoPlaceBet = (customAmt) => {
+    const curState = stateRef.current;
+    const amt = customAmt !== undefined ? customAmt : (parseFloat(curState.betAmount) || 50);
+    if (amt > curState.playableBalance) {
+      alert('Autoplay stopped: Insufficient balance');
+      setIsAutoplayRunning(false);
+      return;
+    }
+    if (curState.selectedNums.length === 0) {
+      alert('Autoplay stopped: No numbers selected');
+      setIsAutoplayRunning(false);
+      return;
+    }
+
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetSelection(curState.selectedNums);
+    setActiveBetRisk(curState.riskLevel);
+
+    if (curState.isDemo) {
+      setPlayableBalance(prev => prev - amt);
+      setTotalWagered(prev => prev + amt);
+    } else {
+      if (!curState.user) {
+        setIsAutoplayRunning(false);
+        return;
+      }
+      curState.socket.emit('place_bet', {
+        userId: curState.user.id,
+        game: 'keno',
+        selection: { selectedNums: curState.selectedNums, riskLevel: curState.riskLevel },
+        amount: amt
+      });
+    }
+  };
+
+  const handleAutoplayLoop = () => {
+    playClick();
     if (isAutoplayRunning) {
       setIsAutoplayRunning(false);
       return;
@@ -341,79 +493,41 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
     if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
 
     setIsAutoplayRunning(true);
-    startBalanceRef.current = balanceRef.current;
     setTotalWagered(0);
     setTotalProfit(0);
-    
+
     let betsCount = parseInt(numberOfBets);
     let infinite = betsCount === 0;
-    let currentBet = amt;
-
     let remaining = infinite ? 999999 : betsCount;
     setAutoBetsRemaining(remaining);
 
-    while (remaining > 0 && isAutoplayRef.current) {
-      if (balanceRef.current < currentBet) {
-        alert('Insufficient balance for autoplay');
-        break;
-      }
+    // Place bet immediately if betting is open
+    if (timer > 4 && !hasBet) {
+      setHasBet(true);
+      setActiveBetAmount(amt);
+      setActiveBetSelection(selectedNums);
+      setActiveBetRisk(riskLevel);
 
-      // Check Stop conditions
-      const currentProfit = balanceRef.current - startBalanceRef.current;
-      const profitStop = parseFloat(stopProfit);
-      const lossStop = parseFloat(stopLoss);
-
-      if (profitStop > 0 && currentProfit >= profitStop) {
-        alert(`Autoplay profit limit of ₹${profitStop} hit!`);
-        break;
-      }
-      if (lossStop > 0 && Math.abs(currentProfit) >= lossStop && currentProfit < 0) {
-        alert(`Autoplay loss limit of ₹${lossStop} hit!`);
-        break;
-      }
-
-      const result = await startDraw();
-      if (!result) break;
-
-      // Adjust next bet size
-      if (result.payout > 0) {
-        // Win
-        if (onWinReset) {
-          currentBet = amt;
-        } else {
-          const inc = parseFloat(onWinIncrease) / 100;
-          currentBet = currentBet * (1 + inc);
-        }
+      if (isDemo) {
+        setPlayableBalance(prev => prev - amt);
+        setTotalWagered(prev => prev + amt);
       } else {
-        // Loss
-        if (onLossReset) {
-          currentBet = amt;
-        } else {
-          const inc = parseFloat(onLossIncrease) / 100;
-          currentBet = currentBet * (1 + inc);
-        }
-      }
-      setBetAmount(currentBet.toFixed(2));
-
-      if (!infinite) {
-        remaining--;
-        setAutoBetsRemaining(remaining);
-      }
-
-      if (remaining > 0 && isAutoplayRef.current) {
-        // Wait 1s between rounds
-        await new Promise(r => setTimeout(r, 1000));
+        if (!user) return alert('Please login to place bets');
+        socket.emit('place_bet', {
+          userId: user.id,
+          game: 'keno',
+          selection: { selectedNums, riskLevel },
+          amount: amt
+        });
       }
     }
-
-    setIsAutoplayRunning(false);
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
       
       {/* Left Console Panel (4 Columns) */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-hidden order-2 lg:order-1">
+      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
           
           <AnimatePresence mode="wait">
             {!showAutoConfig ? (
@@ -454,7 +568,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                 <div className="space-y-2 order-2 lg:order-2">
                   <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
                     <span>Bet Amount</span>
-                    <span>0.00 INR</span>
+                    <span>{playableBalance.toFixed(2)} INR</span>
                   </div>
                   <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 px-1 font-bold text-[#3de796] text-sm select-none">
@@ -462,7 +576,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                     </div>
                     <input
                       type="number"
-                      disabled={isDrawing || isAutoplayRunning}
+                      disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
                       className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
@@ -470,15 +584,15 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                     <div className="flex gap-1">
                       <button
                         onClick={() => multiplyBet(0.5)}
-                        disabled={isDrawing || isAutoplayRunning}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                        disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
                       >
                         1/2
                       </button>
                       <button
                         onClick={() => multiplyBet(2.0)}
-                        disabled={isDrawing || isAutoplayRunning}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                        disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
+                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
                       >
                         X2
                       </button>
@@ -494,12 +608,12 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                       <button
                         key={level}
                         onClick={() => { playClick(); setRiskLevel(level); }}
-                        disabled={isDrawing || isAutoplayRunning}
+                        disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
                         className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border-0 cursor-pointer ${
                           riskLevel === level
                             ? 'bg-[#3de796] text-black shadow-sm'
                             : 'bg-transparent text-text-muted hover:text-white'
-                        }`}
+                        } disabled:opacity-40`}
                       >
                         {level}
                       </button>
@@ -513,8 +627,8 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                     <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number Picker</span>
                     <button
                       onClick={clearSelection}
-                      disabled={isDrawing || isAutoplayRunning}
-                      className="bg-transparent border-0 text-text-muted hover:text-[#3de796] text-[10px] font-bold cursor-pointer transition-colors underline"
+                      disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
+                      className="bg-transparent border-0 text-text-muted hover:text-[#3de796] text-[10px] font-bold cursor-pointer transition-colors underline disabled:opacity-40"
                     >
                       Clear Picks
                     </button>
@@ -525,12 +639,12 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                       type="range"
                       min="1"
                       max="10"
-                      disabled={isDrawing || isAutoplayRunning}
+                      disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
                       value={sliderPickCount || 1}
                       onChange={(e) => {
                         const val = parseInt(e.target.value);
                         setSliderPickCount(val);
-                        if (!(isDrawing || isAutoplayRunning)) {
+                        if (!(isDrawing || isAutoplayRunning || hasBet || timer <= 4)) {
                           playClick();
                           const nums = [];
                           while (nums.length < val) {
@@ -541,12 +655,12 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                           setWinPayout(null);
                         }
                       }}
-                      className="flex-1 h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-[#3de796]"
+                      className="flex-1 h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-[#3de796] disabled:opacity-40"
                     />
                     <button
                       onClick={() => autoPick()}
-                      disabled={isDrawing || isAutoplayRunning}
-                      className="bg-[#242938] hover:bg-[#2e3549] text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-0 cursor-pointer transition-all tracking-wider"
+                      disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
+                      className="bg-[#242938] hover:bg-[#2e3549] text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-0 cursor-pointer transition-all tracking-wider disabled:opacity-40"
                     >
                       Pick
                     </button>
@@ -598,17 +712,47 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                   </div>
                 )}
 
+                {/* NEXT ROUND TIMER */}
+                <div className="order-4 lg:order-4 space-y-2 border-t border-white/5 pt-3">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                    <span>NEXT ROUND TIMER</span>
+                    <span className={timer <= 4 ? "text-red-500 font-black animate-pulse" : "text-[#3de796] font-black"}>{timer}s</span>
+                  </div>
+                  <div className="relative w-full h-2 bg-[#0f111a] rounded-full overflow-hidden border border-white/[0.04]">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-1000 ${
+                        timer <= 4 ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-[#3de796] shadow-[0_0_8px_#3de796]'
+                      }`}
+                      style={{ width: `${(timer / 15) * 100}%` }}
+                    />
+                  </div>
+                </div>
 
                 {/* Footer launch button */}
-                <div className="order-1 lg:order-5 lg:mt-auto lg:pt-4 space-y-2">
+                <div className="order-5 lg:order-5 lg:mt-auto lg:pt-4 space-y-2">
                   {tab === 'manual' ? (
-                    <button
-                      onClick={startDraw}
-                      disabled={isDrawing || selectedNums.length === 0}
-                      className="w-full bg-[#3de796] hover:bg-[#3de796]/80 text-black py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg shadow-[#3de796]/10 border-0 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isDrawing ? 'Drawing balls...' : 'PLAY'}
-                    </button>
+                    hasBet && timer > 4 ? (
+                      <button
+                        onClick={cancelBet}
+                        className="w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all bg-red-500 hover:bg-red-400 text-white shadow-red-500/10"
+                      >
+                        CANCEL BET (₹{activeBetAmount.toFixed(2)})
+                      </button>
+                    ) : (
+                      <button
+                        onClick={placeBet}
+                        disabled={hasBet || timer <= 4 || selectedNums.length === 0}
+                        className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all ${
+                          hasBet 
+                            ? 'bg-[#141622] text-[#3de796] border border-[#3de796]/20 cursor-default'
+                            : timer <= 4
+                            ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
+                            : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
+                        }`}
+                      >
+                        {hasBet ? 'BET PLACED' : timer <= 4 ? `BETTING CLOSED (${timer}s)` : 'PLAY'}
+                      </button>
+                    )
                   ) : (
                     <div className="flex flex-col gap-2">
                       <button
@@ -620,7 +764,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                       </button>
                       <button
                         onClick={handleAutoplayLoop}
-                        disabled={!isAutoplayRunning && (isDrawing || selectedNums.length === 0)}
+                        disabled={!isAutoplayRunning && (timer <= 4 || selectedNums.length === 0)}
                         className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all disabled:opacity-50 ${
                           isAutoplayRunning
                             ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/20'
@@ -628,7 +772,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                         }`}
                       >
                         {isAutoplayRunning
-                          ? `STOP${isDrawing ? ' (finishing round...)' : ''}`
+                          ? `STOP AUTOPLAY (${autoBetsRemaining})`
                           : 'START AUTOPLAY'}
                       </button>
                     </div>
@@ -826,13 +970,13 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
               const isDrawn = drawnNums.includes(num);
               const justDrawn = drawnNums[drawnNums.length - 1] === num;
 
-              let styleClasses = "bg-[#242938] text-white border border-white/5 hover:border-[#3de796]/40 hover:bg-[#242938]/80";
+              let styleClasses = "bg-[#242938] text-[#c0c8d8] border border-white/5 hover:border-white/10 hover:bg-[#2e3549]";
 
               if (isSelected) {
-                styleClasses = "bg-[#3de796]/10 text-[#3de796] border border-[#3de796] shadow-[0_0_10px_rgba(61,231,150,0.15)]";
+                styleClasses = "bg-[#2d1822] text-[#ff3b30] border border-[#ff3b30]/50 shadow-[0_0_10px_rgba(255,59,48,0.15)]";
               }
               if (isDrawn && !isHit) {
-                styleClasses = "bg-accent-red/15 text-accent-red border border-accent-red/30";
+                styleClasses = "bg-[#132f21] text-[#3de796] border border-[#3de796]/50";
               }
               if (isHit) {
                 styleClasses = "bg-[#3de796] text-[#0f111a] border border-[#3de796] shadow-[0_0_20px_rgba(61,231,150,0.55)]";
@@ -842,9 +986,9 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                 <motion.button
                   key={num}
                   onClick={() => toggleNum(num)}
-                  disabled={isDrawing || isAutoplayRunning}
-                  whileHover={!(isDrawing || isAutoplayRunning) ? { scale: 1.1, y: -3 } : {}}
-                  whileTap={!(isDrawing || isAutoplayRunning) ? { scale: 0.9 } : {}}
+                  disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
+                  whileHover={!(isDrawing || isAutoplayRunning || hasBet || timer <= 4) ? { scale: 1.1, y: -3 } : {}}
+                  whileTap={!(isDrawing || isAutoplayRunning || hasBet || timer <= 4) ? { scale: 0.9 } : {}}
                   animate={
                     justDrawn && isHit
                       ? {
@@ -872,7 +1016,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                     duration: justDrawn ? 0.55 : 0.2,
                     ease: 'easeOut',
                   }}
-                  className={`relative aspect-square rounded-xl flex items-center justify-center font-extrabold text-sm transition-colors duration-200 cursor-pointer overflow-visible ${styleClasses}`}
+                  className={`relative aspect-square rounded-xl flex items-center justify-center font-extrabold text-sm transition-colors duration-200 cursor-pointer overflow-visible disabled:cursor-not-allowed ${styleClasses}`}
                 >
                   {/* Particle burst only on the most recently drawn hit */}
                   {justDrawn && isHit && <HitParticles active={true} />}
@@ -948,7 +1092,7 @@ export default function Keno({ token, playableBalance, setPlayableBalance, isDem
                               : 'bg-[#1a1c25] text-white/20 border-white/[0.03]'
                           }`}
                         >
-                          {m > 0 ? `${m}x` : '—'}
+                          {m > 0 ? `${m}x` : '0x'}
                         </span>
                         <div className="flex flex-col items-center gap-0.5">
                           <div

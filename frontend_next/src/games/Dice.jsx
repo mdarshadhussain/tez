@@ -95,7 +95,7 @@ function HexBadge({ value, color = '#ef4444', size = 72 }) {
   );
 }
 
-export default function Dice({ token, playableBalance, setPlayableBalance, isDemo }) {
+export default function Dice({ socket, user, token, playableBalance, setPlayableBalance, isDemo }) {
   const [betAmount, setBetAmount] = useState('50');
   const [sliderValue, setSliderValue] = useState(50);
   const [direction, setDirection] = useState('over');
@@ -107,10 +107,19 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
   const [popupData, setPopupData] = useState({ won: false, amount: 0 });
   const [history, setHistory] = useState([]);
 
+  // Timed multiplayer states
+  const [timer, setTimer] = useState(15);
+  const [hasBet, setHasBet] = useState(false);
+  const [activeBetAmount, setActiveBetAmount] = useState(0);
+  const [activeBetSelection, setActiveBetSelection] = useState('over');
+  const [activeBetTargetValue, setActiveBetTargetValue] = useState(50);
+  const [activeBetMultiplier, setActiveBetMultiplier] = useState(1.96);
+  const [balanceAtRoundEnd, setBalanceAtRoundEnd] = useState(null);
+
   // Autoplay
   const [isAutoplayActive, setIsAutoplayActive] = useState(false);
   const [autoplayCount, setAutoplayCount] = useState('10');
-  const autoplayRef = useRef({ active: false, remaining: 0 });
+  const autoplayRef = useRef({ active: false, count: 10, direction: 'over', sliderValue: 50, amount: 50 });
 
   // Slider tick throttle
   const lastTickRef = useRef(0);
@@ -139,87 +148,211 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
     }
   };
 
-  const executeRoll = async (amt, m) => {
-    setRolling(true);
-    setShowResultPopup(false);
-    playDiceRollSound();
+  useEffect(() => {
+    autoplayRef.current = {
+      active: isAutoplayActive,
+      count: parseInt(autoplayCount) || 0,
+      direction: direction,
+      sliderValue: sliderValue,
+      amount: parseFloat(betAmount) || 50
+    };
+  }, [isAutoplayActive, autoplayCount, direction, sliderValue, betAmount]);
 
-    await new Promise(r => setTimeout(r, 700));
+  useEffect(() => {
+    if (!socket) return;
 
-    const rolled = parseFloat((Math.random() * 100).toFixed(2));
-    const isWon = direction === 'over' ? rolled > sliderValue : rolled < sliderValue;
-    const payout = isWon ? parseFloat((amt * m).toFixed(2)) : 0;
+    const handleTimers = (timers) => {
+      setTimer(timers.dice);
+    };
 
-    setRollResult(rolled);
-    setWon(isWon);
-    setHistory(prev => [rolled, ...prev].slice(0, 10));
+    const handleOutcome = (data) => {
+      const rolled = data.outcome || data.lastOutcome;
+      if (rolled === undefined || rolled === null) return;
 
-    if (isDemo) {
-      setPlayableBalance(prev => parseFloat((prev - amt + payout).toFixed(2)));
-      setRolling(false);
-      setPopupData({ won: isWon, amount: isWon ? payout : amt, rollResult: rolled });
-      setShowResultPopup(true);
-      setTimeout(() => setShowResultPopup(false), 2000);
-      if (isWon) playWinChime(); else playLossSound();
-      return;
-    }
+      setHistory(data.history || []);
+      setRolling(true);
+      setShowResultPopup(false);
+      playDiceRollSound();
 
-    try {
-      const res = await fetch('http://localhost:3001/api/games/record-bet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          game: 'dice', bet_amount: amt,
-          payout_multiplier: isWon ? m : 0, payout_amount: payout,
-          is_won: isWon, raw_selection: { sliderValue, direction, rolled }
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setPlayableBalance(data.balance);
-        setPopupData({ won: isWon, amount: isWon ? payout : amt, rollResult: rolled });
-        setShowResultPopup(true);
-        setTimeout(() => setShowResultPopup(false), 2000);
-        if (isWon) playWinChime(); else playLossSound();
+      setTimeout(() => {
+        setRollResult(rolled);
+        setRolling(false);
+
+        if (hasBet) {
+          const isWon = activeBetSelection === 'over' ? rolled > activeBetTargetValue : rolled < activeBetTargetValue;
+          setWon(isWon);
+
+          const payout = isWon ? parseFloat((activeBetAmount * activeBetMultiplier).toFixed(2)) : 0;
+          setPopupData({ won: isWon, amount: isWon ? payout : activeBetAmount, rollResult: rolled });
+          setShowResultPopup(true);
+
+          if (isWon) {
+            playWinChime();
+            if (isDemo) {
+              setPlayableBalance(prev => parseFloat((prev + payout).toFixed(2)));
+            } else if (balanceAtRoundEnd !== null) {
+              setPlayableBalance(balanceAtRoundEnd);
+            }
+          } else {
+            playLossSound();
+          }
+
+          setTimeout(() => {
+            setShowResultPopup(false);
+          }, 2000);
+
+          setHasBet(false);
+          setBalanceAtRoundEnd(null);
+        }
+
+        // Handle autoplay logic
+        if (autoplayRef.current.active) {
+          const nextCount = autoplayRef.current.count - 1;
+          if (nextCount <= 0) {
+            setIsAutoplayActive(false);
+            setAutoplayCount('0');
+          } else {
+            setAutoplayCount(String(nextCount));
+            setTimeout(() => {
+              autoPlaceBet();
+            }, 800);
+          }
+        }
+      }, 700);
+    };
+
+    const handleBetResult = (data) => {
+      if (data.game === 'dice' && !isDemo) {
+        if (data.won) {
+          setBalanceAtRoundEnd(data.balance);
+        }
       }
-    } catch (e) { console.error(e); }
-    finally { setRolling(false); }
-  };
+    };
 
-  const rollDice = () => {
+    const handleBetPlacedSuccess = (data) => {
+      if (data.game === 'dice' && !isDemo) {
+        setPlayableBalance(data.balance);
+      }
+    };
+
+    const handleInitData = (data) => {
+      setHistory(data.dice || []);
+    };
+
+    socket.on('game_timers', handleTimers);
+    socket.on('dice_resolution', handleOutcome);
+    socket.on('bet_result', handleBetResult);
+    socket.on('bet_placed_success', handleBetPlacedSuccess);
+    socket.on('init_data', handleInitData);
+
+    socket.emit('request_init_data');
+
+    return () => {
+      socket.off('game_timers', handleTimers);
+      socket.off('dice_resolution', handleOutcome);
+      socket.off('bet_result', handleBetResult);
+      socket.off('bet_placed_success', handleBetPlacedSuccess);
+      socket.off('init_data', handleInitData);
+    };
+  }, [socket, hasBet, activeBetAmount, activeBetSelection, activeBetTargetValue, activeBetMultiplier, balanceAtRoundEnd, isDemo, setPlayableBalance]);
+
+  const placeBet = () => {
+    if (hasBet || timer <= 4) return;
+
     const amt = parseFloat(betAmount);
     if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
     if (amt > playableBalance) return alert('Insufficient balance');
     const wc = getWinChance();
     if (wc <= 0 || wc >= 100) return alert('Invalid target');
-    executeRoll(amt, mult);
+
+    playClick();
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetSelection(direction);
+    setActiveBetTargetValue(sliderValue);
+    setActiveBetMultiplier(mult);
+
+    if (isDemo) {
+      setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
+    } else {
+      if (!user) return alert('Please login to place real bets');
+      socket.emit('place_bet', {
+        userId: user.id,
+        game: 'dice',
+        selection: { direction, targetValue: sliderValue },
+        amount: amt
+      });
+    }
+  };
+
+  const autoPlaceBet = () => {
+    const amt = autoplayRef.current.amount;
+    const dir = autoplayRef.current.direction;
+    const target = autoplayRef.current.sliderValue;
+
+    if (amt > playableBalance) {
+      alert('Autoplay stopped: Insufficient balance');
+      setIsAutoplayActive(false);
+      return;
+    }
+
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetSelection(dir);
+    setActiveBetTargetValue(target);
+    const wc = dir === 'over' ? 100 - target : target;
+    const m = wc > 0 ? parseFloat((98 / wc).toFixed(4)) : 0;
+    setActiveBetMultiplier(m);
+
+    if (isDemo) {
+      setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
+    } else {
+      if (!user) {
+        setIsAutoplayActive(false);
+        return;
+      }
+      socket.emit('place_bet', {
+        userId: user.id,
+        game: 'dice',
+        selection: { direction: dir, targetValue: target },
+        amount: amt
+      });
+    }
   };
 
   const toggleAutoplay = () => {
     playClick();
-    if (isAutoplayActive) { setIsAutoplayActive(false); autoplayRef.current.active = false; return; }
+    if (isAutoplayActive) {
+      setIsAutoplayActive(false);
+      return;
+    }
     const count = parseInt(autoplayCount);
     if (isNaN(count) || count <= 0) return alert('Enter valid autoplay count');
     const amt = parseFloat(betAmount);
     if (isNaN(amt) || amt < 10) return alert('Minimum bet ₹10');
     if (amt > playableBalance) return alert('Insufficient balance');
-    autoplayRef.current = { active: true, remaining: count };
+
     setIsAutoplayActive(true);
-    const doRound = async () => {
-      if (!autoplayRef.current.active || autoplayRef.current.remaining <= 0) {
-        setIsAutoplayActive(false); autoplayRef.current.active = false; return;
+
+    if (timer > 4 && !hasBet) {
+      setHasBet(true);
+      setActiveBetAmount(amt);
+      setActiveBetSelection(direction);
+      setActiveBetTargetValue(sliderValue);
+      setActiveBetMultiplier(mult);
+
+      if (isDemo) {
+        setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
+      } else {
+        if (!user) return alert('Please login to place bets');
+        socket.emit('place_bet', {
+          userId: user.id,
+          game: 'dice',
+          selection: { direction, targetValue: sliderValue },
+          amount: amt
+        });
       }
-      if (parseFloat(betAmount) > playableBalance) {
-        alert('Autoplay stopped: Insufficient balance');
-        setIsAutoplayActive(false); autoplayRef.current.active = false; return;
-      }
-      autoplayRef.current.remaining -= 1;
-      setAutoplayCount(String(autoplayRef.current.remaining));
-      await executeRoll(parseFloat(betAmount), getMultiplier());
-      if (autoplayRef.current.active && autoplayRef.current.remaining > 0) setTimeout(doRound, 350);
-      else { setIsAutoplayActive(false); autoplayRef.current.active = false; }
-    };
-    doRound();
+    }
   };
 
   const multiplyBet = (f) => {
@@ -230,10 +363,11 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
     });
   };
 
-  // % position for the "win value" label below track
   const winLabelPct = direction === 'over'
     ? sliderValue + (100 - sliderValue) * 0.5
     : sliderValue * 0.5;
+
+  const bettingClosed = timer <= 4;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row', gap: 20, padding: 8, color: '#fff', fontFamily: 'sans-serif', position: 'relative' }}>
@@ -310,13 +444,13 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
           <div style={{ display: 'flex', alignItems: 'center', background: '#0f111a', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <span style={{ color: '#3de796', fontWeight: 700, fontSize: 12, marginRight: 8 }}>₹</span>
             <input type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)}
-              disabled={rolling || isAutoplayActive}
+              disabled={hasBet || bettingClosed || isAutoplayActive}
               style={{ background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontWeight: 800, fontSize: 12, flex: 1, minWidth: 0 }}
             />
             <div style={{ display: 'flex', gap: 6 }}>
               {[['½', 0.5], ['2×', 2]].map(([lbl, f]) => (
-                <button key={lbl} onClick={() => multiplyBet(f)} disabled={rolling || isAutoplayActive}
-                  style={{ background: '#26293b', border: 'none', borderRadius: 6, color: '#fff', fontSize: 9, fontWeight: 900, padding: '6px 10px', cursor: 'pointer', opacity: (rolling || isAutoplayActive) ? 0.4 : 1 }}>
+                <button key={lbl} onClick={() => multiplyBet(f)} disabled={hasBet || bettingClosed || isAutoplayActive}
+                  style={{ background: '#26293b', border: 'none', borderRadius: 6, color: '#fff', fontSize: 9, fontWeight: 900, padding: '6px 10px', cursor: 'pointer', opacity: (hasBet || bettingClosed || isAutoplayActive) ? 0.4 : 1 }}>
                   {lbl}
                 </button>
               ))}
@@ -344,6 +478,26 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
           </div>
         )}
 
+        {/* Countdown Timer */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#6b7890' }}>
+            <span>NEXT ROUND TIMER</span>
+            <span style={{ color: bettingClosed ? '#ef4444' : '#3de796', fontWeight: 900 }}>{timer}s</span>
+          </div>
+          <div style={{ position: 'relative', width: '100%', height: 10, background: '#0f111a', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div
+              style={{
+                height: '100%',
+                borderRadius: 999,
+                background: bettingClosed ? '#ef4444' : '#3de796',
+                boxShadow: bettingClosed ? '0 0 8px #ef4444' : '0 0 8px #3de796',
+                width: `${(timer / 15) * 100}%`,
+                transition: 'width 1s linear'
+              }}
+            />
+          </div>
+        </div>
+
         {/* Stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
           {[
@@ -363,8 +517,8 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
           <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7890' }}>DIRECTION</div>
           <div style={{ display: 'flex', background: '#0f111a', borderRadius: 12, padding: 4, border: '1px solid rgba(255,255,255,0.04)', gap: 4 }}>
             {[['over', 'Roll Over ↑'], ['under', 'Roll Under ↓']].map(([val, label]) => (
-              <button key={val} onClick={() => { playClick(); setDirection(val); }} disabled={rolling || isAutoplayActive}
-                style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 9, fontWeight: 900, background: direction === val ? '#26293b' : 'transparent', color: direction === val ? '#3de796' : '#6b7890', opacity: (rolling || isAutoplayActive) ? 0.4 : 1 }}>
+              <button key={val} onClick={() => { playClick(); setDirection(val); }} disabled={hasBet || bettingClosed || isAutoplayActive}
+                style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 9, fontWeight: 900, background: direction === val ? '#26293b' : 'transparent', color: direction === val ? '#3de796' : '#6b7890', opacity: (hasBet || bettingClosed || isAutoplayActive) ? 0.4 : 1 }}>
                 {label}
               </button>
             ))}
@@ -380,9 +534,9 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
             {isAutoplayActive ? `Stop Autoplay (${autoplayCount} left)` : 'Start Autoplay'}
           </button>
         ) : (
-          <button onClick={rollDice} disabled={rolling}
-            style={{ width: '100%', padding: '16px 0', borderRadius: 16, border: 'none', cursor: rolling ? 'default' : 'pointer', fontSize: 11, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', background: rolling ? '#141622' : '#2effb0', color: rolling ? '#3de796' : '#0f111a', boxShadow: rolling ? 'none' : '0 0 24px rgba(46,255,176,0.2)' }}>
-            {rolling ? 'Rolling...' : 'Roll Dice'}
+          <button onClick={placeBet} disabled={hasBet || bettingClosed}
+            style={{ width: '100%', padding: '16px 0', borderRadius: 16, border: 'none', cursor: (hasBet || bettingClosed) ? 'default' : 'pointer', fontSize: 11, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', background: hasBet ? '#141622' : bettingClosed ? 'rgb(38, 41, 59)' : '#2effb0', color: hasBet ? '#3de796' : bettingClosed ? '#6b7890' : '#0f111a', boxShadow: (hasBet || bettingClosed) ? 'none' : '0 0 24px rgba(46,255,176,0.2)' }}>
+            {hasBet ? 'Bet Placed' : bettingClosed ? `Betting Closed (${timer}s)` : 'Roll Dice'}
           </button>
         )}
       </div>
@@ -513,7 +667,7 @@ export default function Dice({ token, playableBalance, setPlayableBalance, isDem
                   <input
                     type="range" min="2" max="98" value={sliderValue}
                     onChange={handleSliderChange}
-                    disabled={rolling || isAutoplayActive}
+                    disabled={hasBet || bettingClosed || isAutoplayActive}
                     className="ds"
                   />
 

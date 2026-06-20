@@ -183,7 +183,7 @@ function ResultPopup({ won, payout, multiplier, betAmount, onClose }) {
   );
 }
 
-export default function Limbo({ token, playableBalance, setPlayableBalance, isDemo }) {
+export default function Limbo({ socket, user, token, playableBalance, setPlayableBalance, isDemo }) {
   const [tab, setTab] = useState('manual');
   const [showAutoConfig, setShowAutoConfig] = useState(false);
   const [betAmount, setBetAmount] = useState('50');
@@ -197,6 +197,13 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
   const [won, setWon] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [history, setHistory] = useState([2.26, 1.53, 1.58, 1.90, 1.00, 2.26, 1.59, 3.96, 1.91, 5.00]);
+
+  // Timed multiplayer states
+  const [timer, setTimer] = useState(15);
+  const [hasBet, setHasBet] = useState(false);
+  const [activeBetAmount, setActiveBetAmount] = useState(0);
+  const [activeBetTargetMultiplier, setActiveBetTargetMultiplier] = useState(2.00);
+  const [balanceAtRoundEnd, setBalanceAtRoundEnd] = useState(null);
 
   // Autoplay config
   const [numberOfBets, setNumberOfBets] = useState('0');
@@ -215,6 +222,8 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
   const balanceRef = useRef(playableBalance);
   const startBalanceRef = useRef(playableBalance);
   const lastResultRef = useRef(null);
+
+  const bettingClosed = timer <= 4;
 
   useEffect(() => {
     isAutoplayRef.current = isAutoplayRunning;
@@ -252,120 +261,227 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
     }
   };
 
-  const startRoll = async () => {
-    const amt = parseFloat(betAmount);
-    const target = parseFloat(targetMultiplier);
+  const autoplayConfigRef = useRef({ active: false, amount: 50, targetMultiplier: 2.00 });
 
-    if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
-    if (isNaN(target) || target < 1.01) return alert('Minimum target multiplier is 1.01x');
-    if (amt > balanceRef.current) {
-      setIsAutoplayRunning(false);
-      return alert('Insufficient balance');
-    }
+  useEffect(() => {
+    autoplayConfigRef.current = {
+      active: isAutoplayRunning,
+      amount: parseFloat(betAmount) || 50,
+      targetMultiplier: parseFloat(targetMultiplier) || 2.00
+    };
+  }, [isAutoplayRunning, betAmount, targetMultiplier]);
 
-    setPlayableBalance(prev => prev - amt);
-    setTotalWagered(prev => prev + amt);
-    setRolling(true);
-    setWon(null);
-    setShowPopup(false);
-    setRolledMultiplier(null);
+  useEffect(() => {
+    if (!socket) return;
 
-    // Roll calculation (99% RTP)
-    const isHardCrash = Math.random() < 0.03;
-    let rolled = 1.00;
-    if (!isHardCrash) {
-      const rand = Math.random();
-      rolled = parseFloat((0.99 / (1.00 - rand)).toFixed(2));
-      if (rolled < 1.00) rolled = 1.00;
-    }
+    const handleTimers = (timers) => {
+      setTimer(timers.limbo);
+    };
 
-    const isWon = rolled >= target;
-    const payout = isWon ? parseFloat((amt * target).toFixed(2)) : 0.00;
+    const handleOutcome = (data) => {
+      const rolled = data.outcome || data.lastOutcome;
+      if (rolled === undefined || rolled === null) return;
 
-    // Smooth animated count-up
-    const duration = 1200;
-    const steps = 40;
-    const stepTime = duration / steps;
+      setHistory(data.history || []);
+      setRolling(true);
+      setShowPopup(false);
+      setRolledMultiplier(null);
 
-    // Use easeOut curve for dramatic deceleration
-    return new Promise((resolve) => {
+      // Smooth count-up
+      const duration = 1200;
+      const steps = 40;
+      const stepTime = duration / steps;
+
       let count = 0;
       const interval = setInterval(() => {
         count++;
-        // Ease-out quadratic: fast then slow
         const t = count / steps;
         const eased = 1 - Math.pow(1 - t, 2);
         const current = 1.00 + (rolled - 1.00) * eased;
         setDisplayMultiplier(current);
 
-        // Play tick every few steps
         if (count % 3 === 0) playTick();
 
         if (count >= steps) {
           clearInterval(interval);
           setDisplayMultiplier(rolled);
           setRolledMultiplier(rolled);
-          setWon(isWon);
           setRolling(false);
-          if (isWon) {
-            setShowPopup(true);
+
+          if (hasBet) {
+            const isWon = rolled >= activeBetTargetMultiplier;
+            setWon(isWon);
+
+            const payout = isWon ? parseFloat((activeBetAmount * activeBetTargetMultiplier).toFixed(2)) : 0;
+            if (isWon) {
+              setShowPopup(true);
+              playWinChime();
+              setTotalProfit(prev => prev + (payout - activeBetAmount));
+              if (isDemo) {
+                setPlayableBalance(prev => parseFloat((prev + payout).toFixed(2)));
+              } else if (balanceAtRoundEnd !== null) {
+                setPlayableBalance(balanceAtRoundEnd);
+              }
+            } else {
+              playLossSound();
+              setTotalProfit(prev => prev - activeBetAmount);
+            }
+
             setTimeout(() => {
               setShowPopup(false);
             }, 2000);
+
+            setHasBet(false);
+            setBalanceAtRoundEnd(null);
           }
 
-          // Update history
-          setHistory(prev => [rolled, ...prev.slice(0, 9)]);
-          lastResultRef.current = { payout, target, amt, isWon };
+          // Handle autoplay logic
+          if (autoplayConfigRef.current.active) {
+            let remaining = autoBetsRemaining;
+            if (remaining !== 0) {
+              remaining--;
+              setAutoBetsRemaining(remaining);
+            }
 
-          if (isWon) {
-            playWinChime();
-            setTotalProfit(prev => prev + (payout - amt));
-            if (isDemo) {
-              setPlayableBalance(prev => prev + payout);
+            // Adjust autoplay count / stop triggers
+            const currentProfit = balanceRef.current - startBalanceRef.current;
+            const profitStop = parseFloat(stopProfit);
+            const lossStop = parseFloat(stopLoss);
+
+            let shouldStop = false;
+            if (profitStop > 0 && currentProfit >= profitStop) {
+              alert(`Autoplay profit target of ₹${profitStop} hit!`);
+              shouldStop = true;
+            }
+            if (lossStop > 0 && Math.abs(currentProfit) >= lossStop && currentProfit < 0) {
+              alert(`Autoplay loss limit of ₹${lossStop} hit!`);
+              shouldStop = true;
+            }
+
+            if (remaining <= 0 || shouldStop) {
+              setIsAutoplayRunning(false);
             } else {
-              recordBetAPI(amt, target, payout, true, rolled);
-            }
-          } else {
-            playLossSound();
-            setTotalProfit(prev => prev - amt);
-            if (!isDemo) {
-              recordBetAPI(amt, 0.00, 0.00, false, rolled);
+              // Adjust bet size on win/loss
+              const resultIsWon = rolled >= activeBetTargetMultiplier;
+              let nextBet = parseFloat(betAmount);
+              if (resultIsWon) {
+                if (!onWinReset) {
+                  const inc = parseFloat(onWinIncrease) / 100;
+                  nextBet = nextBet * (1 + inc);
+                }
+              } else {
+                if (!onLossReset) {
+                  const inc = parseFloat(onLossIncrease) / 100;
+                  nextBet = nextBet * (1 + inc);
+                }
+              }
+              setBetAmount(nextBet.toFixed(2));
+
+              setTimeout(() => {
+                autoPlaceBet();
+              }, 800);
             }
           }
-          resolve({ isWon, payout });
         }
       }, stepTime);
-    });
-  };
+    };
 
-  const recordBetAPI = async (amt, target, payout, isWon, rolled) => {
-    try {
-      const res = await fetch('http://localhost:3001/api/games/record-bet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          game: 'limbo',
-          bet_amount: amt,
-          payout_multiplier: isWon ? target : 0.00,
-          payout_amount: payout,
-          is_won: isWon,
-          raw_selection: { target, rolled }
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
+    const handleBetResult = (data) => {
+      if (data.game === 'limbo' && !isDemo) {
+        if (data.won) {
+          setBalanceAtRoundEnd(data.balance);
+        }
+      }
+    };
+
+    const handleBetPlacedSuccess = (data) => {
+      if (data.game === 'limbo' && !isDemo) {
         setPlayableBalance(data.balance);
       }
-    } catch (e) {
-      console.error(e);
+    };
+
+    const handleInitData = (data) => {
+      setHistory(data.limbo || []);
+    };
+
+    socket.on('game_timers', handleTimers);
+    socket.on('limbo_resolution', handleOutcome);
+    socket.on('bet_result', handleBetResult);
+    socket.on('bet_placed_success', handleBetPlacedSuccess);
+    socket.on('init_data', handleInitData);
+
+    socket.emit('request_init_data');
+
+    return () => {
+      socket.off('game_timers', handleTimers);
+      socket.off('limbo_resolution', handleOutcome);
+      socket.off('bet_result', handleBetResult);
+      socket.off('bet_placed_success', handleBetPlacedSuccess);
+      socket.off('init_data', handleInitData);
+    };
+  }, [socket, hasBet, activeBetAmount, activeBetTargetMultiplier, balanceAtRoundEnd, isDemo, setPlayableBalance, autoBetsRemaining, stopProfit, stopLoss, betAmount, onWinReset, onWinIncrease, onLossReset, onLossIncrease]);
+
+  const placeBet = () => {
+    if (hasBet || timer <= 4) return;
+
+    const amt = parseFloat(betAmount);
+    const target = parseFloat(targetMultiplier);
+
+    if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
+    if (isNaN(target) || target < 1.01) return alert('Minimum target multiplier is 1.01x');
+    if (amt > playableBalance) return alert('Insufficient balance');
+
+    playClick();
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetTargetMultiplier(target);
+    setTotalWagered(prev => prev + amt);
+
+    if (isDemo) {
+      setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
+    } else {
+      if (!user) return alert('Please login to place real bets');
+      socket.emit('place_bet', {
+        userId: user.id,
+        game: 'limbo',
+        selection: target,
+        amount: amt
+      });
     }
   };
 
-  const handleAutoplayLoop = async () => {
+  const autoPlaceBet = () => {
+    const amt = autoplayConfigRef.current.amount;
+    const target = autoplayConfigRef.current.targetMultiplier;
+
+    if (amt > playableBalance) {
+      alert('Autoplay stopped: Insufficient balance');
+      setIsAutoplayRunning(false);
+      return;
+    }
+
+    setHasBet(true);
+    setActiveBetAmount(amt);
+    setActiveBetTargetMultiplier(target);
+    setTotalWagered(prev => prev + amt);
+
+    if (isDemo) {
+      setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
+    } else {
+      if (!user) {
+        setIsAutoplayRunning(false);
+        return;
+      }
+      socket.emit('place_bet', {
+        userId: user.id,
+        game: 'limbo',
+        selection: target,
+        amount: amt
+      });
+    }
+  };
+
+  const handleAutoplayLoop = () => {
     if (isAutoplayRunning) {
       setIsAutoplayRunning(false);
       return;
@@ -375,68 +491,36 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
     const target = parseFloat(targetMultiplier);
     if (isNaN(amt) || amt < 10) return alert('Minimum bet is ₹10.00');
     if (isNaN(target) || target < 1.01) return alert('Minimum multiplier target is 1.01x');
+    if (amt > playableBalance) return alert('Insufficient balance');
 
     setIsAutoplayRunning(true);
-    startBalanceRef.current = balanceRef.current;
+    startBalanceRef.current = playableBalance;
     setTotalWagered(0);
     setTotalProfit(0);
 
-    let betsCount = parseInt(numberOfBets);
-    let infinite = betsCount === 0;
-    let currentBet = amt;
-    let remaining = infinite ? 999999 : betsCount;
+    const betsCount = parseInt(numberOfBets);
+    const infinite = betsCount === 0;
+    const remaining = infinite ? 999999 : betsCount;
     setAutoBetsRemaining(remaining);
 
-    while (remaining > 0 && isAutoplayRef.current) {
-      if (balanceRef.current < currentBet) {
-        alert('Insufficient balance for autoplay');
-        break;
-      }
+    if (timer > 4 && !hasBet) {
+      setHasBet(true);
+      setActiveBetAmount(amt);
+      setActiveBetTargetMultiplier(target);
+      setTotalWagered(prev => prev + amt);
 
-      const currentProfit = balanceRef.current - startBalanceRef.current;
-      const profitStop = parseFloat(stopProfit);
-      const lossStop = parseFloat(stopLoss);
-
-      if (profitStop > 0 && currentProfit >= profitStop) {
-        alert(`Autoplay profit target of ₹${profitStop} hit!`);
-        break;
-      }
-      if (lossStop > 0 && Math.abs(currentProfit) >= lossStop && currentProfit < 0) {
-        alert(`Autoplay loss limit of ₹${lossStop} hit!`);
-        break;
-      }
-
-      const result = await startRoll();
-      if (!result) break;
-
-      if (result.isWon) {
-        if (onWinReset) {
-          currentBet = amt;
-        } else {
-          const inc = parseFloat(onWinIncrease) / 100;
-          currentBet = currentBet * (1 + inc);
-        }
+      if (isDemo) {
+        setPlayableBalance(prev => parseFloat((prev - amt).toFixed(2)));
       } else {
-        if (onLossReset) {
-          currentBet = amt;
-        } else {
-          const inc = parseFloat(onLossIncrease) / 100;
-          currentBet = currentBet * (1 + inc);
-        }
-      }
-      setBetAmount(currentBet.toFixed(2));
-
-      if (!infinite) {
-        remaining--;
-        setAutoBetsRemaining(remaining);
-      }
-
-      if (remaining > 0 && isAutoplayRef.current) {
-        await new Promise(r => setTimeout(r, 1400));
+        if (!user) return alert('Please login to place bets');
+        socket.emit('place_bet', {
+          userId: user.id,
+          game: 'limbo',
+          selection: target,
+          amount: amt
+        });
       }
     }
-
-    setIsAutoplayRunning(false);
   };
 
   const calculatedPayout = (parseFloat(betAmount) * parseFloat(targetMultiplier) || 0).toFixed(2);
@@ -447,7 +531,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
 
       {/* Left Console Panel */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-hidden order-2 lg:order-1">
+      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
 
         <AnimatePresence mode="wait">
           {!showAutoConfig ? (
@@ -462,7 +546,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
               <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5 order-5 lg:order-1">
                 <button
                   onClick={() => { playClick(); setTab('manual'); }}
-                  disabled={rolling || isAutoplayRunning}
+                  disabled={hasBet || bettingClosed || isAutoplayRunning}
                   className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                     tab === 'manual'
                       ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
@@ -473,7 +557,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                 </button>
                 <button
                   onClick={() => { playClick(); setTab('autoplay'); }}
-                  disabled={rolling || isAutoplayRunning}
+                  disabled={hasBet || bettingClosed || isAutoplayRunning}
                   className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                     tab === 'autoplay'
                       ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
@@ -496,7 +580,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                   </div>
                   <input
                     type="number"
-                    disabled={rolling || isAutoplayRunning}
+                    disabled={hasBet || bettingClosed || isAutoplayRunning}
                     className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
@@ -504,14 +588,14 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                   <div className="flex gap-1">
                     <button
                       onClick={() => multiplyBet(0.5)}
-                      disabled={rolling || isAutoplayRunning}
+                      disabled={hasBet || bettingClosed || isAutoplayRunning}
                       className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                     >
                       1/2
                     </button>
                     <button
                       onClick={() => multiplyBet(2.0)}
-                      disabled={rolling || isAutoplayRunning}
+                      disabled={hasBet || bettingClosed || isAutoplayRunning}
                       className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                     >
                       X2
@@ -528,7 +612,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                     <input
                       type="number"
                       step="0.01"
-                      disabled={rolling || isAutoplayRunning}
+                      disabled={hasBet || bettingClosed || isAutoplayRunning}
                       className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={targetMultiplier}
                       onChange={(e) => handleMultiplierChange(e.target.value)}
@@ -543,7 +627,7 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                     <input
                       type="number"
                       step="0.01"
-                      disabled={rolling || isAutoplayRunning}
+                      disabled={hasBet || bettingClosed || isAutoplayRunning}
                       className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={winChance}
                       onChange={(e) => handleWinChanceChange(e.target.value)}
@@ -561,6 +645,26 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                 </div>
               </div>
 
+              {/* Countdown Timer */}
+              <div className="space-y-2 order-4 lg:order-4">
+                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                  <span>NEXT ROUND TIMER</span>
+                  <span style={{ color: bettingClosed ? '#ef4444' : '#3de796', fontWeight: 900 }}>{timer}s</span>
+                </div>
+                <div className="relative w-full h-2.5 bg-zinc-950/40 rounded-full overflow-hidden border border-white/5">
+                  <div
+                    style={{
+                      height: '100%',
+                      borderRadius: 999,
+                      background: bettingClosed ? '#ef4444' : '#3de796',
+                      boxShadow: bettingClosed ? '0 0 8px #ef4444' : '0 0 8px #3de796',
+                      width: `${(timer / 15) * 100}%`,
+                      transition: 'width 1s linear'
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Autoplay statistics */}
               {tab === 'autoplay' && (
                 <div className="space-y-3 order-4 lg:order-4 border-t border-white/5 pt-3">
@@ -569,15 +673,15 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
                     <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                       <input
                         type="number"
-                        disabled={rolling || isAutoplayRunning}
+                        disabled={hasBet || bettingClosed || isAutoplayRunning}
                         className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                         value={numberOfBets}
                         onChange={(e) => setNumberOfBets(e.target.value)}
                       />
                       <div className="flex gap-1">
-                        <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={rolling || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">20</button>
-                        <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={rolling || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">50</button>
-                        <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={rolling || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">∞</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">20</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">50</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">∞</button>
                       </div>
                     </div>
                   </div>
@@ -601,17 +705,23 @@ export default function Limbo({ token, playableBalance, setPlayableBalance, isDe
               <div className="order-1 lg:order-5 lg:mt-auto lg:pt-4 space-y-2">
                 {tab === 'manual' ? (
                   <button
-                    onClick={startRoll}
-                    disabled={rolling}
-                    className="w-full bg-[#3de796] hover:bg-[#3de796]/80 text-black py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg shadow-[#3de796]/10 border-0 cursor-pointer transition-all disabled:opacity-50"
+                    onClick={placeBet}
+                    disabled={hasBet || bettingClosed}
+                    className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all ${
+                      hasBet
+                        ? 'bg-[#141622] text-[#3de796] border border-[#3de796]/20'
+                        : bettingClosed
+                        ? 'bg-zinc-800/80 text-white/20'
+                        : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
+                    }`}
                   >
-                    {rolling ? 'ROLLING...' : 'PLAY'}
+                    {hasBet ? 'BET PLACED' : bettingClosed ? `CLOSED (${timer}s)` : 'PLAY'}
                   </button>
                 ) : (
                   <div className="flex flex-col gap-2">
                     <button
                       onClick={() => { playClick(); setShowAutoConfig(true); }}
-                      disabled={rolling || isAutoplayRunning}
+                      disabled={hasBet || bettingClosed || isAutoplayRunning}
                       className="w-full bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
                     >
                       CONFIGURE AUTO

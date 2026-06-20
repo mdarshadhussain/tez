@@ -373,13 +373,13 @@ export default function App() {
         gameComponent = <Plinko token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'limbo':
-        gameComponent = <Limbo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Limbo socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'roulette':
         gameComponent = <Roulette socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'dice':
-        gameComponent = <Dice token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Dice socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'coin':
         gameComponent = <CoinFlip socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
@@ -388,7 +388,7 @@ export default function App() {
         gameComponent = <Hilo token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'keno':
-        gameComponent = <Keno token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
+        gameComponent = <Keno socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
       case 'goal':
         gameComponent = <Goal token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;

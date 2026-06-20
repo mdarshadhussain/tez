@@ -12,6 +12,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
   const [won, setWon] = useState(null);
   const [timer, setTimer] = useState(15);
   const [history, setHistory] = useState([]); // stores { id, val } objects for unique keys
+  const [spinTarget, setSpinTarget] = useState('heads');
   
   // Local active bet state
   const [hasBet, setHasBet] = useState(false);
@@ -61,6 +62,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
       setHistory(newHistory);
       
       // Trigger coin spin animation & audio sound
+      setSpinTarget(flipped);
       playCoinFlipSound();
       setSpinning(true);
       setResult(null);
@@ -277,27 +279,85 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
   return (
     <div className="coinflip-container w-full h-full flex flex-col md:flex-row gap-6 p-2 text-white font-sans selection:bg-transparent relative">
       <style>{`
-        @keyframes coin-3d-spin-heads {
-          0% { transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1); }
-          30% { transform: rotateY(540deg) rotateX(120deg) rotateZ(90deg) scale(1.3); }
-          60% { transform: rotateY(1080deg) rotateX(240deg) rotateZ(180deg) scale(1.4); }
-          90% { transform: rotateY(1620deg) rotateX(120deg) rotateZ(270deg) scale(1.2); }
-          100% { transform: rotateY(2160deg) rotateX(0deg) rotateZ(360deg) scale(1); }
+        @keyframes coin-toss-heads {
+          0% {
+            transform: translateY(0) scale(1) rotateY(0deg) rotateX(0deg);
+          }
+          30% {
+            transform: translateY(-160px) scale(1.35) rotateY(540deg) rotateX(25deg);
+          }
+          60% {
+            transform: translateY(-200px) scale(1.45) rotateY(1080deg) rotateX(-25deg);
+          }
+          80% {
+            transform: translateY(-80px) scale(1.15) rotateY(1620deg) rotateX(12deg);
+          }
+          100% {
+            transform: translateY(0) scale(1) rotateY(2160deg) rotateX(0deg);
+          }
         }
-        @keyframes coin-3d-spin-tails {
-          0% { transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1); }
-          30% { transform: rotateY(540deg) rotateX(120deg) rotateZ(90deg) scale(1.3); }
-          60% { transform: rotateY(1080deg) rotateX(240deg) rotateZ(180deg) scale(1.4); }
-          90% { transform: rotateY(1710deg) rotateX(120deg) rotateZ(270deg) scale(1.2); }
-          100% { transform: rotateY(2340deg) rotateX(0deg) rotateZ(360deg) scale(1); }
+        @keyframes coin-toss-tails {
+          0% {
+            transform: translateY(0) scale(1) rotateY(0deg) rotateX(0deg);
+          }
+          30% {
+            transform: translateY(-160px) scale(1.35) rotateY(540deg) rotateX(25deg);
+          }
+          60% {
+            transform: translateY(-200px) scale(1.45) rotateY(1080deg) rotateX(-25deg);
+          }
+          80% {
+            transform: translateY(-80px) scale(1.15) rotateY(1710deg) rotateX(12deg);
+          }
+          100% {
+            transform: translateY(0) scale(1) rotateY(2340deg) rotateX(0deg);
+          }
         }
-        .coin-spinning-h {
-          animation: coin-3d-spin-heads 1.5s cubic-bezier(0.1, 0.8, 0.1, 1) forwards;
+        @keyframes shadow-toss {
+          0% {
+            transform: scale(1);
+            opacity: 0.6;
+            filter: blur(4px);
+          }
+          30% {
+            transform: scale(0.65);
+            opacity: 0.25;
+            filter: blur(10px);
+          }
+          60% {
+            transform: scale(0.55);
+            opacity: 0.15;
+            filter: blur(12px);
+          }
+          80% {
+            transform: scale(0.8);
+            opacity: 0.4;
+            filter: blur(6px);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0.6;
+            filter: blur(4px);
+          }
+        }
+        .coin-toss-h {
+          animation: coin-toss-heads 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
           transform-style: preserve-3d;
         }
-        .coin-spinning-t {
-          animation: coin-3d-spin-tails 1.5s cubic-bezier(0.1, 0.8, 0.1, 1) forwards;
+        .coin-toss-t {
+          animation: coin-toss-tails 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
           transform-style: preserve-3d;
+        }
+        .coin-static-heads {
+          transform: rotateY(0deg);
+          transform-style: preserve-3d;
+        }
+        .coin-static-tails {
+          transform: rotateY(180deg);
+          transform-style: preserve-3d;
+        }
+        .coin-shadow-toss {
+          animation: shadow-toss 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
       `}</style>
 
@@ -466,28 +526,51 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
 
         {/* Main Coin Stage */}
         <div className="flex-1 flex flex-col items-center justify-center py-6 w-full relative">
-          <div className="relative w-44 h-44 flex items-center justify-center">
-            
-            {/* Spinning/Static Ring Coin */}
-            <div
-              className={`w-36 h-36 rounded-full border-[18px] transition-all flex items-center justify-center text-white font-black text-4xl shadow-2xl relative ${
-                spinning 
-                  ? (prediction === 'heads' ? 'coin-spinning-h' : 'coin-spinning-t')
-                  : ''
-              } ${
-                result === 'tails'
-                  ? 'border-[#e2e8f0] [background:radial-gradient(circle,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0.4)_100%)] shadow-slate-500/10'
-                  : 'border-[#fbbf24] [background:radial-gradient(circle,rgba(251,191,36,0.12)_0%,rgba(0,0,0,0.4)_100%)] shadow-yellow-500/10'
-              }`}
-            >
-              {/* Shimmer overlay effect */}
-              <div className="absolute inset-0 rounded-full border border-white/20 pointer-events-none opacity-45" />
-              {spinning ? '?' : result ? result.toUpperCase().charAt(0) : '?'}
+          <div className="relative w-48 h-64 flex flex-col items-center justify-center">
+            {/* The 3D Coin Wrapper */}
+            <div className="relative w-36 h-36 mb-6" style={{ perspective: '1000px' }}>
+              <div
+                className={`w-full h-full relative transition-transform duration-500 ${
+                  spinning
+                    ? (spinTarget === 'heads' ? 'coin-toss-h' : 'coin-toss-t')
+                    : (result === 'tails' ? 'coin-static-tails' : 'coin-static-heads')
+                }`}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Front Face (Heads) */}
+                <div 
+                  className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-yellow-300 via-amber-500 to-yellow-700 border-4 border-yellow-200 shadow-xl flex flex-col items-center justify-center select-none"
+                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
+                >
+                  <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-yellow-200/40 flex flex-col items-center justify-center">
+                    <span className="text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">H</span>
+                    <span className="text-[8px] font-black tracking-widest text-yellow-100 uppercase mt-0.5">HEADS</span>
+                  </div>
+                </div>
+
+                {/* Back Face (Tails) */}
+                <div 
+                  className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-slate-200 via-slate-400 to-slate-600 border-4 border-slate-100 shadow-xl flex flex-col items-center justify-center select-none"
+                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                >
+                  <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-slate-100/40 flex flex-col items-center justify-center">
+                    <span className="text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">T</span>
+                    <span className="text-[8px] font-black tracking-widest text-slate-100 uppercase mt-0.5">TAILS</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Dynamic Coin Shadow */}
+            <div 
+              className={`absolute bottom-8 w-28 h-3 bg-black/60 rounded-full blur-md transition-all ${
+                spinning ? 'coin-shadow-toss' : 'opacity-60 scale-100'
+              }`}
+            />
 
             {/* Micro-effects on Win/Loss */}
             {result && !spinning && (
-              <div className="absolute -bottom-8 bg-[#0f111a]/95 border border-white/5 px-4 py-1.5 rounded-full text-[11px] font-black shadow-lg">
+              <div className="absolute bottom-0 bg-[#0f111a]/95 border border-white/5 px-4 py-1.5 rounded-full text-[11px] font-black shadow-lg">
                 {won ? (
                   <span className="text-[#3de796]">WON +₹{(activeBetAmount * 1.95).toFixed(2)}</span>
                 ) : (
