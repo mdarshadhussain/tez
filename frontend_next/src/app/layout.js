@@ -16,7 +16,7 @@ const monoFont = Space_Grotesk({
 
 export const metadata = {
   title: "TEZCLUB.IN | Premium iGaming & Casino Lobby",
-  description: "Play Aviator, Mines, Plinko, WinGo and other provably fair games. Win rewards, participate in promotions, and play instantly.",
+  description: "Play Aviator, WinGo and other provably fair games. Win rewards, participate in promotions, and play instantly.",
 };
 
 export default function RootLayout({ children }) {

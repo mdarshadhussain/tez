@@ -370,7 +370,7 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
   const bettingClosed = timer <= 4;
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row', gap: 20, padding: 8, color: '#fff', fontFamily: 'sans-serif', position: 'relative' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full h-full select-none bg-transparent" style={{ color: '#fff', fontFamily: 'sans-serif', position: 'relative' }}>
       <style>{`
         /* ── Two-tone slider ── */
         input[type=range].ds {
@@ -409,15 +409,7 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
         .pill-enter { animation: slide-in-right 0.3s ease forwards; }
       `}</style>
 
-      {/* ═══════════ LEFT PANEL ═══════════ */}
-      <div style={{
-        width: 290, flexShrink: 0,
-        background: '#1a1c2a',
-        borderRadius: 24, padding: 20,
-        display: 'flex', flexDirection: 'column', gap: 18,
-        border: '1px solid rgba(255,255,255,0.04)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-      }}>
+      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0">
         {/* Tab switcher */}
         <div style={{ display: 'flex', background: '#0f111a', borderRadius: 999, padding: 4, border: '1px solid rgba(255,255,255,0.04)' }}>
           {['manual', 'autoplay'].map(tab => (
@@ -455,6 +447,22 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
                 </button>
               ))}
             </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginTop: 2 }}>
+            {['50', '100', '500', '1000'].map(val => (
+              <button
+                key={val}
+                disabled={hasBet || bettingClosed || isAutoplayActive}
+                onClick={() => setBetAmount(val)}
+                style={{
+                  background: 'rgba(15, 17, 26, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 8,
+                  color: '#fff', fontSize: 9, fontWeight: 900, padding: '6px 0', cursor: 'pointer',
+                  textAlign: 'center', transition: 'all 0.2s'
+                }}
+              >
+                ₹{val}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -541,19 +549,7 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
         )}
       </div>
 
-      {/* ═══════════ RIGHT PANEL ═══════════ */}
-      <div style={{
-        flex: 1,
-        background: 'linear-gradient(180deg, #131520 0%, #0e1018 60%, #0b0d14 100%)',
-        borderRadius: 24,
-        border: '1px solid rgba(255,255,255,0.04)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        display: 'flex', flexDirection: 'column',
-        padding: '24px 28px',
-        position: 'relative',
-        overflow: 'hidden',
-        minHeight: 420,
-      }}>
+      <div className="lg:col-span-8 flex flex-col justify-between h-full relative overflow-hidden p-6 rounded-3xl bg-[#0f121d]/40 border border-white/5" style={{ minHeight: 420 }}>
         {/* Subtle grid lines */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', borderRadius: 24 }}>
           {[25, 50, 75].map(p => (

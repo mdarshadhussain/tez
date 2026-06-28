@@ -365,6 +365,22 @@ app.get('/api/admin/users', authenticateToken, verifyAdmin, async (req, res) => 
   }
 });
 
+// Admin global wagers feed
+app.get('/api/admin/wagers', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const wagers = await db.dbAll(`
+      SELECT b.id, b.game, b.bet_amount, b.payout_multiplier, b.payout_amount, b.is_won, b.created_at, u.phone_number
+      FROM bets b
+      JOIN users u ON b.user_id = u.id
+      ORDER BY b.id DESC
+      LIMIT 100
+    `);
+    res.json({ success: true, wagers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin manual round outcome overrides
 app.post('/api/admin/override', authenticateToken, verifyAdmin, (req, res) => {
   const { wingo_color, crash_multiplier } = req.body;
@@ -410,12 +426,71 @@ app.get('/api/admin/support/threads', authenticateToken, verifyAdmin, async (req
   }
 });
 
+// Get list of managers (admin only)
+app.get('/api/admin/managers', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const managers = await db.getAllManagers();
+    res.json({ success: true, managers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a new manager account (admin only)
+app.post('/api/admin/managers/create', authenticateToken, verifyAdmin, async (req, res) => {
+  const { phone_number, password } = req.body;
+  if (!phone_number || !password) {
+    return res.status(400).json({ error: 'Phone number and password required' });
+  }
+  try {
+    const hash = bcrypt.hashSync(password, 10);
+    await db.createManager(phone_number, hash);
+    res.json({ success: true, message: 'Manager created successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Assign support chat thread to a manager (admin only)
+app.post('/api/admin/support/assign', authenticateToken, verifyAdmin, async (req, res) => {
+  const { session_id, manager_id } = req.body;
+  if (!session_id) return res.status(400).json({ error: 'Session ID is required' });
+  try {
+    await db.assignSupportChat(session_id, manager_id || null);
+    res.json({ success: true, message: 'Chat assigned successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get message history for a user support session
 app.get('/api/support/messages/:sessionId', async (req, res) => {
   const { sessionId } = req.params;
   try {
     const messages = await db.getSupportMessages(sessionId);
     res.json({ messages });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Post a support reply from admin
+app.post('/api/support/reply', async (req, res) => {
+  const { session_id, sender, text } = req.body;
+  if (!session_id || !text) return res.status(400).json({ error: 'Missing parameters' });
+  try {
+    const result = await db.saveSupportMessage(null, session_id, 'support', text);
+    const message = {
+      id: result.lastID,
+      user_id: null,
+      session_id,
+      sender: 'support',
+      text,
+      created_at: new Date().toISOString()
+    };
+    // Emit real-time message to socket room
+    io.to(session_id).emit('receive_support_message', message);
+    res.json({ success: true, message });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

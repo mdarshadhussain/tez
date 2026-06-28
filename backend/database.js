@@ -113,6 +113,27 @@ function initDatabase() {
       )
     `);
 
+    // 8. Managers Table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS managers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        phone_number TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT DEFAULT 'manager',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // 9. Support Assignments Table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS support_assignments (
+        session_id TEXT PRIMARY KEY,
+        assigned_manager_id INTEGER,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assigned_manager_id) REFERENCES managers(id) ON DELETE SET NULL
+      )
+    `);
+
     // Seed default payment config if empty
     db.get("SELECT COUNT(*) as count FROM payment_settings", (err, row) => {
       if (row && row.count === 0) {
@@ -400,9 +421,13 @@ async function getSupportMessages(sessionId) {
 async function getAllSupportThreads() {
   return await dbAll(`
     SELECT DISTINCT sm.session_id, u.phone_number, MAX(sm.created_at) as last_msg_time,
-           (SELECT text FROM support_messages WHERE session_id = sm.session_id ORDER BY id DESC LIMIT 1) as last_msg
+           (SELECT text FROM support_messages WHERE session_id = sm.session_id ORDER BY id DESC LIMIT 1) as last_msg,
+           sa.assigned_manager_id,
+           m.phone_number as assigned_manager_phone
     FROM support_messages sm
     LEFT JOIN users u ON u.id = sm.user_id
+    LEFT JOIN support_assignments sa ON sa.session_id = sm.session_id
+    LEFT JOIN managers m ON m.id = sa.assigned_manager_id
     GROUP BY sm.session_id
     ORDER BY last_msg_time DESC
   `);
@@ -471,6 +496,26 @@ async function rejectDeposit(transactionId) {
   await dbRun("UPDATE transactions SET status = 'failed' WHERE id = ?", [transactionId]);
 }
 
+// Get list of managers
+async function getAllManagers() {
+  return await dbAll("SELECT id, phone_number, role, created_at FROM managers ORDER BY id DESC");
+}
+
+// Create a manager
+async function createManager(phone, passwordHash) {
+  return await dbRun("INSERT INTO managers (phone_number, password_hash) VALUES (?, ?)", [phone, passwordHash]);
+}
+
+// Assign chat to manager
+async function assignSupportChat(sessionId, managerId) {
+  // SQLite supports INSERT OR REPLACE or ON CONFLICT
+  return await dbRun(`
+    INSERT INTO support_assignments (session_id, assigned_manager_id, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(session_id) DO UPDATE SET assigned_manager_id = ?, updated_at = CURRENT_TIMESTAMP
+  `, [sessionId, managerId, managerId]);
+}
+
 module.exports = {
   db,
   initDatabase,
@@ -493,5 +538,8 @@ module.exports = {
   createPendingDeposit,
   getPendingDeposits,
   approveDeposit,
-  rejectDeposit
+  rejectDeposit,
+  getAllManagers,
+  createManager,
+  assignSupportChat
 };

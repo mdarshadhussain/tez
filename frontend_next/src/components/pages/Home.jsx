@@ -6,14 +6,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, TrendingUp, Users, Shield, Award, Sparkles, Search, SlidersHorizontal, Filter, ChevronDown, Compass, CheckCircle2 } from 'lucide-react';
 
 const gamesList = [
-  { id: 'keno', name: 'Keno', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#8b5cf6] to-[#5b21b6]', illustration: 'keno' },
-  { id: 'limbo', name: 'Limbo', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#a3e635] to-[#3f6212]', illustration: 'limbo' },
-  { id: 'baccarat', name: 'Baccarat', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#f97316] to-[#9a3412]', illustration: 'baccarat' },
-  { id: 'coin', name: 'Coin Flip', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#3b82f6] to-[#1e3a8a]', illustration: 'coin' },
-  { id: 'dice', name: 'Dice', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#06b6d4] to-[#115e59]', illustration: 'dice' },
-  { id: 'mines', name: 'Mines', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#ef4444] to-[#991b1b]', illustration: 'mines' },
-  { id: 'blackjack', name: 'Blackjack', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#dc2626] to-[#7f1d1d]', illustration: 'blackjack', subName: 'MULTI-SEAT' },
+  { id: 'wingo', name: 'Win Go', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#10b981] to-[#047857]', illustration: 'wingo' },
+
   { id: 'crash', name: 'Crash', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#ec4899] to-[#ea580c]', illustration: 'crash' },
+
+  { id: 'limbo', name: 'Limbo', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#a3e635] to-[#3f6212]', illustration: 'limbo' },
+  { id: 'roulette', name: 'Roulette', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#dc2626] to-[#1e1b4b]', illustration: 'roulette' },
+  { id: 'dice', name: 'Dice', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#06b6d4] to-[#115e59]', illustration: 'dice' },
+  { id: 'coin', name: 'Coin Flip', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#3b82f6] to-[#1e3a8a]', illustration: 'coin' },
+  { id: 'hilo', name: 'Hilo', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#6366f1] to-[#4338ca]', illustration: 'hilo' },
+  { id: 'keno', name: 'Keno', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#8b5cf6] to-[#5b21b6]', illustration: 'keno' },
+
+  { id: 'hotline', name: 'Hotline', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#d946ef] to-[#86198f]', illustration: 'hotline' },
+
+  { id: 'baccarat', name: 'Baccarat', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#f97316] to-[#9a3412]', illustration: 'baccarat' },
+  { id: 'blackjack', name: 'Blackjack', tag: 'TEZCLUB ORIGINALS', style: 'bg-gradient-to-b from-[#dc2626] to-[#7f1d1d]', illustration: 'blackjack', subName: 'MULTI-SEAT' },
 ];
 
 const categoryTabs = [
@@ -270,6 +277,57 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
             </div>
           </div>
         );
+      case 'wingo':
+        return (
+          <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+              WIN GO
+            </div>
+            <div className="flex justify-center gap-2 mb-2 select-none">
+              <span className="text-3xl filter drop-shadow-md">🟢</span>
+              <span className="text-3xl filter drop-shadow-md">🔴</span>
+              <span className="text-3xl filter drop-shadow-md">🟡</span>
+            </div>
+          </div>
+        );
+
+
+      case 'roulette':
+        return (
+          <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+              ROULETTE
+            </div>
+            <div className="flex justify-center mb-2 select-none">
+              <span className="text-3.5xl filter drop-shadow-md animate-spin-slow">🎡</span>
+            </div>
+          </div>
+        );
+      case 'hilo':
+        return (
+          <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+              HI-LO
+            </div>
+            <div className="flex justify-center gap-2 mb-2 select-none">
+              <div className="bg-white text-zinc-900 border px-2.5 py-1 rounded font-black text-xs rotate-[-6deg]">HI</div>
+              <div className="bg-white text-zinc-900 border px-2.5 py-1 rounded font-black text-xs rotate-[6deg]">LO</div>
+            </div>
+          </div>
+        );
+
+      case 'hotline':
+        return (
+          <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+              HOTLINE
+            </div>
+            <div className="flex justify-center mb-2 select-none">
+              <span className="text-3.5xl filter drop-shadow-md">📞</span>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }

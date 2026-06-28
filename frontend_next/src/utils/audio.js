@@ -279,6 +279,32 @@ export const playTick = () => {
   }
 };
 
+// Play a mechanical wheel tick (sharp, non-tonal wooden click)
+export const playWheelTick = () => {
+  if (!masterEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.02);
+    
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.02);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 // Play ding chime when selection is hit by a drawn ball
 export const playHitSound = () => {
   if (!masterEnabled) return;

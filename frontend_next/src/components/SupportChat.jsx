@@ -36,7 +36,7 @@ export default function SupportChat({ socket, user }) {
     {
       id: 'xp',
       title: 'How to earn XP and climb the ranks?',
-      answer: '🎮 XP is earned automatically by wagering in the casino. Every ₹100 bet on WinGo, Trx, Crash, Mines, Plinko, Limbo, Roulette, or Dice earns you 1 XP. The more you play, the faster you rank up!'
+      answer: '🎮 XP is earned automatically by wagering in the casino. Every ₹100 bet on WinGo, Crash, Limbo, Roulette, or Dice earns you 1 XP. The more you play, the faster you rank up!'
     },
     {
       id: 'deposit',

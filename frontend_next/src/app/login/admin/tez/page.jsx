@@ -114,19 +114,19 @@ export default function AdminLoginPage() {
   // If successfully validated as admin, show dashboard
   if (user && user.phone_number === '9999999999' && token) {
     return (
-      <div className="min-h-screen bg-[#07080d] text-white font-sans flex flex-col">
+      <div className="min-h-screen bg-[#070913] text-white font-sans flex flex-col">
         {/* Admin Header with Logout option */}
-        <header className="h-[72px] bg-bg-sidebar border-b border-white/5 flex items-center justify-between px-6 shrink-0">
+        <header className="h-[72px] bg-[#0a0d18] border-b border-white/5 flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-accent-orange/10 border border-accent-orange/20 flex items-center justify-center text-accent-orange">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
               <Shield size={18} />
             </div>
             <div>
               <span className="text-white text-base font-black font-sans tracking-tight italic select-none">
                 TEZCLUB Admin Console
               </span>
-              <span className="text-[9px] bg-accent-orange/15 text-accent-orange px-1.5 py-0.5 rounded ml-2 font-bold uppercase tracking-wider">
-                System Mode
+              <span className="text-[9px] bg-purple-500/15 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded ml-2 font-bold uppercase tracking-wider">
+                Enterprise Mode
               </span>
             </div>
           </div>
@@ -134,7 +134,7 @@ export default function AdminLoginPage() {
           <div className="flex items-center gap-4">
             <a
               href="/"
-              className="text-xs text-text-muted hover:text-white flex items-center gap-1.5 transition-all text-decoration-none"
+              className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 transition-all text-decoration-none"
             >
               <ArrowLeft size={14} />
               <span>Back to Lobby</span>
@@ -142,7 +142,7 @@ export default function AdminLoginPage() {
             
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-accent-red/20 hover:bg-accent-red/35 border border-accent-red/30 text-accent-red rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer transition-all flex items-center gap-2"
             >
               <LogOut size={13} />
               <span>Sign Out</span>
@@ -160,64 +160,64 @@ export default function AdminLoginPage() {
 
   // Otherwise render login screen
   return (
-    <div className="min-h-screen bg-[#07080d] text-white flex flex-col justify-center items-center relative overflow-hidden p-4">
+    <div className="min-h-screen bg-[#070913] text-white flex flex-col justify-center items-center relative overflow-hidden p-4">
       {/* Decorative Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-orange/5 rounded-full filter blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#3de796]/5 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full filter blur-[100px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#0d0f17]/80 backdrop-blur-md border border-white/5 p-8 rounded-3xl shadow-2xl relative z-10"
+        className="w-full max-w-md bg-[#0a0d18]/80 backdrop-blur-md border border-white/5 p-8 rounded-3xl shadow-2xl relative z-10"
       >
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-accent-orange/15 border border-accent-orange/25 flex items-center justify-center text-accent-orange mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-500 mx-auto mb-4">
             <Shield size={32} className="animate-pulse" />
           </div>
-          <span className="text-accent-orange font-black text-[10px] tracking-[4px] uppercase block mb-1">
-            Master Portal Override
+          <span className="text-purple-400 font-black text-[10px] tracking-[4px] uppercase block mb-1">
+            Secure Portal Override
           </span>
           <h2 className="text-2xl font-black tracking-tight text-white uppercase">
             ADMIN GATEWAY
           </h2>
-          <p className="text-text-muted text-xs mt-1">
+          <p className="text-zinc-400 text-xs mt-1">
             Access authorized for system administrators only.
           </p>
         </div>
 
         <form onSubmit={handleLoginSubmit} className="space-y-5">
           <div>
-            <label className="text-[10px] text-text-muted font-bold block mb-1.5 uppercase">Admin Phone Number</label>
+            <label className="text-[10px] text-zinc-500 font-bold block mb-1.5 uppercase">Admin Phone Number</label>
             <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
               <input
                 type="text"
                 placeholder="Phone Number"
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-text-muted focus:outline-none focus:border-accent-orange/40 transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] text-text-muted font-bold block mb-1.5 uppercase">System Password</label>
+            <label className="text-[10px] text-zinc-500 font-bold block mb-1.5 uppercase">System Password</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
               <input
                 type="password"
                 placeholder="Password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-text-muted focus:outline-none focus:border-accent-orange/40 transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
           </div>
 
           {errorMsg && (
-            <div className="bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs px-4 py-3 rounded-2xl">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-4 py-3 rounded-2xl">
               {errorMsg}
             </div>
           )}
@@ -225,7 +225,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-accent-orange hover:bg-accent-orange/80 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all duration-200 shadow-lg shadow-accent-orange/20 cursor-pointer border-0 flex items-center justify-center gap-2"
+            className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3.5 rounded-2xl text-xs uppercase tracking-wider transition-all duration-200 shadow-lg shadow-purple-600/20 cursor-pointer border-0 flex items-center justify-center gap-2"
           >
             {submitting ? (
               <>
@@ -241,7 +241,7 @@ export default function AdminLoginPage() {
         <div className="mt-8 text-center">
           <a
             href="/"
-            className="text-[11px] text-text-muted hover:text-white transition-colors"
+            className="text-[11px] text-zinc-500 hover:text-white transition-colors"
           >
             Return to Casino Lobby
           </a>

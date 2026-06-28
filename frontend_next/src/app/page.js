@@ -49,30 +49,28 @@ import Leaderboard from '../components/pages/Leaderboard';
 import Affiliate from '../components/pages/Affiliate';
 import Wallet from '../components/pages/Wallet';
 import VIPTasks from '../components/pages/VIPTasks';
-import AdminDashboard from '../components/pages/AdminDashboard';
 import SportsLobby from '../components/pages/SportsLobby';
 
 // Game components
 import WinGo from '../games/WinGo';
-import TrxWinGo from '../games/TrxWinGo';
+
 import Crash from '../games/Crash';
-import Mines from '../games/Mines';
-import Plinko from '../games/Plinko';
+
+
 import Limbo from '../games/Limbo';
 import Roulette from '../games/Roulette';
 import Dice from '../games/Dice';
 import CoinFlip from '../games/CoinFlip';
 import Hilo from '../games/Hilo';
 import Keno from '../games/Keno';
-import Goal from '../games/Goal';
+
 import Hotline from '../games/Hotline';
-import Chicken from '../games/Chicken';
+
 import Baccarat from '../games/Baccarat';
 
 // Shell components
 import ChatRain from '../components/ChatRain';
 import SupportChat from '../components/SupportChat';
-import AdminPanel from '../components/AdminPanel';
 import { toggleAudio, playClick } from '../utils/audio';
 
 // Premium Filled SVG Icons
@@ -341,8 +339,6 @@ export default function App() {
         return <Wallet token={token} balance={playableBalance} setBalance={setPlayableBalance} user={user} />;
       case 'tasks':
         return <VIPTasks balance={playableBalance} setBalance={setPlayableBalance} />;
-      case 'admin':
-        return <AdminDashboard token={token} socket={socket} />;
       default:
         return <Home setGameMode={(mode) => actionGuard(() => setGameMode(mode))} />;
     }
@@ -360,18 +356,12 @@ export default function App() {
       case 'bigsmall':
         gameComponent = <WinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
-      case 'trx':
-        gameComponent = <TrxWinGo socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
-        break;
+
       case 'crash':
         gameComponent = <Crash socket={socket} user={demoUser} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
-      case 'mines':
-        gameComponent = <Mines token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
-        break;
-      case 'plinko':
-        gameComponent = <Plinko token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
-        break;
+
+
       case 'limbo':
         gameComponent = <Limbo socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
@@ -390,15 +380,11 @@ export default function App() {
       case 'keno':
         gameComponent = <Keno socket={socket} user={demoUser} token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
-      case 'goal':
-        gameComponent = <Goal token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
-        break;
+
       case 'hotline':
         gameComponent = <Hotline token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
-      case 'chicken':
-        gameComponent = <Chicken token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
-        break;
+
       case 'baccarat':
         gameComponent = <Baccarat token={token} playableBalance={activeBalance} setPlayableBalance={activeSetBalance} isDemo={isDemo} />;
         break;
@@ -589,9 +575,6 @@ export default function App() {
           {/* Sidebar Menu items */}
           <div className="flex-1 overflow-y-auto w-full px-3 space-y-1 scrollbar-none">
             {[
-              { label: 'Recents', icon: Clock, tab: 'home', key: 'recents', lobby: 'casino' },
-              { label: 'Favourites', icon: Heart, tab: 'home', key: 'favourites', lobby: 'casino' },
-              { label: 'My Bets', icon: Calendar, tab: 'home', key: 'bets', lobby: 'casino' },
               { label: 'Leaderboard', icon: Trophy, tab: 'leaderboard', key: 'leaderboard' },
               { label: 'Affiliate', icon: Users, tab: 'affiliate', key: 'affiliate' },
               { label: 'Wallet', icon: WalletIcon, tab: 'wallet', key: 'wallet' },
@@ -610,7 +593,7 @@ export default function App() {
                   }}
                   className={`w-full flex items-center justify-start rounded-2xl cursor-pointer transition-all duration-200 border-0 outline-none ${
                     isSidebarExpanded ? 'px-4 py-3 gap-3.5' : 'p-3 justify-center'
-                  } ${
+                  }  ${
                     isActive
                       ? 'bg-[#3de796] text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
                       : 'text-text-muted hover:text-white hover:bg-white/5 font-semibold'
@@ -636,12 +619,20 @@ export default function App() {
 
             {[
               { label: 'Thrill Originals', icon: Sparkles, tab: 'home', game: null, key: 'originals' },
-              { label: 'Roulette', icon: CircleDot, game: 'roulette' },
+              { label: 'Win Go', icon: PlayCircle, game: 'wingo' },
+
               { label: 'Crash Rocket', icon: Rocket, game: 'crash' },
-              { label: 'Mines Gold', icon: Target, game: 'mines' },
-              { label: 'Plinko Drop', icon: PlayCircle, game: 'plinko' },
+
+
               { label: 'Limbo multipliers', icon: ArrowRight, game: 'limbo' },
+              { label: 'Roulette', icon: CircleDot, game: 'roulette' },
               { label: 'Predict Dice', icon: Coins, game: 'dice' },
+              { label: 'Coin Flip', icon: Coins, game: 'coin' },
+              { label: 'Hilo', icon: ArrowLeft, game: 'hilo' },
+              { label: 'Keno', icon: LayoutGrid, game: 'keno' },
+
+              { label: 'Hotline', icon: Flame, game: 'hotline' },
+
               { label: 'Baccarat', icon: Sword, game: 'baccarat' },
             ].map((item, idx) => {
               const isActive = item.game === null 
@@ -695,20 +686,6 @@ export default function App() {
 
         {/* Sidebar Footer settings / Collapse toggle */}
         <div className="flex flex-col gap-3 w-full px-4 shrink-0 mt-4">
-          {user && user.phone_number === '9999999999' && (
-            <button
-              onClick={() => { setGameMode(null); setActiveTab('admin'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-start rounded-xl cursor-pointer hover:bg-white/5 text-accent-orange border-0 bg-transparent ${
-                isSidebarExpanded ? 'px-4 py-3 gap-3' : 'p-3 justify-center'
-              } ${
-                activeTab === 'admin' && !gameMode ? 'bg-orange-500/10' : ''
-              }`}
-              title="Admin Board"
-            >
-              <Shield size={18} />
-              {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider">Admin</span>}
-            </button>
-          )}
 
           {/* Sound toggle */}
           <button
@@ -763,10 +740,6 @@ export default function App() {
 
       {/* 2. MAIN BODY */}
       <main className="flex-1 flex flex-col h-full relative overflow-y-auto">
-        {/* Development testing panel */}
-        {user && user.phone_number === '9999999999' && (
-          <AdminPanel token={token} socket={socket} user={user} setPlayableBalance={setPlayableBalance} />
-        )}
 
         {/* THRILL TOP HEADER */}
         <header className="h-[72px] bg-bg-body flex justify-between items-center px-6 sticky top-0 z-30 border-0">
@@ -941,26 +914,14 @@ export default function App() {
                       onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                       className="flex items-center gap-1.5 bg-transparent border-0 cursor-pointer p-0.5 hover:opacity-85 transition-all outline-none"
                     >
-                      {/* Custom adorable Robot Avatar SVG matching user's image color palette */}
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 p-[1.5px] shadow-md shadow-indigo-500/20">
+                      {/* Circular avatar image of an individual */}
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#3de796] via-indigo-500 to-purple-600 p-[1.5px] shadow-md shadow-indigo-500/20">
                         <div className="w-full h-full rounded-full bg-[#0b1021] flex items-center justify-center overflow-hidden relative">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            {/* Antenna */}
-                            <circle cx="12" cy="5" r="1.5" fill="#3b82f6" />
-                            <path d="M12 5V8" stroke="#3b82f6" strokeWidth="1" />
-                            {/* Robot Head */}
-                            <rect x="6" y="8" width="12" height="10" rx="3" fill="#3b82f6" />
-                            {/* Visor */}
-                            <rect x="7.5" y="10" width="9" height="5" rx="1.5" fill="#0f172a" />
-                            {/* Neon glowing eyes */}
-                            <rect x="9.2" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff" />
-                            <rect x="12.8" y="11.5" width="2" height="2" rx="0.5" fill="#ffffff" />
-                            {/* Earcups */}
-                            <rect x="4.5" y="10.5" width="1.5" height="5" rx="0.75" fill="#ffffff" />
-                            <rect x="18" y="10.5" width="1.5" height="5" rx="0.75" fill="#ffffff" />
-                            {/* Cheek details */}
-                            <path d="M9 16.5H15" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
-                          </svg>
+                          <img
+                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&fit=crop&q=80"
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </div>
                       <svg className={`w-3 h-3 text-[#94a3b8] transition-transform duration-200 ${showProfileDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
