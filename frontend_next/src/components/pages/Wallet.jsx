@@ -173,58 +173,77 @@ export default function Wallet({ token, balance, setBalance, user }) {
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 md:p-6 pb-24 max-w-5xl mx-auto space-y-6"
+      className="p-4 md:p-6 pb-24 max-w-5xl mx-auto space-y-6 relative"
     >
+      {/* Background ambient light */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#3de796]/10 rounded-full blur-[100px] pointer-events-none" />
+
       {/* Wallet Card */}
-      <div className="bg-gradient-to-br from-accent-cyan/5 via-zinc-950/80 to-zinc-950 border border-accent-cyan/15 p-6 rounded-3xl relative overflow-hidden shadow-2xl">
-        <span className="text-[10px] font-black text-text-muted tracking-[2px] uppercase block mb-1">
-          Playable Balance (INR)
-        </span>
-        <div className="monospace-ledger text-3xl md:text-4xl font-black text-white">
-          ₹{balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4 text-[10px] text-text-muted">
-          <span className="flex items-center gap-1">
-            <ShieldCheck size={12} className="text-accent-cyan" /> Secured Encryption Gateway (UPI/IMPS)
-          </span>
-          <span>Account Standard Verified</span>
+      <div className="relative bg-slate-50 dark:bg-[#141622]/80 backdrop-blur-xl border border-black/15 dark:border-white/10 p-8 rounded-[32px] overflow-hidden shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3de796]/10 to-transparent opacity-50" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div>
+            <span className="text-[10px] font-black text-[#3de796] tracking-[3px] uppercase block mb-2 drop-shadow-md">
+              Playable Balance
+            </span>
+            <div className="flex items-end gap-2">
+              <span className="text-2xl text-slate-900 dark:text-white/50 font-black leading-none mb-1">₹</span>
+              <div className="text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                {balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-3 text-[10px] font-bold text-slate-900 dark:text-white/50 tracking-wider">
+            <span className="flex items-center gap-2 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-full border border-black/10 dark:border-white/5">
+              <ShieldCheck size={14} className="text-[#3de796]" /> Secured Encryption Gateway
+            </span>
+            <span className="flex items-center gap-2 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-full border border-black/10 dark:border-white/5">
+              <CheckCircle2 size={14} className="text-blue-400" /> Account Verified
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Tabs / Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Deposit Column */}
-        <div className="bg-zinc-950/40 border border-white/5 p-5 rounded-2xl space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-accent-cyan/10 flex items-center justify-center text-accent-cyan border border-accent-cyan/20">
-              <ArrowDownLeft size={16} />
+        <div className="bg-slate-50 dark:bg-[#141622]/60 backdrop-blur-lg border border-[#3de796]/20 p-6 rounded-[24px] space-y-5 relative overflow-hidden group hover:border-[#3de796]/40 transition-colors">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#3de796]/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none transition-all group-hover:bg-[#3de796]/20" />
+          
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-[#3de796]/10 flex items-center justify-center text-[#3de796] border border-[#3de796]/30 shadow-[0_0_15px_rgba(61,231,150,0.2)]">
+              <ArrowDownLeft size={20} strokeWidth={3} />
             </div>
-            <span className="text-xs font-black text-white tracking-wider uppercase">Deposit Funds</span>
+            <span className="text-sm font-black text-slate-900 dark:text-white tracking-[0.2em] uppercase">Deposit Funds</span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             {[100, 500, 1000].map((preset) => (
               <button
                 key={preset}
                 onClick={() => setDepositAmount(String(preset))}
-                className="flex-1 bg-white/5 border border-white/5 hover:border-accent-cyan/40 hover:bg-accent-cyan/10 rounded-xl text-white text-xs py-2 cursor-pointer transition-all duration-200"
+                className="flex-1 bg-slate-100 dark:bg-[#1a1c29] border border-black/10 dark:border-white/5 hover:border-[#3de796]/50 hover:bg-[#3de796]/10 hover:text-[#3de796] rounded-xl text-slate-900 dark:text-white font-black text-xs py-3 cursor-pointer transition-all duration-200"
               >
                 ₹{preset}
               </button>
             ))}
           </div>
 
-          <input
-            type="number"
-            className="form-input py-2.5 px-3 text-xs bg-white/5 border border-white/10 rounded-xl"
-            placeholder="Amount (₹)"
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-          />
+          <div className="relative z-10">
+            <input
+              type="number"
+              className="w-full bg-slate-100 dark:bg-[#1a1c29] border border-black/15 dark:border-white/10 focus:border-[#3de796] rounded-xl py-3.5 px-4 text-sm text-slate-900 dark:text-white font-black outline-none transition-colors"
+              placeholder="Enter Amount (₹)"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
+          </div>
 
           <button 
             disabled={gatewayLoading}
-            className="action-btn w-full py-2.5 text-xs bg-accent-cyan hover:bg-accent-cyan/80 text-black font-black hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed" 
+            className="w-full py-4 rounded-xl font-black text-[13px] tracking-[2px] uppercase border-0 cursor-pointer transition-all bg-[#3de796] hover:bg-[#3de796]/90 text-[#0d1f17] shadow-lg shadow-[#3de796]/20 disabled:opacity-50 disabled:cursor-not-allowed relative z-10" 
             onClick={handleDeposit}
           >
             {gatewayLoading ? 'Launching Gateway...' : 'Instant UPI Deposit'}
@@ -232,36 +251,40 @@ export default function Wallet({ token, balance, setBalance, user }) {
         </div>
 
         {/* Withdraw Column */}
-        <div className="bg-zinc-950/40 border border-white/5 p-5 rounded-2xl space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-accent-red/10 flex items-center justify-center text-accent-red border border-accent-red/20">
-              <ArrowUpRight size={16} />
+        <div className="bg-slate-50 dark:bg-[#141622]/60 backdrop-blur-lg border border-red-500/20 p-6 rounded-[24px] space-y-5 relative overflow-hidden group hover:border-red-500/40 transition-colors">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none transition-all group-hover:bg-red-500/20" />
+          
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+              <ArrowUpRight size={20} strokeWidth={3} />
             </div>
-            <span className="text-xs font-black text-white tracking-wider uppercase">Withdraw Funds</span>
+            <span className="text-sm font-black text-slate-900 dark:text-white tracking-[0.2em] uppercase">Withdraw Funds</span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative z-10">
             {[500, 2000, 5000].map((preset) => (
               <button
                 key={preset}
                 onClick={() => setWithdrawAmount(String(preset))}
-                className="flex-1 bg-white/5 border border-white/5 hover:border-accent-red/40 hover:bg-accent-red/10 rounded-xl text-white text-xs py-2 cursor-pointer transition-all duration-200"
+                className="flex-1 bg-slate-100 dark:bg-[#1a1c29] border border-black/10 dark:border-white/5 hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 rounded-xl text-slate-900 dark:text-white font-black text-xs py-3 cursor-pointer transition-all duration-200"
               >
                 ₹{preset}
               </button>
             ))}
           </div>
 
-          <input
-            type="number"
-            className="form-input py-2.5 px-3 text-xs bg-white/5 border border-white/10 rounded-xl"
-            placeholder="Amount (₹)"
-            value={withdrawAmount}
-            onChange={(e) => setWithdrawAmount(e.target.value)}
-          />
+          <div className="relative z-10">
+            <input
+              type="number"
+              className="w-full bg-slate-100 dark:bg-[#1a1c29] border border-black/15 dark:border-white/10 focus:border-red-500 rounded-xl py-3.5 px-4 text-sm text-slate-900 dark:text-white font-black outline-none transition-colors"
+              placeholder="Enter Amount (₹)"
+              value={withdrawAmount}
+              onChange={(e) => setWithdrawAmount(e.target.value)}
+            />
+          </div>
 
           <button 
-            className="action-btn w-full py-2.5 text-xs bg-accent-red hover:bg-accent-red/80 text-white font-black hover:shadow-[0_0_15px_rgba(255,51,102,0.3)]" 
+            className="w-full py-4 rounded-xl font-black text-[13px] tracking-[2px] uppercase border-0 cursor-pointer transition-all bg-red-500 hover:bg-red-500/90 text-slate-900 dark:text-white shadow-lg shadow-red-500/20 relative z-10" 
             onClick={handleWithdraw}
           >
             Request IMPS Payout
@@ -269,10 +292,10 @@ export default function Wallet({ token, balance, setBalance, user }) {
         </div>
       </div>
 
-      <div className="bg-zinc-950/20 border border-white/5 p-4 rounded-2xl flex gap-3 items-center">
-        <CreditCard size={20} className="text-text-muted shrink-0" />
-        <div className="text-[11px] text-text-muted leading-normal">
-          Minimum transaction limit is ₹100.00. Standard verification processing cycles take 5–15 minutes.
+      <div className="bg-slate-50 dark:bg-[#141622]/80 border border-black/10 dark:border-white/5 p-4 rounded-[20px] flex gap-3 items-center shadow-lg">
+        <CreditCard size={20} className="text-[#3de796] shrink-0" />
+        <div className="text-[11px] text-slate-900 dark:text-white/60 font-medium leading-relaxed">
+          Minimum transaction limit is <span className="text-slate-900 dark:text-white font-bold">₹100.00</span>. Standard verification processing cycles take 5–15 minutes.
         </div>
       </div>
 
@@ -282,7 +305,7 @@ export default function Wallet({ token, balance, setBalance, user }) {
       {/* Dynamic Razorpay-Like UPI Gateway Modal */}
       <AnimatePresence>
         {showGateway && gatewayData && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4">
+          <div className="fixed inset-0 bg-black/10 dark:bg-black/30 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4">
             
             {/* MOBILE LAYOUT (Screens < 768px) */}
             <motion.div
@@ -292,38 +315,38 @@ export default function Wallet({ token, balance, setBalance, user }) {
               className="flex md:hidden flex-col bg-white w-full h-full text-slate-800"
             >
               {/* HEADER BANNER */}
-              <div className="bg-[#1352f1] px-5 py-4 flex flex-col select-none text-white shrink-0">
+              <div className="bg-[#1352f1] px-5 py-4 flex flex-col select-none text-slate-900 dark:text-white shrink-0">
                 {/* Top Row: Navigation and Badges */}
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     {checkoutStep > 1 && (
                       <button 
                         onClick={() => setCheckoutStep(prev => prev - 1)}
-                        className="text-white hover:text-slate-200 transition-colors bg-transparent border-0 cursor-pointer pr-1"
+                        className="text-slate-900 dark:text-white hover:text-slate-200 transition-colors bg-transparent border-0 cursor-pointer pr-1"
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                       </button>
                     )}
                     {/* TezClub Square Logo */}
-                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-black text-white text-base shadow-sm border border-white/20">
+                    <div className="w-8 h-8 rounded-lg bg-black/10 dark:bg-white/10 flex items-center justify-center font-black text-slate-900 dark:text-white text-base shadow-sm border border-black/20 dark:border-white/20">
                       T
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-white leading-none">TezClub</h4>
-                      <div className="mt-1 flex items-center gap-1 bg-[#10cd77] text-white px-1.5 py-0.5 rounded text-[8px] font-bold">
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-none">TezClub</h4>
+                      <div className="mt-1 flex items-center gap-1 bg-[#10cd77] text-slate-900 dark:text-white px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="text-slate-900 dark:text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         Razorpay Trusted Business
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <button className="bg-white/10 hover:bg-white/25 transition-all text-white border border-white/10 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer">
+                    <button className="bg-black/10 dark:bg-white/10 hover:bg-white/25 transition-all text-slate-900 dark:text-white border border-black/15 dark:border-white/10 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider flex items-center gap-1 cursor-pointer">
                       🌐 EN ▾
                     </button>
                     <button 
                       onClick={() => setShowGateway(false)}
-                      className="text-white/80 hover:text-white transition-colors bg-transparent border-0 cursor-pointer text-sm p-1"
+                      className="text-slate-900 dark:text-white/80 hover:text-slate-900 dark:text-white transition-colors bg-transparent border-0 cursor-pointer text-sm p-1"
                     >
                       ✕
                     </button>
@@ -333,14 +356,14 @@ export default function Wallet({ token, balance, setBalance, user }) {
                 {/* Step 1 Total Amount Banner */}
                 {checkoutStep === 1 && (
                   <div className="mt-6 mb-3 text-center">
-                    <span className="text-[10px] text-white/70 block uppercase tracking-wider font-semibold">Total Amount</span>
-                    <span className="text-3xl font-extrabold text-white block mt-1">₹{depositAmtVal.toLocaleString('en-IN')}.00</span>
+                    <span className="text-[10px] text-slate-900 dark:text-white/70 block uppercase tracking-wider font-semibold">Total Amount</span>
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white block mt-1">₹{depositAmtVal.toLocaleString('en-IN')}.00</span>
                   </div>
                 )}
                 
                 {/* Secured line at bottom of blue header on step 1 */}
                 {checkoutStep === 1 && (
-                  <div className="text-center text-[9px] text-white/50 font-medium tracking-wide mt-1">
+                  <div className="text-center text-[9px] text-slate-900 dark:text-white/50 font-medium tracking-wide mt-1">
                     🔒 Secured by Razorpay
                   </div>
                 )}
@@ -410,7 +433,7 @@ export default function Wallet({ token, balance, setBalance, user }) {
                               playClick();
                               setCheckoutStep(2);
                             }}
-                            className="w-full bg-[#1352f1] hover:bg-[#1149d6] text-white py-3.5 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-[#1352f1]/25 transition-all cursor-pointer border-0"
+                            className="w-full bg-[#1352f1] hover:bg-[#1149d6] text-slate-900 dark:text-white py-3.5 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-[#1352f1]/25 transition-all cursor-pointer border-0"
                           >
                             Proceed
                           </button>
@@ -510,7 +533,7 @@ export default function Wallet({ token, balance, setBalance, user }) {
                           </div>
                           <button
                             onClick={() => { playClick(); setCheckoutStep(3); }}
-                            className="bg-[#1352f1] hover:bg-[#1149d6] text-white px-8 py-2.5 rounded-lg font-bold text-xs shadow-md transition-all border-0"
+                            className="bg-[#1352f1] hover:bg-[#1149d6] text-slate-900 dark:text-white px-8 py-2.5 rounded-lg font-bold text-xs shadow-md transition-all border-0"
                           >
                             Pay Now
                           </button>
@@ -623,7 +646,7 @@ export default function Wallet({ token, balance, setBalance, user }) {
                           </div>
                           <button
                             onClick={submitPayment}
-                            className="bg-[#1352f1] hover:bg-[#1149d6] text-white px-8 py-2.5 rounded-lg font-bold text-xs shadow-md transition-all border-0 cursor-pointer"
+                            className="bg-[#1352f1] hover:bg-[#1149d6] text-slate-900 dark:text-white px-8 py-2.5 rounded-lg font-bold text-xs shadow-md transition-all border-0 cursor-pointer"
                           >
                             Submit UTR
                           </button>
@@ -654,34 +677,34 @@ export default function Wallet({ token, balance, setBalance, user }) {
               className="hidden md:flex flex-row bg-white w-full max-w-[850px] h-[520px] rounded-2xl overflow-hidden shadow-2xl text-slate-800"
             >
               {/* LEFT COLUMN: Price Summary and Brand Info */}
-              <div className="w-[310px] bg-[#3a8ecf] bg-gradient-to-b from-[#4a9ee0] to-[#2b7cbd] flex flex-col justify-between p-6 text-white select-none shrink-0 relative overflow-hidden">
+              <div className="w-[310px] bg-[#3a8ecf] bg-gradient-to-b from-[#4a9ee0] to-[#2b7cbd] flex flex-col justify-between p-6 text-slate-900 dark:text-white select-none shrink-0 relative overflow-hidden">
                 {/* Brand Header */}
                 <div>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center font-black text-[#2b7cbd] text-lg shadow-md border border-white/20 select-none">
+                    <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center font-black text-[#2b7cbd] text-lg shadow-md border border-black/20 dark:border-white/20 select-none">
                       T
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white leading-none">TezClub</h4>
-                      <p className="text-[10px] text-white/80 mt-1 flex items-center gap-0.5 bg-white/10 border border-white/20 px-1.5 py-0.5 rounded-full font-semibold">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-none">TezClub</h4>
+                      <p className="text-[10px] text-slate-900 dark:text-white/80 mt-1 flex items-center gap-0.5 bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 px-1.5 py-0.5 rounded-full font-semibold">
                         <span className="text-[#10cd77]">✓</span> Razorpay Trusted Business
                       </p>
                     </div>
                   </div>
 
                   {/* Price Summary Card */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 mt-8 shadow-sm">
-                    <span className="text-[10px] text-white/70 block uppercase tracking-wider font-extrabold">Price Summary</span>
-                    <span className="text-3xl font-black text-white block mt-1.5">₹{depositAmtVal.toLocaleString('en-IN')}.00</span>
+                  <div className="bg-black/10 dark:bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-black/15 dark:border-white/10 mt-8 shadow-sm">
+                    <span className="text-[10px] text-slate-900 dark:text-white/70 block uppercase tracking-wider font-extrabold">Price Summary</span>
+                    <span className="text-3xl font-black text-slate-900 dark:text-white block mt-1.5">₹{depositAmtVal.toLocaleString('en-IN')}.00</span>
                   </div>
 
                   {/* Phone detail indicator */}
-                  <div className="bg-white/10 hover:bg-white/15 transition-all backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-white/10 mt-4 flex items-center justify-between text-xs cursor-pointer shadow-sm">
+                  <div className="bg-black/10 dark:bg-white/10 hover:bg-white/15 transition-all backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-black/15 dark:border-white/10 mt-4 flex items-center justify-between text-xs cursor-pointer shadow-sm">
                     <div className="flex items-center gap-2">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                      <span className="font-semibold text-white/90">Using as +91 {phoneNumber || '9000900009'}</span>
+                      <span className="font-semibold text-slate-900 dark:text-white/90">Using as +91 {phoneNumber || '9000900009'}</span>
                     </div>
-                    <span className="text-white/60 font-bold font-mono">&gt;</span>
+                    <span className="text-slate-900 dark:text-white/60 font-bold font-mono">&gt;</span>
                   </div>
                 </div>
 
@@ -696,9 +719,9 @@ export default function Wallet({ token, balance, setBalance, user }) {
                 </div>
 
                 {/* Secured Footer */}
-                <div className="text-[10px] text-white/70 flex items-center justify-between mt-auto">
+                <div className="text-[10px] text-slate-900 dark:text-white/70 flex items-center justify-between mt-auto">
                   <span>Secured by</span>
-                  <span className="font-black tracking-tighter text-white">razorpay</span>
+                  <span className="font-black tracking-tighter text-slate-900 dark:text-white">razorpay</span>
                 </div>
               </div>
 
@@ -842,7 +865,7 @@ export default function Wallet({ token, balance, setBalance, user }) {
                             />
                             <button
                               onClick={submitPayment}
-                              className="bg-[#121212] hover:bg-black text-white px-6 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer shadow-md select-none shrink-0"
+                              className="bg-[#121212] hover:bg-black text-slate-900 dark:text-white px-6 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer shadow-md select-none shrink-0"
                             >
                               Verify and Pay
                             </button>

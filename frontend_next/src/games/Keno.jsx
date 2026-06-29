@@ -60,9 +60,9 @@ function KenoResultPopup({ winPayout, hitCount, selectedCount, onClose }) {
             {isWin ? `+₹${winPayout.payout.toFixed(2)}` : 'No Win'}
           </div>
           {isWin && (
-            <div className="text-white/40 text-[10px] font-bold mt-1">{winPayout.mult}x Multiplier</div>
+            <div className="text-slate-900 dark:text-white/40 text-[10px] font-bold mt-1">{winPayout.mult}x Multiplier</div>
           )}
-          <div className="text-white/20 text-[9px] font-bold tracking-widest uppercase mt-2">Tap to dismiss</div>
+          <div className="text-slate-900 dark:text-white/20 text-[9px] font-bold tracking-widest uppercase mt-2">Tap to dismiss</div>
         </div>
       </motion.div>
     </AnimatePresence>
@@ -527,7 +527,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
       
       {/* Left Console Panel (4 Columns) */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
           
           <AnimatePresence mode="wait">
             {!showAutoConfig ? (
@@ -539,14 +539,14 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                 className="flex flex-col flex-1 gap-4"
               >
                 {/* Manual / Auto Tab Toggles */}
-                <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5 order-5 lg:order-1">
+                <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5 order-5 lg:order-1">
                   <button
                     onClick={() => { playClick(); setTab('manual'); }}
                     disabled={isDrawing || isAutoplayRunning}
                     className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                       tab === 'manual'
                         ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                        : 'bg-transparent text-text-muted hover:text-white'
+                        : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                     }`}
                   >
                     Manual
@@ -557,7 +557,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                     className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                       tab === 'autoplay'
                         ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                        : 'bg-transparent text-text-muted hover:text-white'
+                        : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                     }`}
                   >
                     Autoplay
@@ -566,18 +566,18 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
 
                 {/* Bet Amount Input */}
                 <div className="space-y-2 order-2 lg:order-2">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
                     <span>Bet Amount</span>
                     <span>{playableBalance.toFixed(2)} INR</span>
                   </div>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 px-1 font-bold text-[#3de796] text-sm select-none">
                       ₹
                     </div>
                     <input
                       type="number"
                       disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
-                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={betAmount}
                       onChange={(e) => setBetAmount(e.target.value)}
                     />
@@ -585,14 +585,14 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                       <button
                         onClick={() => multiplyBet(0.5)}
                         disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
                       >
                         1/2
                       </button>
                       <button
                         onClick={() => multiplyBet(2.0)}
                         disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40"
                       >
                         X2
                       </button>
@@ -602,8 +602,8 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
 
                 {/* Risk Level Selector */}
                 <div className="space-y-2 order-3 lg:order-3">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Risk Level</span>
-                  <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Risk Level</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
                     {['classic', 'low', 'medium', 'high'].map((level) => (
                       <button
                         key={level}
@@ -612,7 +612,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                         className={`flex-1 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border-0 cursor-pointer ${
                           riskLevel === level
                             ? 'bg-[#3de796] text-black shadow-sm'
-                            : 'bg-transparent text-text-muted hover:text-white'
+                            : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                         } disabled:opacity-40`}
                       >
                         {level}
@@ -624,17 +624,17 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                 {/* Number Picker Slider */}
                 <div className="space-y-2.5 order-4 lg:order-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number Picker</span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Number Picker</span>
                     <button
                       onClick={clearSelection}
                       disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
-                      className="bg-transparent border-0 text-text-muted hover:text-[#3de796] text-[10px] font-bold cursor-pointer transition-colors underline disabled:opacity-40"
+                      className="bg-transparent border-0 text-slate-500 dark:text-text-muted hover:text-[#3de796] text-[10px] font-bold cursor-pointer transition-colors underline disabled:opacity-40"
                     >
                       Clear Picks
                     </button>
                   </div>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2.5 flex items-center justify-between gap-3">
-                    <span className="text-white font-black text-xs select-none w-4">{sliderPickCount}</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2.5 flex items-center justify-between gap-3">
+                    <span className="text-slate-900 dark:text-white font-black text-xs select-none w-4">{sliderPickCount}</span>
                     <input
                       type="range"
                       min="1"
@@ -655,12 +655,12 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                           setWinPayout(null);
                         }
                       }}
-                      className="flex-1 h-1 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-[#3de796] disabled:opacity-40"
+                      className="flex-1 h-1 bg-slate-100 dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-[#3de796] disabled:opacity-40"
                     />
                     <button
                       onClick={() => autoPick()}
                       disabled={isDrawing || isAutoplayRunning || hasBet || timer <= 4}
-                      className="bg-[#242938] hover:bg-[#2e3549] text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-0 cursor-pointer transition-all tracking-wider disabled:opacity-40"
+                      className="bg-[#242938] hover:bg-[#2e3549] text-slate-900 dark:text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase border-0 cursor-pointer transition-all tracking-wider disabled:opacity-40"
                     >
                       Pick
                     </button>
@@ -672,39 +672,39 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                   <div className="space-y-3 order-4 lg:order-4">
                     {/* Number of Bets */}
                     <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number of Bets</span>
-                      <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Number of Bets</span>
+                      <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                         <input
                           type="number"
                           disabled={isAutoplayRunning}
-                          className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                          className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                           value={numberOfBets}
                           onChange={(e) => setNumberOfBets(e.target.value)}
                         />
                         <div className="flex gap-1">
-                          <button onClick={() => { playClick(); setNumberOfBets('10'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">10</button>
-                          <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">20</button>
-                          <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">50</button>
-                          <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">∞</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('10'); }} disabled={isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">10</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">20</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">50</button>
+                          <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors disabled:opacity-40">∞</button>
                         </div>
                       </div>
                     </div>
 
                     {/* Live autoplay stats */}
-                    <div className="grid grid-cols-3 gap-2 bg-zinc-950/20 p-3 rounded-2xl border border-white/5">
+                    <div className="grid grid-cols-3 gap-2 bg-slate-200/20 dark:bg-zinc-950/20 p-3 rounded-2xl border border-black/10 dark:border-white/5">
                       <div className="space-y-1">
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Wagered</span>
-                        <span className="text-white font-black text-xs">₹{totalWagered.toFixed(2)}</span>
+                        <span className="text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Wagered</span>
+                        <span className="text-slate-900 dark:text-white font-black text-xs">₹{totalWagered.toFixed(2)}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Profit</span>
+                        <span className="text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Profit</span>
                         <span className={`font-black text-xs ${totalProfit >= 0 ? 'text-[#3de796]' : 'text-red-400'}`}>
                           {totalProfit >= 0 ? '+' : ''}₹{totalProfit.toFixed(2)}
                         </span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Remaining</span>
-                        <span className="text-white font-black text-xs">
+                        <span className="text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Remaining</span>
+                        <span className="text-slate-900 dark:text-white font-black text-xs">
                           {isAutoplayRunning ? (autoBetsRemaining === 999999 ? '∞' : autoBetsRemaining) : (numberOfBets === '0' ? '∞' : numberOfBets)}
                         </span>
                       </div>
@@ -713,12 +713,12 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                 )}
 
                 {/* NEXT ROUND TIMER */}
-                <div className="order-4 lg:order-4 space-y-2 border-t border-white/5 pt-3">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                <div className="order-4 lg:order-4 space-y-2 border-t border-black/10 dark:border-white/5 pt-3">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
                     <span>NEXT ROUND TIMER</span>
                     <span className={timer <= 4 ? "text-red-500 font-black animate-pulse" : "text-[#3de796] font-black"}>{timer}s</span>
                   </div>
-                  <div className="relative w-full h-2 bg-[#0f111a] rounded-full overflow-hidden border border-white/[0.04]">
+                  <div className="relative w-full h-2 bg-slate-50 dark:bg-[#0f111a] rounded-full overflow-hidden border border-white/[0.04]">
                     <div 
                       className={`h-full rounded-full transition-all duration-1000 ${
                         timer <= 4 ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-[#3de796] shadow-[0_0_8px_#3de796]'
@@ -734,7 +734,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                     hasBet && timer > 4 ? (
                       <button
                         onClick={cancelBet}
-                        className="w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all bg-red-500 hover:bg-red-400 text-white shadow-red-500/10"
+                        className="w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all bg-red-500 hover:bg-red-400 text-slate-900 dark:text-white shadow-red-500/10"
                       >
                         CANCEL BET (₹{activeBetAmount.toFixed(2)})
                       </button>
@@ -744,9 +744,9 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                         disabled={hasBet || timer <= 4 || selectedNums.length === 0}
                         className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all ${
                           hasBet 
-                            ? 'bg-[#141622] text-[#3de796] border border-[#3de796]/20 cursor-default'
+                            ? 'bg-slate-50 dark:bg-[#141622] text-[#3de796] border border-[#3de796]/20 cursor-default'
                             : timer <= 4
-                            ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
+                            ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
                             : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
                         }`}
                       >
@@ -758,7 +758,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                       <button
                         onClick={() => { playClick(); setShowAutoConfig(true); }}
                         disabled={isAutoplayRunning}
-                        className="w-full bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all disabled:opacity-40"
+                        className="w-full bg-[#242938] hover:bg-[#2e3549] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all disabled:opacity-40"
                       >
                         CONFIGURE AUTO
                       </button>
@@ -767,7 +767,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                         disabled={!isAutoplayRunning && (timer <= 4 || selectedNums.length === 0)}
                         className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all disabled:opacity-50 ${
                           isAutoplayRunning
-                            ? 'bg-red-500 hover:bg-red-400 text-white shadow-red-500/20'
+                            ? 'bg-red-500 hover:bg-red-400 text-slate-900 dark:text-white shadow-red-500/20'
                             : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
                         }`}
                       >
@@ -790,24 +790,24 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                 className="space-y-4 flex flex-col flex-1"
               >
                 {/* Header Back button */}
-                <div className="flex items-center gap-2 border-b border-white/5 pb-2 mb-1 select-none">
+                <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/5 pb-2 mb-1 select-none">
                   <button
                     onClick={() => { playClick(); setShowAutoConfig(false); }}
-                    className="bg-transparent border-0 text-text-muted hover:text-white cursor-pointer"
+                    className="bg-transparent border-0 text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white cursor-pointer"
                   >
                     <ChevronLeft size={16} />
                   </button>
-                  <span className="text-xs font-black text-white uppercase tracking-wider">Configure Auto</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Configure Auto</span>
                 </div>
 
                 {/* ON WIN selector */}
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Win</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">On Win</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => { playClick(); setOnWinReset(true); }}
                       className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
-                        onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                        onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'
                       }`}
                     >
                       Reset
@@ -815,33 +815,33 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                     <button
                       onClick={() => { playClick(); setOnWinReset(false); }}
                       className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
-                        !onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                        !onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'
                       }`}
                     >
                       Increase By
                     </button>
                   </div>
                   {!onWinReset && (
-                    <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
+                    <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center">
                       <input
                         type="number"
-                        className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                        className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                         value={onWinIncrease}
                         onChange={(e) => setOnWinIncrease(e.target.value)}
                       />
-                      <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                      <span className="text-[10px] font-black text-slate-500 dark:text-text-muted px-2">%</span>
                     </div>
                   )}
                 </div>
 
                 {/* ON LOSS selector */}
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Loss</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">On Loss</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => { playClick(); setOnLossReset(true); }}
                       className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
-                        onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                        onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'
                       }`}
                     >
                       Reset
@@ -849,48 +849,48 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                     <button
                       onClick={() => { playClick(); setOnLossReset(false); }}
                       className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${
-                        !onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'
+                        !onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'
                       }`}
                     >
                       Increase By
                     </button>
                   </div>
                   {!onLossReset && (
-                    <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
+                    <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center">
                       <input
                         type="number"
-                        className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                        className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                         value={onLossIncrease}
                         onChange={(e) => setOnLossIncrease(e.target.value)}
                       />
-                      <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                      <span className="text-[10px] font-black text-slate-500 dark:text-text-muted px-2">%</span>
                     </div>
                   )}
                 </div>
 
                 {/* Stop on profit */}
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Profit</span>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Stop on Profit</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 px-1 font-bold text-slate-500 dark:text-text-muted text-sm select-none">
                       ₹
                     </div>
                     <input
                       type="number"
-                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={stopProfit}
                       onChange={(e) => setStopProfit(e.target.value)}
                     />
                     <div className="flex gap-1">
                       <button
                         onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 0.5).toFixed(2)); }}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
                       >
                         1/2
                       </button>
                       <button
                         onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 2.0).toFixed(2)); }}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
                       >
                         X2
                       </button>
@@ -900,27 +900,27 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
 
                 {/* Stop on loss */}
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Loss</span>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Stop on Loss</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 px-1 font-bold text-slate-500 dark:text-text-muted text-sm select-none">
                       ₹
                     </div>
                     <input
                       type="number"
-                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={stopLoss}
                       onChange={(e) => setStopLoss(e.target.value)}
                     />
                     <div className="flex gap-1">
                       <button
                         onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 0.5).toFixed(2)); }}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
                       >
                         1/2
                       </button>
                       <button
                         onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 2.0).toFixed(2)); }}
-                        className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
+                        className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer"
                       >
                         X2
                       </button>
@@ -946,7 +946,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                       setStopProfit('0.00');
                       setStopLoss('0.00');
                     }}
-                    className="flex-1 bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
+                    className="flex-1 bg-[#242938] hover:bg-[#2e3549] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
                   >
                     RESET ALL
                   </button>
@@ -970,7 +970,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
               const isDrawn = drawnNums.includes(num);
               const justDrawn = drawnNums[drawnNums.length - 1] === num;
 
-              let styleClasses = "bg-[#242938] text-[#c0c8d8] border border-white/5 hover:border-white/10 hover:bg-[#2e3549]";
+              let styleClasses = "bg-[#242938] text-[#c0c8d8] border border-black/10 dark:border-white/5 hover:border-black/15 dark:border-white/10 hover:bg-[#2e3549]";
 
               if (isSelected) {
                 styleClasses = "bg-[#2d1822] text-[#ff3b30] border border-[#ff3b30]/50 shadow-[0_0_10px_rgba(255,59,48,0.15)]";
@@ -979,7 +979,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                 styleClasses = "bg-[#132f21] text-[#3de796] border border-[#3de796]/50";
               }
               if (isHit) {
-                styleClasses = "bg-[#3de796] text-[#0f111a] border border-[#3de796] shadow-[0_0_20px_rgba(61,231,150,0.55)]";
+                styleClasses = "bg-[#3de796] text-white dark:text-[#0f111a] border border-[#3de796] shadow-[0_0_20px_rgba(61,231,150,0.55)]";
               }
 
               return (
@@ -1038,7 +1038,7 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
           </div>
 
           {/* Lower layout footer containing the Multiplier capsules */}
-          <div className="border-t border-white/5 pt-4 space-y-3 relative">
+          <div className="border-t border-black/10 dark:border-white/5 pt-4 space-y-3 relative">
 
             {/* Win/Loss popup */}
             <KenoResultPopup
@@ -1049,13 +1049,13 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
             />
             
             {selectedNums.length === 0 ? (
-              <div className="text-center text-xs text-text-muted py-2 select-none">
+              <div className="text-center text-xs text-slate-500 dark:text-text-muted py-2 select-none">
                 Select 1–10 Numbers To Play
               </div>
             ) : (
               <div className="space-y-3">
                 {/* Progress bar for hit tracking */}
-                <div className="relative h-1.5 bg-zinc-950 rounded-full w-full select-none overflow-visible">
+                <div className="relative h-1.5 bg-white dark:bg-zinc-950 rounded-full w-full select-none overflow-visible">
                   <motion.div
                     className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#3de796] to-emerald-400 rounded-full"
                     animate={{
@@ -1086,10 +1086,10 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                         <span
                           className={`text-[10px] font-black px-2 py-1.5 rounded-lg border text-center transition-all w-full ${
                             isActiveHit
-                              ? 'bg-[#3de796] text-[#0f111a] border-[#3de796] shadow-[0_0_12px_rgba(61,231,150,0.4)]'
+                              ? 'bg-[#3de796] text-white dark:text-[#0f111a] border-[#3de796] shadow-[0_0_12px_rgba(61,231,150,0.4)]'
                               : m > 0
-                              ? 'bg-[#242938] text-slate-300 border-white/5'
-                              : 'bg-[#1a1c25] text-white/20 border-white/[0.03]'
+                              ? 'bg-[#242938] text-slate-300 border-black/10 dark:border-white/5'
+                              : 'bg-[#1a1c25] text-slate-900 dark:text-white/20 border-white/[0.03]'
                           }`}
                         >
                           {m > 0 ? `${m}x` : '0x'}
@@ -1097,10 +1097,10 @@ export default function Keno({ socket, user, token, playableBalance, setPlayable
                         <div className="flex flex-col items-center gap-0.5">
                           <div
                             className={`w-1.5 h-1.5 rounded-full border transition-all ${
-                              isActiveHit ? 'bg-[#3de796] border-[#3de796]' : 'bg-[#242938] border-white/10'
+                              isActiveHit ? 'bg-[#3de796] border-[#3de796]' : 'bg-[#242938] border-black/15 dark:border-white/10'
                             }`}
                           />
-                          <span className={`text-[8px] font-bold ${isActiveHit ? 'text-[#3de796]' : 'text-text-muted'}`}>
+                          <span className={`text-[8px] font-bold ${isActiveHit ? 'text-[#3de796]' : 'text-slate-500 dark:text-text-muted'}`}>
                             {hits}
                           </span>
                         </div>

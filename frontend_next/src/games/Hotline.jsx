@@ -33,11 +33,11 @@ function Chip({ val, selected, onClick, disabled }) {
     <button onClick={onClick} disabled={disabled} className={`w-full aspect-square rounded-full relative border-0 p-0 select-none transition-all duration-300 ${selected?'scale-[1.2] -translate-y-2 z-10 opacity-100':'opacity-60 hover:opacity-90 hover:-translate-y-0.5'} ${disabled?'opacity-30 pointer-events-none':''} cursor-pointer`}
       style={{ filter: selected?`drop-shadow(0 0 14px ${s.glow}) drop-shadow(0 3px 6px rgba(0,0,0,0.6))`:'drop-shadow(0 4px 6px rgba(0,0,0,0.45))' }}>
       {selected && <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rotate-45 bg-[#d4af37] z-20" style={{ boxShadow:'0 0 10px rgba(212,175,55,0.9)', animation:'bounce 1s infinite' }} />}
-      <div className="absolute inset-0 rounded-full bg-black/60 translate-y-1" />
+      <div className="absolute inset-0 rounded-full bg-black/10 dark:bg-black/30 dark:bg-black/60 translate-y-1" />
       <div className="absolute inset-0 rounded-full border-2 border-black/30 flex items-center justify-center" style={{ background:`linear-gradient(to bottom,${s.g1},${s.g2})` }}>
         <div className="absolute inset-0 rounded-full border-[6px] border-dashed" style={{ borderColor: s.stripe }} />
         {selected && <div className="absolute inset-0.5 rounded-full border border-white" style={{ animation:'pulse 2s infinite' }} />}
-        <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner flex flex-col items-center justify-center leading-none">
+        <div className="w-[60%] h-[60%] rounded-full bg-slate-100 dark:bg-zinc-900 shadow-inner flex flex-col items-center justify-center leading-none">
           <span style={{ color:'#d4af37', fontSize:7, fontWeight:700 }}>₹</span>
           <span style={{ color:s.text, fontSize:10, fontWeight:900, fontFamily:'monospace' }}>{val}</span>
         </div>
@@ -336,16 +336,16 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
       `}</style>
 
       {/* ── LEFT PANEL ──────────────────────────────────────────────────── */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl h-full">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl h-full">
 
         {/* Balance row */}
-        <div className="bg-zinc-950/20 border border-white/5 rounded-2xl p-3 flex justify-between items-center">
+        <div className="bg-slate-200/20 dark:bg-zinc-950/20 border border-black/10 dark:border-white/5 rounded-2xl p-3 flex justify-between items-center">
           <div>
-            <span className="text-[8px] text-text-muted font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
-            <span className="text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
+            <span className="text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
+            <span className="text-slate-900 dark:text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
           </div>
           <div className="text-right">
-            <span className="text-[8px] text-text-muted font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
+            <span className="text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
             <span className="text-[#3de796] font-black text-sm block mt-1">₹{totalBet}</span>
           </div>
         </div>
@@ -353,21 +353,21 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
         {/* Chip selector */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-[9px] text-text-muted font-bold tracking-widest uppercase">Select Chip</span>
+            <span className="text-[9px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase">Select Chip</span>
             <button onClick={clearBets} disabled={isSpinning||placedBets} className="text-[9px] text-red-400 font-black bg-transparent border-0 cursor-pointer hover:underline disabled:opacity-30 disabled:pointer-events-none">Clear Chips</button>
           </div>
-          <div className="grid grid-cols-5 gap-1.5 bg-zinc-950/40 p-2.5 rounded-2xl border border-white/5">
+          <div className="grid grid-cols-5 gap-1.5 bg-slate-200/40 dark:bg-zinc-950/40 p-2.5 rounded-2xl border border-black/10 dark:border-white/5">
             {CHIP_VALUES.map(v=><Chip key={v} val={v} selected={activeChip===v} onClick={()=>{playClick();setActiveChip(v);}} disabled={isSpinning||placedBets} />)}
           </div>
         </div>
 
         {/* Live pool */}
-        <div className="bg-zinc-950/30 border border-white/5 rounded-2xl p-3.5 space-y-2 flex-1">
-          <div className="flex justify-between items-center text-[8px] text-text-muted font-bold tracking-widest uppercase">
+        <div className="bg-slate-200/30 dark:bg-zinc-950/30 border border-black/10 dark:border-white/5 rounded-2xl p-3.5 space-y-2 flex-1">
+          <div className="flex justify-between items-center text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase">
             <span>LIVE POOL</span>
             <span className="text-[#3de796] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#3de796] animate-pulse"/>LIVE</span>
           </div>
-          <div className="flex h-2 rounded-full overflow-hidden bg-zinc-900 border border-white/5">
+          <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-900 border border-black/10 dark:border-white/5">
             <div style={{ width:`${pctRed}%`, background:'#c0392b', boxShadow:'0 0 8px rgba(192,57,43,0.5)', transition:'width 0.5s' }} />
             <div style={{ width:`${pctOrange}%`, background:'#e67e22', boxShadow:'0 0 8px rgba(230,126,34,0.5)', transition:'width 0.5s' }} />
             <div style={{ width:`${pctBlack}%`, background:'#1e1e25', borderLeft:'1px solid rgba(255,255,255,0.1)', transition:'width 0.5s' }} />
@@ -379,23 +379,23 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
             ].map(([k,lbl,col,bg,bc,pct,pool])=>(
               <div key={k} className="rounded-lg p-1.5 border" style={{background:bg,borderColor:bc}}>
                 <span className="block text-[6px] font-bold tracking-wider" style={{color:col}}>{lbl}</span>
-                <span className="text-white font-mono text-[8px] font-black block mt-0.5">₹{Number(pool).toLocaleString('en-IN')}</span>
-                <span className="text-white/25 text-[5.5px] block">{pct}%</span>
+                <span className="text-slate-900 dark:text-white font-mono text-[8px] font-black block mt-0.5">₹{Number(pool).toLocaleString('en-IN')}</span>
+                <span className="text-slate-900 dark:text-white/25 text-[5.5px] block">{pct}%</span>
               </div>
             ))}
           </div>
-          <div className="w-full h-px bg-white/5" />
+          <div className="w-full h-px bg-black/5 dark:bg-white/5" />
           <div>
-            <span className="text-[7px] text-text-muted font-bold tracking-widest uppercase block mb-1">RECENT WAGERS</span>
+            <span className="text-[7px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block mb-1">RECENT WAGERS</span>
             <div className="space-y-1 max-h-[70px] overflow-hidden">
               {liveWagers.length>0?liveWagers.map(w=>(
-                <div key={w.id} className="flex items-center text-[8px] bg-zinc-950/20 border border-white/[0.02] px-2 py-1 rounded-lg font-mono" style={{animation:'wagerIn 0.2s ease-out'}}>
-                  <span className="w-16 text-white/70">{w.phone}</span>
-                  <span className="w-8 text-white/30 text-[6px] text-center">bet</span>
+                <div key={w.id} className="flex items-center text-[8px] bg-slate-200/20 dark:bg-zinc-950/20 border border-black/[0.05] dark:border-white/[0.02] px-2 py-1 rounded-lg font-mono" style={{animation:'wagerIn 0.2s ease-out'}}>
+                  <span className="w-16 text-slate-900 dark:text-white/70">{w.phone}</span>
+                  <span className="w-8 text-slate-900 dark:text-white/30 text-[6px] text-center">bet</span>
                   <span className="w-8 flex justify-center"><span className="w-2.5 h-2.5 rounded-full" style={{background:pillBg(w.sel),border:w.sel==='black'?'1.5px solid rgba(255,255,255,0.7)':'none'}} /></span>
                   <span className="flex-1 text-right font-black text-[#3de796] text-[8px]">₹{w.amt.toLocaleString('en-IN')}</span>
                 </div>
-              )):<div className="text-[7px] text-white/20 italic">Waiting for wagers...</div>}
+              )):<div className="text-[7px] text-slate-900 dark:text-white/20 italic">Waiting for wagers...</div>}
             </div>
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
         {/* Action buttons */}
         <div className="grid grid-cols-4 gap-1.5">
           {[[<Trash2 size={12}/>,'Clear',clearBets],[<RotateCcw size={12}/>,'Rebet',rebet],['×2','Double',doubleBets],['½','Half',halfBets]].map(([ic,lbl,fn],i)=>(
-            <button key={i} onClick={fn} disabled={isSpinning||placedBets||timer<=3} className="bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] border border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none text-[8px] font-black uppercase tracking-wide">
+            <button key={i} onClick={fn} disabled={isSpinning||placedBets||timer<=3} className="bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] border border-black/10 dark:border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none text-[8px] font-black uppercase tracking-wide">
               <span className="text-[11px]">{ic}</span>{lbl}
             </button>
           ))}
@@ -412,11 +412,11 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
         <button onClick={()=>setPlacedBets(true)} disabled={isSpinning||placedBets||!totalBet||timer<=3}
           className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest border-0 cursor-pointer transition-all
             ${isSpinning||placedBets||!totalBet||timer<=3
-              ?'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-              :'text-white hover:scale-[1.01] active:scale-[0.99]'}`}
+              ?'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+              :'text-slate-900 dark:text-white hover:scale-[1.01] active:scale-[0.99]'}`}
           style={isSpinning||placedBets||!totalBet||timer<=3?{}:{background:'linear-gradient(135deg,#e67e22,#c0392b)',boxShadow:'0 4px 24px rgba(230,126,34,0.3)'}}>
           {isSpinning
-            ?(<span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"/>SPINNING...</span>)
+            ?(<span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-black/20 dark:border-white/20 border-t-white rounded-full animate-spin"/>SPINNING...</span>)
             :placedBets?'BETS LOCKED'
             :timer<=3?`CLOSING IN ${timer}s...`
             :'PLACE BET'}
@@ -451,7 +451,7 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
           {/* ── Timer Progress Bar & Status ── */}
           <div className="absolute top-0 left-0 right-0 z-20 flex flex-col pointer-events-none">
             {/* Glowing neon progress line at the very top edge */}
-            <div className="h-1 bg-white/5 w-full relative">
+            <div className="h-1 bg-black/5 dark:bg-white/5 w-full relative">
                <div className="absolute top-0 left-0 h-full transition-all duration-1000 ease-linear"
                  style={{ 
                    width: isSpinning ? '100%' : `${(Math.max(0, timer - 3) / 12) * 100}%`,
@@ -463,15 +463,15 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
             
             {/* Minimalist Status Text Top Center */}
             <div className="w-full flex justify-center mt-3">
-              <div className="bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/5 flex items-center gap-2 shadow-xl">
+              <div className="bg-black/10 dark:bg-black/30 dark:bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-black/10 dark:border-white/5 flex items-center gap-2 shadow-xl">
                 <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${isSpinning ? 'bg-orange-500 animate-pulse text-orange-500' : timer <= 3 ? 'bg-red-500 animate-pulse text-red-500' : 'bg-[#a826ff] text-[#a826ff]'}`} />
-                <span className="text-[9px] font-black tracking-[0.2em] uppercase text-white/90">
+                <span className="text-[9px] font-black tracking-[0.2em] uppercase text-slate-900 dark:text-white/90">
                   {isSpinning ? 'WHEEL SPINNING' : timer <= 3 ? 'BETS CLOSED' : 'ACCEPTING BETS'}
                 </span>
                 {!isSpinning && (
                   <>
-                    <span className="text-white/20 ml-1 mr-1">|</span>
-                    <span className={`text-[11px] font-mono font-black ${timer <= 3 ? 'text-red-400' : 'text-white'}`}>
+                    <span className="text-slate-900 dark:text-white/20 ml-1 mr-1">|</span>
+                    <span className={`text-[11px] font-mono font-black ${timer <= 3 ? 'text-red-400' : 'text-slate-900 dark:text-white'}`}>
                       {`${timer<10?'0':''}${timer}s`}
                     </span>
                   </>
@@ -614,7 +614,7 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
               <motion.div
                 key={lastColor + (history[0]?.id || 'init')}
                 initial={{opacity:0,y:8,scale:0.9}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-4}}
-                className="absolute bottom-4 z-20 flex items-center gap-2 px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-white"
+                className="absolute bottom-4 z-20 flex items-center gap-2 px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-900 dark:text-white"
                 style={{background:'rgba(5,2,12,0.9)',border:`1px solid ${CFG[lastColor].g1}40`,boxShadow:`0 0 14px ${CFG[lastColor].glow.replace('0.9','0.2').replace('1.0','0.2').replace('0.4','0.1')}`}}>
                 <Sparkles size={9} style={{color:CFG[lastColor].g1}}/>
                 <span>Landed:</span>
@@ -644,7 +644,7 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
                     boxShadow:`0 12px 40px ${resultModal.color?CFG[resultModal.color].glow.replace('0.9','0.3').replace('1.0','0.3').replace('0.4','0.1'):'rgba(168,38,255,0.2)'}`,
                   }}
                   onClick={e=>e.stopPropagation()}>
-                  <button onClick={()=>setResultModal(p=>({...p,show:false}))} className="absolute top-3 right-4 text-white/30 hover:text-white bg-transparent border-0 cursor-pointer text-sm font-black">✕</button>
+                  <button onClick={()=>setResultModal(p=>({...p,show:false}))} className="absolute top-3 right-4 text-slate-900 dark:text-white/30 hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer text-sm font-black">✕</button>
 
                   <div className="flex items-center gap-2 text-[#a826ff]">
                     <Sparkles size={11} style={{animation:'spin 5s linear infinite'}}/>
@@ -666,17 +666,17 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
                           transition={{duration:0.65,delay:0.05}}/>
                       ))}
                       <div className="text-[#3de796] font-black text-lg tracking-widest">YOU WON!</div>
-                      <div className="text-white font-black text-3xl">₹{resultModal.amount.toFixed(2)}</div>
-                      <div className="text-white/40 text-[9px] font-bold">{resultModal.color?CFG[resultModal.color].mult:0}× on {resultModal.color?CFG[resultModal.color].label:''}</div>
+                      <div className="text-slate-900 dark:text-white font-black text-3xl">₹{resultModal.amount.toFixed(2)}</div>
+                      <div className="text-slate-900 dark:text-white/40 text-[9px] font-bold">{resultModal.color?CFG[resultModal.color].mult:0}× on {resultModal.color?CFG[resultModal.color].label:''}</div>
                     </motion.div>
                   ):(
                     <motion.div initial={{opacity:0,y:6}} animate={{opacity:1,y:0}} transition={{delay:0.1}} className="flex flex-col items-center gap-1">
                       <div className="text-red-400 font-black text-base tracking-widest">BETTER LUCK!</div>
-                      <div className="text-white/40 text-[9px] font-bold">Keep spinning to win big</div>
+                      <div className="text-slate-900 dark:text-white/40 text-[9px] font-bold">Keep spinning to win big</div>
                     </motion.div>
                   )}
                   <div className="w-12 h-px" style={{background:`${resultModal.color?CFG[resultModal.color].g1:'#a826ff'}40`}}/>
-                  <div className="text-white/20 text-[8px] font-bold tracking-widest">TAP ANYWHERE TO CLOSE</div>
+                  <div className="text-slate-900 dark:text-white/20 text-[8px] font-bold tracking-widest">TAP ANYWHERE TO CLOSE</div>
                 </motion.div>
               </motion.div>
             )}
@@ -684,12 +684,12 @@ export default function Hotline({ token, playableBalance, setPlayableBalance, is
         </div>
 
         {/* ═══ BET GRID ═════════════════════════════════════════════════ */}
-        <div className="bg-[#141622] border border-white/[0.02] p-4 rounded-3xl flex flex-col gap-3 shadow-xl">
+        <div className="bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-4 rounded-3xl flex flex-col gap-3 shadow-xl">
 
-          <div className="flex justify-between items-center text-[9px] font-black text-text-muted uppercase tracking-widest border-b border-white/5 pb-2">
+          <div className="flex justify-between items-center text-[9px] font-black text-slate-500 dark:text-text-muted uppercase tracking-widest border-b border-black/10 dark:border-white/5 pb-2">
             <span className="flex items-center gap-3">
               <span>PLACE YOUR BETS</span>
-              <span className="text-white/10">|</span>
+              <span className="text-slate-900 dark:text-white/10">|</span>
               <div className="flex items-center gap-1">
                 <AnimatePresence mode="popLayout">
                   {history.slice(0,14).map((h,i)=>(

@@ -124,14 +124,14 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
             </div>
             
             {/* Big Game Title */}
-            <div className="text-center font-black text-2xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2xl tracking-wider text-slate-900 dark:text-white select-none">
               KENO
             </div>
             
             {/* Bottom 3D Styled Token */}
             <div className="flex justify-center mb-1">
               <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#06b6d4] to-[#0891b2] border-2 border-cyan-300/40 shadow-[0_8px_20px_rgba(6,182,212,0.5)] flex items-center justify-center rotate-[15deg] transform hover:scale-105 transition-transform duration-200">
-                <span className="font-extrabold text-white text-xl">20</span>
+                <span className="font-extrabold text-slate-900 dark:text-white text-xl">20</span>
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
-            <div className="text-center font-black text-2xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2xl tracking-wider text-slate-900 dark:text-white select-none">
               LIMBO
             </div>
             
@@ -159,7 +159,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
               100
             </div>
             {/* Big Game Title */}
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               BACCARAT
             </div>
             
@@ -182,7 +182,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               COINFLIP
             </div>
             
@@ -200,14 +200,14 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               DICE
             </div>
             
             {/* Isometric Glass Cube */}
             <div className="flex justify-center mb-2 select-none">
               <div className="w-14 h-14 bg-cyan-400/30 border-2 border-cyan-200/50 shadow-[0_0_15px_rgba(34,211,238,0.4)] rounded-xl rotate-[45deg] transform flex items-center justify-center">
-                <div className="w-8 h-8 border border-white/20 bg-cyan-200/10 rounded-lg"></div>
+                <div className="w-8 h-8 border border-black/20 dark:border-white/20 bg-cyan-200/10 rounded-lg"></div>
               </div>
             </div>
           </div>
@@ -216,13 +216,13 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               MINES
             </div>
             
             {/* Spiked iron bomb illustration */}
             <div className="flex justify-center mb-2 select-none">
-              <div className="relative w-14 h-14 bg-zinc-900 border-2 border-zinc-700 rounded-full flex items-center justify-center shadow-2xl">
+              <div className="relative w-14 h-14 bg-slate-100 dark:bg-zinc-900 border-2 border-slate-400 dark:border-zinc-700 rounded-full flex items-center justify-center shadow-2xl">
                 {/* Spikes */}
                 <div className="absolute -top-1.5 w-2.5 h-2.5 bg-zinc-700 rounded-sm"></div>
                 <div className="absolute -bottom-1.5 w-2.5 h-2.5 bg-zinc-700 rounded-sm"></div>
@@ -242,7 +242,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
             <div className="text-center select-none">
-              <div className="font-black text-xl tracking-wider text-white leading-none">BLACK JACK</div>
+              <div className="font-black text-xl tracking-wider text-slate-900 dark:text-white leading-none">BLACK JACK</div>
               <div className="text-[7px] font-black text-red-200 tracking-widest mt-1 opacity-70">MULTI-SEAT</div>
             </div>
             
@@ -265,13 +265,13 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
             {/* Big Game Title */}
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               CRASH
             </div>
             
             {/* Rocket ship launcher */}
             <div className="flex justify-center mb-2 pr-2 select-none">
-              <div className="w-14 h-14 bg-white/10 hover:bg-white/15 rounded-full flex items-center justify-center border border-white/10 rotate-[-45deg] transform transition-transform duration-300">
+              <div className="w-14 h-14 bg-black/10 dark:bg-white/10 hover:bg-white/15 rounded-full flex items-center justify-center border border-black/15 dark:border-white/10 rotate-[-45deg] transform transition-transform duration-300">
                 <span className="text-3.5xl filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)] select-none">🚀</span>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       case 'wingo':
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               WIN GO
             </div>
             <div className="flex justify-center gap-2 mb-2 select-none">
@@ -295,7 +295,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       case 'roulette':
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               ROULETTE
             </div>
             <div className="flex justify-center mb-2 select-none">
@@ -306,7 +306,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       case 'hilo':
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               HI-LO
             </div>
             <div className="flex justify-center gap-2 mb-2 select-none">
@@ -319,7 +319,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       case 'hotline':
         return (
           <div className="absolute inset-0 flex flex-col justify-between p-4 pt-10 overflow-hidden select-none">
-            <div className="text-center font-black text-2.5xl tracking-wider text-white select-none">
+            <div className="text-center font-black text-2.5xl tracking-wider text-slate-900 dark:text-white select-none">
               HOTLINE
             </div>
             <div className="flex justify-center mb-2 select-none">
@@ -340,16 +340,16 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Banner 1: $75k Weekly Race */}
-        <div className="bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-800 rounded-[24px] p-6 md:p-8 flex items-center justify-between border border-white/5 shadow-2xl relative overflow-hidden group min-h-[190px]">
+        <div className="bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-800 rounded-[24px] p-6 md:p-8 flex items-center justify-between border border-black/10 dark:border-white/5 shadow-2xl relative overflow-hidden group min-h-[190px]">
           <div className="space-y-3 max-w-[65%] z-10">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/30 text-[9px] font-black tracking-widest text-white/95 uppercase bg-white/5">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/30 text-[9px] font-black tracking-widest text-white/95 uppercase bg-black/5 dark:bg-white/5">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-900 dark:text-white">
                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
                 <line x1="4" y1="22" x2="4" y2="15"/>
               </svg>
               PROMOTION
             </span>
-            <h2 className="text-2xl md:text-3.5xl font-black text-white leading-none tracking-tighter uppercase select-none">
+            <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 dark:text-white leading-none tracking-tighter uppercase select-none">
               $75,000<br/>Weekly Race
             </h2>
             <p className="text-[10px] md:text-xs text-blue-100 font-extrabold uppercase tracking-wide opacity-80 leading-snug select-none">
@@ -359,7 +359,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
           
           {/* Checkered flag/Stopwatch illustration container */}
           <div className="w-[120px] md:w-[150px] shrink-0 z-10 flex items-center justify-center float-anim pr-2">
-            <div className="relative w-24 h-24 bg-white/5 border border-white/15 rounded-full flex items-center justify-center shadow-inner">
+            <div className="relative w-24 h-24 bg-black/5 dark:bg-white/5 border border-white/15 rounded-full flex items-center justify-center shadow-inner">
               <span className="text-6xl select-none">⏱️</span>
               <span className="absolute -bottom-1 -right-1 text-4xl select-none rotate-[15deg]">🏁</span>
             </div>
@@ -388,21 +388,21 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
           <div className="relative w-[130px] h-[100px] shrink-0 z-10 select-none mr-2">
             {/* Slot Card 1 */}
             <div className="absolute right-0 top-2 w-16 h-20 rounded-lg bg-orange-600 border border-black/10 shadow-lg flex flex-col justify-end p-1.5 select-none transform rotate-[10deg] hover:scale-105 transition-transform duration-200">
-              <div className="text-[7px] font-black text-white leading-none select-none">SWEET</div>
+              <div className="text-[7px] font-black text-slate-900 dark:text-white leading-none select-none">SWEET</div>
               <div className="text-[5px] font-black text-orange-200 leading-none select-none">RUSH</div>
             </div>
             {/* Slot Card 2 */}
             <div className="absolute right-6 top-0 w-16 h-20 rounded-lg bg-yellow-500 border border-black/10 shadow-lg flex flex-col justify-end p-1.5 select-none transform rotate-[-5deg] z-20 hover:scale-105 transition-transform duration-200">
-              <div className="text-[7px] font-black text-white leading-none select-none">JELLY</div>
+              <div className="text-[7px] font-black text-slate-900 dark:text-white leading-none select-none">JELLY</div>
               <div className="text-[5px] font-black text-yellow-100 leading-none select-none">EXPRESS</div>
             </div>
             {/* Slot Card 3 */}
             <div className="absolute right-12 top-4 w-16 h-20 rounded-lg bg-red-700 border border-black/10 shadow-lg flex flex-col justify-end p-1.5 select-none transform rotate-[-15deg] hover:scale-105 transition-transform duration-200">
-              <div className="text-[7px] font-black text-white leading-none select-none">AGE OF</div>
+              <div className="text-[7px] font-black text-slate-900 dark:text-white leading-none select-none">AGE OF</div>
               <div className="text-[5px] font-black text-red-200 leading-none select-none">SETH</div>
             </div>
           </div>
-          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-black/15 dark:bg-white/20 rounded-full blur-2xl pointer-events-none" />
         </div>
 
       </div>
@@ -427,7 +427,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
                   onClick={() => {
                     if (scrollRef.current) scrollRef.current.scrollBy({ left: -240, behavior: 'smooth' });
                   }}
-                  className="absolute -left-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-[#94a3b8] hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
+                  className="absolute -left-4 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-[#171a25]/90 hover:bg-slate-100 dark:bg-[#1d2130] text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white flex items-center justify-center cursor-pointer transition-all border border-black/10 dark:border-white/5 shadow-2xl"
                 >
                   ◀
                 </motion.button>
@@ -444,7 +444,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
             {categoryTabs.map(cat => {
               const isActive = cat.id === filter;
               const getCategoryIcon = (id, active) => {
-                const color = active ? "text-[#3de796]" : "text-[#94a3b8]";
+                const color = active ? "text-[#3de796]" : "text-slate-500 dark:text-[#94a3b8]";
                 switch (id) {
                   case 'lobby':
                     return (
@@ -554,7 +554,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
                   className={`flex-shrink-0 w-24 h-24 flex flex-col items-center justify-center gap-2 border rounded-2xl cursor-pointer transition-all ${
                     isActive
                       ? 'bg-[#3de796]/5 text-[#3de796] border-[#3de796] shadow-lg shadow-[#3de796]/5 scale-[1.01]'
-                      : 'bg-[#171a25] border-transparent text-[#94a3b8] hover:text-white hover:bg-[#1d2130]'
+                      : 'bg-white dark:bg-[#171a25] border-transparent text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-[#1d2130]'
                   }`}
                 >
                   {getCategoryIcon(cat.id, isActive)}
@@ -581,7 +581,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
                   onClick={() => {
                     if (scrollRef.current) scrollRef.current.scrollBy({ left: 240, behavior: 'smooth' });
                   }}
-                  className="absolute -right-4 z-20 w-10 h-10 rounded-full bg-[#171a25]/90 hover:bg-[#1d2130] text-[#94a3b8] hover:text-white flex items-center justify-center cursor-pointer transition-all border border-white/5 shadow-2xl"
+                  className="absolute -right-4 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-[#171a25]/90 hover:bg-slate-100 dark:bg-[#1d2130] text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white flex items-center justify-center cursor-pointer transition-all border border-black/10 dark:border-white/5 shadow-2xl"
                 >
                   ▶
                 </motion.button>
@@ -595,17 +595,17 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
       {/* ══════ TEZCLUB ORIGINALS SECTION ══════ */}
       <div className="space-y-4 pt-4">
         <div className="flex items-center justify-between select-none">
-          <h3 className="text-sm font-black text-white tracking-tighter uppercase flex items-center gap-2">
+          <h3 className="text-sm font-black text-slate-900 dark:text-white tracking-tighter uppercase flex items-center gap-2">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#3de796]">
               <path d="M19 3H5L2.04 8.78L12 22L21.96 8.78L19 3ZM6.12 5H17.88L19.46 8H4.54L6.12 5ZM12 19.3L5.47 10.63H18.53L12 19.3Z" />
             </svg>
             TEZCLUB ORIGINALS
           </h3>
           <div className="flex gap-1.5">
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all text-xs font-bold">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer transition-all text-xs font-bold">
               ◀
             </button>
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 flex items-center justify-center text-[#94a3b8] hover:text-white cursor-pointer transition-all text-xs font-bold">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 flex items-center justify-center text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white cursor-pointer transition-all text-xs font-bold">
               ▶
             </button>
           </div>
@@ -619,7 +619,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
               onClick={() => { playClick(); setGameMode(game.id); }}
               onMouseEnter={() => setHoveredId(game.id)}
               onMouseLeave={() => setHoveredId(null)}
-              className={`aspect-[3/4] rounded-xl overflow-hidden cursor-pointer relative shadow-xl border border-white/5 flex items-center justify-center ${game.style} group`}
+              className={`aspect-[3/4] rounded-xl overflow-hidden cursor-pointer relative shadow-xl border border-black/10 dark:border-white/5 flex items-center justify-center ${game.style} group`}
               whileHover={{ y: -4, shadow: '0 15px 30px rgba(0,0,0,0.5)', borderColor: 'rgba(61,231,150,0.3)' }}
               transition={{ duration: 0.15 }}
             >
@@ -633,7 +633,7 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
 
               {/* Sub-label for blackjack multiseat */}
               {game.subName && (
-                <span className="absolute bottom-2 left-0 right-0 text-[6px] text-center font-black text-white/60 tracking-widest uppercase">
+                <span className="absolute bottom-2 left-0 right-0 text-[6px] text-center font-black text-slate-500 dark:text-white/60 tracking-widest uppercase">
                   {game.subName}
                 </span>
               )}
@@ -645,14 +645,14 @@ export default function Home({ setGameMode, filter: parentFilter, setFilter: set
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-20"
+                    className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-20"
                   >
                     <motion.div 
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
-                      className="bg-[#3de796] text-[#0f111a] font-black text-xs py-2 px-4 rounded-xl shadow-[0_0_20px_rgba(61,231,150,0.4)] flex items-center gap-1.5"
+                      className="bg-[#3de796] text-white dark:text-[#0f111a] font-black text-xs py-2 px-4 rounded-xl shadow-[0_0_20px_rgba(61,231,150,0.4)] flex items-center gap-1.5"
                     >
-                      <Play size={10} className="fill-current text-[#0f111a]" /> Play
+                      <Play size={10} className="fill-current text-white dark:text-[#0f111a]" /> Play
                     </motion.div>
                   </motion.div>
                 )}

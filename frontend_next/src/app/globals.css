@@ -1,35 +1,37 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-primary), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   
-  --color-bg-body: #0f111a;
-  --color-bg-header: #0f111a;
-  --color-bg-sidebar: #171a25;
-  --color-bg-card: #1d2130;
-  --color-bg-card-hover: #262c3f;
-  --color-bg-input: #171a25;
-  --color-bg-surface: #1d2130;
-  --color-bg-elevated: #262c3f;
+  --color-bg-body: var(--bg-body);
+  --color-bg-header: var(--bg-header);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-card-hover);
+  --color-bg-input: var(--bg-input);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
 
-  --color-accent-green: #3de796;
+  --color-accent-green: var(--accent-green);
   --color-accent-green-hover: #2ecf83;
-  --color-accent-blue: #3de796;
+  --color-accent-blue: var(--accent-blue);
   --color-accent-blue-hover: #2ecf83;
-  --color-accent-orange: #ff9f00;
-  --color-accent-red: #ff3b30;
-  --color-accent-purple: #a855f7;
-  --color-accent-cyan: #00f0ff;
-  --color-accent-pink: #ff2d55;
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-red: var(--accent-red);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-pink: var(--accent-pink);
 
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-text-dim: #475569;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
 
-  --color-border-color: rgba(255, 255, 255, 0.05);
-  --color-border-hover: rgba(255, 255, 255, 0.08);
+  --color-border-color: var(--border-color);
+  --color-border-hover: var(--border-hover);
   
   --radius-sm: 8px;
   --radius-md: 12px;

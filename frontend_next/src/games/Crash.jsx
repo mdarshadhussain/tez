@@ -933,16 +933,16 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
       <div className="lg:col-span-4 flex flex-col gap-3 order-2 lg:order-1 h-full select-none">
         
         {/* BET PANEL A */}
-        <div className="bg-[#141622] border border-white/[0.02] p-4 rounded-2xl flex flex-col gap-2.5 relative flex-1">
+        <div className="bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-4 rounded-2xl flex flex-col gap-2.5 relative flex-1">
           {/* Manual / Autoplay Toggles */}
-          <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
             <button
               onClick={() => { playClick(); setTabA('manual'); }}
               disabled={betA.hasBet || isAutoplayRunningA}
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 tabA === 'manual'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               }`}
             >
               Manual
@@ -953,7 +953,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 tabA === 'autoplay'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               }`}
             >
               Autoplay
@@ -962,16 +962,16 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
 
           {/* Bet Amount Input */}
           <div className="space-y-1">
-            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
               <span>Bet Amount</span>
               <span>{(playableBalance || 0).toFixed(2)} INR</span>
             </div>
-            <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+            <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
               <div className="font-bold text-[#3de796] text-sm px-1 select-none">₹</div>
               <input
                 type="number"
                 disabled={betA.hasBet || isAutoplayRunningA}
-                className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                 value={betAmountA}
                 onChange={(e) => setBetAmountA(e.target.value)}
               />
@@ -979,14 +979,14 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 <button
                   onClick={() => multiplyBetA(0.5)}
                   disabled={betA.hasBet || isAutoplayRunningA}
-                  className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                  className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                 >
                   1/2
                 </button>
                 <button
                   onClick={() => multiplyBetA(2.0)}
                   disabled={betA.hasBet || isAutoplayRunningA}
-                  className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                  className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                 >
                   X2
                 </button>
@@ -995,14 +995,14 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
           </div>
 
           {/* Auto Cashout Controls (Standard Height) */}
-          <div className="flex items-center justify-between gap-3 bg-zinc-950/20 p-2.5 rounded-xl border border-white/5">
-            <label className="flex items-center gap-2 text-[10px] font-bold text-text-muted cursor-pointer select-none">
+          <div className="flex items-center justify-between gap-3 bg-slate-200/20 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-black/10 dark:border-white/5">
+            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-text-muted cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={autoCashA}
                 disabled={betA.hasBet || isAutoplayRunningA}
                 onChange={(e) => setAutoCashA(e.target.checked)}
-                className="rounded border-white/10 bg-transparent text-[#3de796] focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-black/15 dark:border-white/10 bg-transparent text-[#3de796] focus:ring-0 w-4 h-4 cursor-pointer"
               />
               Auto Cashout
             </label>
@@ -1011,7 +1011,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 type="number"
                 step="0.1"
                 disabled={betA.hasBet || isAutoplayRunningA}
-                className="w-20 bg-zinc-950/40 border border-white/5 rounded-lg py-1 px-2 text-white font-extrabold text-xs text-center outline-none"
+                className="w-20 bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-lg py-1 px-2 text-slate-900 dark:text-white font-extrabold text-xs text-center outline-none"
                 value={autoCashValueA}
                 onChange={(e) => setAutoCashValueA(e.target.value)}
               />
@@ -1020,21 +1020,21 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
 
           {/* Autoplay statistics */}
           {tabA === 'autoplay' && (
-            <div className="space-y-2 border-t border-white/5 pt-2">
+            <div className="space-y-2 border-t border-black/10 dark:border-white/5 pt-2">
               <div className="flex justify-between items-center gap-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Number of Bets</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Number of Bets</span>
                 <input
                   type="number"
                   disabled={betA.hasBet || isAutoplayRunningA}
-                  className="w-16 bg-zinc-950/40 border border-white/5 rounded-lg py-0.5 px-2 text-white font-extrabold text-xs text-center outline-none"
+                  className="w-16 bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-lg py-0.5 px-2 text-slate-900 dark:text-white font-extrabold text-xs text-center outline-none"
                   value={numberOfBets}
                   onChange={(e) => setNumberOfBets(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2 bg-zinc-950/20 p-2 rounded-xl border border-white/5 text-[9px] font-bold text-text-muted uppercase">
+              <div className="grid grid-cols-2 gap-2 bg-slate-200/20 dark:bg-zinc-950/20 p-2 rounded-xl border border-black/10 dark:border-white/5 text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase">
                 <div>
                   <span>Wagered</span>
-                  <span className="text-white font-black block text-xs">₹{totalWageredA.toFixed(2)}</span>
+                  <span className="text-slate-900 dark:text-white font-black block text-xs">₹{totalWageredA.toFixed(2)}</span>
                 </div>
                 <div>
                   <span>Profits</span>
@@ -1051,7 +1051,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
             {tabA === 'manual' ? (
               betA.hasBet ? (
                 betA.cashedOut ? (
-                  <div className="w-full py-3 rounded-2xl font-black text-sm tracking-wider flex flex-col justify-center items-center bg-zinc-950/40 border border-[#3de796]/20 text-[#3de796]">
+                  <div className="w-full py-3 rounded-2xl font-black text-sm tracking-wider flex flex-col justify-center items-center bg-slate-200/40 dark:bg-zinc-950/40 border border-[#3de796]/20 text-[#3de796]">
                     <span style={{ fontSize: '9px', fontWeight: 800 }}>WON</span>
                     <span style={{ fontSize: '15px', fontWeight: 900 }}>₹{betA.wonAmount.toFixed(2)}</span>
                   </div>
@@ -1076,7 +1076,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                   className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider border-0 cursor-pointer transition-all shadow-lg ${
                     (gameState === 'waiting' && waitingTimer > 2)
                       ? 'bg-[#3de796] hover:bg-[#3de796]/90 text-black shadow-[#3de796]/10'
-                      : 'bg-zinc-800/80 text-white/20'
+                      : 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
                   }`}
                 >
                   {gameState !== 'waiting'
@@ -1092,10 +1092,10 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 disabled={gameState !== 'waiting' && !isAutoplayRunningA}
                 className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider border-0 cursor-pointer transition-all shadow-lg ${
                   isAutoplayRunningA
-                    ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-white shadow-red-500/10'
+                    ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-slate-900 dark:text-white shadow-red-500/10'
                     : gameState === 'waiting'
                     ? 'bg-[#3de796] hover:bg-[#3de796]/90 text-black shadow-[#3de796]/10'
-                    : 'bg-zinc-800/80 text-white/20'
+                    : 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
                 }`}
               >
                 {isAutoplayRunningA ? 'STOP' : 'START AUTOPLAY'}
@@ -1105,16 +1105,16 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
         </div>
 
         {/* BET PANEL B */}
-        <div className="bg-[#141622] border border-white/[0.02] p-4 rounded-2xl flex flex-col gap-2.5 relative flex-1">
+        <div className="bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-4 rounded-2xl flex flex-col gap-2.5 relative flex-1">
           {/* Manual / Autoplay Toggles */}
-          <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
             <button
               onClick={() => { playClick(); setTabB('manual'); }}
               disabled={betB.hasBet || isAutoplayRunningB}
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 tabB === 'manual'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                 }`}
             >
               Manual
@@ -1125,7 +1125,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 tabB === 'autoplay'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                 }`}
             >
               Autoplay
@@ -1134,16 +1134,16 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
 
           {/* Bet Amount Input */}
           <div className="space-y-1">
-            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
               <span>Bet Amount</span>
               <span>{(playableBalance || 0).toFixed(2)} INR</span>
             </div>
-            <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+            <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
               <div className="font-bold text-[#3de796] text-sm px-1 select-none">₹</div>
               <input
                 type="number"
                 disabled={betB.hasBet || isAutoplayRunningB}
-                className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                 value={betAmountB}
                 onChange={(e) => setBetAmountB(e.target.value)}
               />
@@ -1151,14 +1151,14 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 <button
                   onClick={() => multiplyBetB(0.5)}
                   disabled={betB.hasBet || isAutoplayRunningB}
-                  className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                  className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                 >
                   1/2
                 </button>
                 <button
                   onClick={() => multiplyBetB(2.0)}
                   disabled={betB.hasBet || isAutoplayRunningB}
-                  className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                  className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                 >
                   X2
                 </button>
@@ -1167,14 +1167,14 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
           </div>
 
           {/* Auto Cashout Controls (Standard Height) */}
-          <div className="flex items-center justify-between gap-3 bg-zinc-950/20 p-2.5 rounded-xl border border-white/5">
-            <label className="flex items-center gap-2 text-[10px] font-bold text-text-muted cursor-pointer select-none">
+          <div className="flex items-center justify-between gap-3 bg-slate-200/20 dark:bg-zinc-950/20 p-2.5 rounded-xl border border-black/10 dark:border-white/5">
+            <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-text-muted cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={autoCashB}
                 disabled={betB.hasBet || isAutoplayRunningB}
                 onChange={(e) => setAutoCashB(e.target.checked)}
-                className="rounded border-white/10 bg-transparent text-[#3de796] focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-black/15 dark:border-white/10 bg-transparent text-[#3de796] focus:ring-0 w-4 h-4 cursor-pointer"
               />
               Auto Cashout
             </label>
@@ -1183,7 +1183,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 type="number"
                 step="0.1"
                 disabled={betB.hasBet || isAutoplayRunningB}
-                className="w-20 bg-zinc-950/40 border border-white/5 rounded-lg py-1 px-2 text-white font-extrabold text-xs text-center outline-none"
+                className="w-20 bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-lg py-1 px-2 text-slate-900 dark:text-white font-extrabold text-xs text-center outline-none"
                 value={autoCashValueB}
                 onChange={(e) => setAutoCashValueB(e.target.value)}
               />
@@ -1192,21 +1192,21 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
 
           {/* Autoplay statistics */}
           {tabB === 'autoplay' && (
-            <div className="space-y-2 border-t border-white/5 pt-2">
+            <div className="space-y-2 border-t border-black/10 dark:border-white/5 pt-2">
               <div className="flex justify-between items-center gap-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Number of Bets</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Number of Bets</span>
                 <input
                   type="number"
                   disabled={betB.hasBet || isAutoplayRunningB}
-                  className="w-16 bg-zinc-950/40 border border-white/5 rounded-lg py-0.5 px-2 text-white font-extrabold text-xs text-center outline-none"
+                  className="w-16 bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-lg py-0.5 px-2 text-slate-900 dark:text-white font-extrabold text-xs text-center outline-none"
                   value={numberOfBets}
                   onChange={(e) => setAutoBetsRemainingB(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2 bg-zinc-950/20 p-2 rounded-xl border border-white/5 text-[9px] font-bold text-text-muted uppercase">
+              <div className="grid grid-cols-2 gap-2 bg-slate-200/20 dark:bg-zinc-950/20 p-2 rounded-xl border border-black/10 dark:border-white/5 text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase">
                 <div>
                   <span>Wagered</span>
-                  <span className="text-white font-black block text-xs">₹{totalWageredB.toFixed(2)}</span>
+                  <span className="text-slate-900 dark:text-white font-black block text-xs">₹{totalWageredB.toFixed(2)}</span>
                 </div>
                 <div>
                   <span>Profits</span>
@@ -1223,7 +1223,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
             {tabB === 'manual' ? (
               betB.hasBet ? (
                 betB.cashedOut ? (
-                  <div className="w-full py-3 rounded-2xl font-black text-sm tracking-wider flex flex-col justify-center items-center bg-zinc-950/40 border border-[#3de796]/20 text-[#3de796]">
+                  <div className="w-full py-3 rounded-2xl font-black text-sm tracking-wider flex flex-col justify-center items-center bg-slate-200/40 dark:bg-zinc-950/40 border border-[#3de796]/20 text-[#3de796]">
                     <span style={{ fontSize: '9px', fontWeight: 800 }}>WON</span>
                     <span style={{ fontSize: '15px', fontWeight: 900 }}>₹{betB.wonAmount.toFixed(2)}</span>
                   </div>
@@ -1248,7 +1248,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                   className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider border-0 cursor-pointer transition-all shadow-lg ${
                     (gameState === 'waiting' && waitingTimer > 2)
                       ? 'bg-[#3de796] hover:bg-[#3de796]/90 text-black shadow-[#3de796]/10'
-                      : 'bg-zinc-800/80 text-white/20'
+                      : 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
                   }`}
                 >
                   {gameState !== 'waiting'
@@ -1264,10 +1264,10 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 disabled={gameState !== 'waiting' && !isAutoplayRunningB}
                 className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider border-0 cursor-pointer transition-all shadow-lg ${
                   isAutoplayRunningB
-                    ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-white shadow-red-500/10'
+                    ? 'bg-[#ef4444] hover:bg-[#ef4444]/90 text-slate-900 dark:text-white shadow-red-500/10'
                     : gameState === 'waiting'
                     ? 'bg-[#3de796] hover:bg-[#3de796]/90 text-black shadow-[#3de796]/10'
-                    : 'bg-zinc-800/80 text-white/20'
+                    : 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
                 }`}
               >
                 {isAutoplayRunningB ? 'STOP' : 'START AUTOPLAY'}
@@ -1281,11 +1281,11 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
       <div className="lg:col-span-8 flex flex-col gap-3 min-w-0 order-1 lg:order-2 justify-between">
         
         {/* 1. Multipliers History capsules */}
-        <div className="flex gap-1.5 overflow-x-auto p-2.5 bg-[#141622] rounded-xl border border-white/[0.02] scrollbar-none">
+        <div className="flex gap-1.5 overflow-x-auto p-2.5 bg-slate-50 dark:bg-[#141622] rounded-xl border border-black/[0.05] dark:border-white/[0.02] scrollbar-none">
           {history.map((h, i) => (
             <span
               key={i}
-              className="monospace-ledger flex-shrink-0 text-[10px] font-black px-2.5 py-1.5 rounded-full bg-zinc-950/20 border"
+              className="monospace-ledger flex-shrink-0 text-[10px] font-black px-2.5 py-1.5 rounded-full bg-slate-200/20 dark:bg-zinc-950/20 border"
               style={{
                 color: getPillColor(h),
                 borderColor: `${getPillColor(h)}25`,
@@ -1297,7 +1297,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
         </div>
 
         {/* 2. Main Canvas Viewport container */}
-        <div className="relative flex-1 min-h-[440px] bg-[#0a0c12] border border-white/[0.02] rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between">
+        <div className="relative flex-1 min-h-[440px] bg-[#0a0c12] border border-black/[0.05] dark:border-white/[0.02] rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between">
           {/* Canvas layer */}
           <canvas
             ref={canvasRef}
@@ -1309,15 +1309,15 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
           {/* Floating TARGET A/B badges - visible if auto-cashout is enabled */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2">
             {autoCashA && (
-              <div className="bg-zinc-950/60 border border-white/5 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[9px] font-bold text-text-muted uppercase tracking-widest shadow-md">
+              <div className="bg-slate-200/60 dark:bg-zinc-950/60 border border-black/10 dark:border-white/5 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-widest shadow-md">
                 <TrendingUp size={11} className="text-[#3de796]" />
-                Auto A: <span className="text-white font-black">{parseFloat(autoCashValueA).toFixed(2)}x</span>
+                Auto A: <span className="text-slate-900 dark:text-white font-black">{parseFloat(autoCashValueA).toFixed(2)}x</span>
               </div>
             )}
             {autoCashB && (
-              <div className="bg-zinc-950/60 border border-white/5 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[9px] font-bold text-text-muted uppercase tracking-widest shadow-md">
+              <div className="bg-slate-200/60 dark:bg-zinc-950/60 border border-black/10 dark:border-white/5 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-widest shadow-md">
                 <TrendingUp size={11} className="text-[#3de796]" />
-                Auto B: <span className="text-white font-black">{parseFloat(autoCashValueB).toFixed(2)}x</span>
+                Auto B: <span className="text-slate-900 dark:text-white font-black">{parseFloat(autoCashValueB).toFixed(2)}x</span>
               </div>
             )}
           </div>
@@ -1332,10 +1332,10 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center gap-1.5"
               >
-                <div className="text-white font-black text-2xl tracking-wide uppercase drop-shadow-lg">
+                <div className="text-slate-900 dark:text-white font-black text-2xl tracking-wide uppercase drop-shadow-lg">
                   PREPARING TAKE-OFF
                 </div>
-                <div className="text-text-muted font-bold text-[10px] tracking-widest uppercase">
+                <div className="text-slate-500 dark:text-text-muted font-bold text-[10px] tracking-widest uppercase">
                   Place bet for the next round
                 </div>
                 
@@ -1387,7 +1387,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                     >
                       {waitingTimer}
                     </motion.span>
-                    <span className="text-[6px] text-text-muted font-black tracking-widest mt-0.5">SECS</span>
+                    <span className="text-[6px] text-slate-500 dark:text-text-muted font-black tracking-widest mt-0.5">SECS</span>
                   </div>
                 </div>
 
@@ -1422,7 +1422,7 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
                   {multiplier.toFixed(2)}x
                 </div>
 
-                <div className="mt-2 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                <div className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-text-muted">
                   {gameState === 'crashed' ? (
                     <span className="text-[#ef4444] px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full">FLEW AWAY</span>
                   ) : (
@@ -1434,9 +1434,9 @@ export default function Crash({ socket, user, playableBalance, setPlayableBalanc
           </div>
 
           {/* Bottom display status stats */}
-          <div className="mt-auto relative z-10 bg-gradient-to-t from-zinc-950/60 to-transparent p-3 flex justify-between items-center text-[9px] font-bold text-text-muted uppercase tracking-wider border-t border-white/[0.02]">
+          <div className="mt-auto relative z-10 bg-gradient-to-t from-zinc-950/60 to-transparent p-3 flex justify-between items-center text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider border-t border-black/[0.05] dark:border-white/[0.02]">
             <div>
-              LIVE ODDS: <span className="text-white font-black">{multiplier.toFixed(2)}x</span>
+              LIVE ODDS: <span className="text-slate-900 dark:text-white font-black">{multiplier.toFixed(2)}x</span>
             </div>
             <div>
               MULTIPLAYER CRASH ENGINE

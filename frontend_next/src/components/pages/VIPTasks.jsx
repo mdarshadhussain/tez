@@ -66,17 +66,17 @@ export default function VIPTasks({ balance, setBalance }) {
         <span className="text-accent-orange font-extrabold text-[10px] tracking-[4px] uppercase block mb-1">
           Daily Retention Tasks
         </span>
-        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           STREAKS & MILESTONES
         </h1>
-        <p className="text-text-muted text-xs md:text-sm max-w-md mx-auto mt-2 leading-relaxed">
+        <p className="text-slate-500 dark:text-text-muted text-xs md:text-sm max-w-md mx-auto mt-2 leading-relaxed">
           Claim micro-rewards everyday. Unlock larger bonuses as you hit operational milestones.
         </p>
       </div>
 
       {/* 7 Day Streak */}
       <div>
-        <h2 className="text-xs font-black text-white tracking-widest uppercase mb-3">
+        <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase mb-3">
           7-Day Sign-in Streak
         </h2>
         <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
@@ -88,18 +88,18 @@ export default function VIPTasks({ balance, setBalance }) {
               className={`flex-shrink-0 w-24 text-center rounded-2xl border p-4 cursor-pointer transition-all duration-200 select-none ${
                 day.claimed 
                   ? 'bg-accent-cyan/5 border-accent-cyan/20 text-accent-cyan' 
-                  : 'bg-zinc-950/40 border-white/5 text-text-secondary hover:border-white/20'
+                  : 'bg-slate-200/40 dark:bg-zinc-950/40 border-black/10 dark:border-white/5 text-slate-600 dark:text-text-secondary hover:border-black/20 dark:border-white/20'
               }`}
             >
-              <div className="text-[10px] text-text-muted">Day {day.day}</div>
-              <div className="font-extrabold text-sm text-white mt-1.5">
+              <div className="text-[10px] text-slate-500 dark:text-text-muted">Day {day.day}</div>
+              <div className="font-extrabold text-sm text-slate-900 dark:text-white mt-1.5">
                 ₹{day.bonus}
               </div>
               <div className="mt-3 flex justify-center">
                 {day.claimed ? (
                   <CheckCircle2 size={16} className="text-accent-cyan animate-pulse" />
                 ) : (
-                  <Clock size={16} className="text-text-dim" />
+                  <Clock size={16} className="text-slate-400 dark:text-text-dim" />
                 )}
               </div>
             </motion.div>
@@ -109,17 +109,17 @@ export default function VIPTasks({ balance, setBalance }) {
 
       {/* Milestones */}
       <div>
-        <h2 className="text-xs font-black text-white tracking-widest uppercase mb-3">
+        <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase mb-3">
           Active Game Milestones
         </h2>
         <div className="space-y-3">
           {milestones.map((m) => (
             <div 
               key={m.id} 
-              className="bg-zinc-950/40 border border-white/5 p-4 rounded-2xl flex justify-between items-center hover:bg-zinc-950/60 transition-colors"
+              className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 p-4 rounded-2xl flex justify-between items-center hover:bg-slate-200/60 dark:bg-zinc-950/60 transition-colors"
             >
               <div>
-                <div className="font-bold text-white text-xs md:text-sm leading-snug">{m.desc}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-xs md:text-sm leading-snug">{m.desc}</div>
                 <div className="text-[10px] text-accent-cyan mt-1 font-medium">
                   Progress: {m.progress}
                 </div>
@@ -134,8 +134,8 @@ export default function VIPTasks({ balance, setBalance }) {
                   onClick={() => claimMilestone(m.id)}
                   className={`border-0 rounded-xl text-[10px] font-extrabold py-1.5 px-3 cursor-pointer transition-all ${
                     m.claimed 
-                      ? 'bg-white/5 text-text-dim cursor-default' 
-                      : 'bg-accent-orange hover:bg-accent-orange/80 text-white shadow-[0_0_10px_rgba(255,94,0,0.3)]'
+                      ? 'bg-black/5 dark:bg-white/5 text-slate-400 dark:text-text-dim cursor-default' 
+                      : 'bg-accent-orange hover:bg-accent-orange/80 text-slate-900 dark:text-white shadow-[0_0_10px_rgba(255,94,0,0.3)]'
                   }`}
                 >
                   {m.claimed ? 'Claimed' : 'Claim Reward'}

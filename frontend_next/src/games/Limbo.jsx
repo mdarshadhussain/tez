@@ -85,7 +85,7 @@ function ResultPopup({ won, payout, multiplier, betAmount, onClose }) {
           onClick={onClose}
         >
           {/* Backdrop blur */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl" />
+          <div className="absolute inset-0 bg-black/10 dark:bg-black/30 dark:bg-black/60 backdrop-blur-sm rounded-2xl" />
 
           <div className="relative z-10 flex flex-col items-center gap-3 text-center px-6">
             {won ? (
@@ -126,7 +126,7 @@ function ResultPopup({ won, payout, multiplier, betAmount, onClose }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.25 }}
-                  className="text-white font-black text-4xl"
+                  className="text-slate-900 dark:text-white font-black text-4xl"
                 >
                   ₹{payout}
                 </motion.div>
@@ -161,7 +161,7 @@ function ResultPopup({ won, payout, multiplier, betAmount, onClose }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-white/50 font-bold text-sm"
+                  className="text-slate-900 dark:text-white/50 font-bold text-sm"
                 >
                   Lost ₹{betAmount}
                 </motion.div>
@@ -172,7 +172,7 @@ function ResultPopup({ won, payout, multiplier, betAmount, onClose }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-white/30 text-[10px] font-bold tracking-widest uppercase mt-2"
+              className="text-slate-900 dark:text-white/30 text-[10px] font-bold tracking-widest uppercase mt-2"
             >
               Tap to continue
             </motion.p>
@@ -313,6 +313,13 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
             setWon(isWon);
 
             const payout = isWon ? parseFloat((activeBetAmount * activeBetTargetMultiplier).toFixed(2)) : 0;
+            
+            lastResultRef.current = {
+              payout,
+              target: activeBetTargetMultiplier,
+              amt: activeBetAmount
+            };
+
             if (isWon) {
               setShowPopup(true);
               playWinChime();
@@ -531,7 +538,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
 
       {/* Left Console Panel */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-2xl md:rounded-3xl flex flex-col gap-4 relative overflow-y-auto scrollbar-none order-2 lg:order-1">
 
         <AnimatePresence mode="wait">
           {!showAutoConfig ? (
@@ -543,14 +550,14 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
               className="flex flex-col flex-1 gap-4"
             >
               {/* Manual / Auto Toggles */}
-              <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5 order-5 lg:order-1">
+              <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5 order-5 lg:order-1">
                 <button
                   onClick={() => { playClick(); setTab('manual'); }}
                   disabled={hasBet || bettingClosed || isAutoplayRunning}
                   className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                     tab === 'manual'
                       ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                      : 'bg-transparent text-text-muted hover:text-white'
+                      : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                   }`}
                 >
                   Manual
@@ -561,7 +568,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                   className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                     tab === 'autoplay'
                       ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                      : 'bg-transparent text-text-muted hover:text-white'
+                      : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                   }`}
                 >
                   Autoplay
@@ -570,18 +577,18 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
 
               {/* Bet Amount Input */}
               <div className="space-y-2 order-2 lg:order-2">
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
                   <span>Bet Amount</span>
                   <span>0.00 INR</span>
                 </div>
-                <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 px-1 font-bold text-[#3de796] text-sm select-none">
                     ₹
                   </div>
                   <input
                     type="number"
                     disabled={hasBet || bettingClosed || isAutoplayRunning}
-                    className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                    className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
                   />
@@ -589,14 +596,14 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                     <button
                       onClick={() => multiplyBet(0.5)}
                       disabled={hasBet || bettingClosed || isAutoplayRunning}
-                      className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                      className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                     >
                       1/2
                     </button>
                     <button
                       onClick={() => multiplyBet(2.0)}
                       disabled={hasBet || bettingClosed || isAutoplayRunning}
-                      className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
+                      className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors"
                     >
                       X2
                     </button>
@@ -607,51 +614,51 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
               {/* Multiplier & Win Chance inputs side-by-side */}
               <div className="grid grid-cols-2 gap-3 order-3 lg:order-3">
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Multiplier</span>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-1">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Multiplier</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-1">
                     <input
                       type="number"
                       step="0.01"
                       disabled={hasBet || bettingClosed || isAutoplayRunning}
-                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={targetMultiplier}
                       onChange={(e) => handleMultiplierChange(e.target.value)}
                     />
-                    <TrendingUp size={14} className="text-text-muted shrink-0 mr-1" />
+                    <TrendingUp size={14} className="text-slate-500 dark:text-text-muted shrink-0 mr-1" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Win Chance</span>
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-1">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Win Chance</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-1">
                     <input
                       type="number"
                       step="0.01"
                       disabled={hasBet || bettingClosed || isAutoplayRunning}
-                      className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                      className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                       value={winChance}
                       onChange={(e) => handleWinChanceChange(e.target.value)}
                     />
-                    <Percent size={13} className="text-text-muted shrink-0 mr-1" />
+                    <Percent size={13} className="text-slate-500 dark:text-text-muted shrink-0 mr-1" />
                   </div>
                 </div>
               </div>
 
               {/* Payout Preview */}
-              <div className="bg-zinc-950/30 rounded-xl p-3 border border-white/5 order-3 lg:order-3">
+              <div className="bg-slate-200/30 dark:bg-zinc-950/30 rounded-xl p-3 border border-black/10 dark:border-white/5 order-3 lg:order-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Payout if Win</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Payout if Win</span>
                   <span className="text-[#3de796] font-black text-sm">₹{calculatedPayout}</span>
                 </div>
               </div>
 
               {/* Countdown Timer */}
               <div className="space-y-2 order-4 lg:order-4">
-                <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
                   <span>NEXT ROUND TIMER</span>
                   <span style={{ color: bettingClosed ? '#ef4444' : '#3de796', fontWeight: 900 }}>{timer}s</span>
                 </div>
-                <div className="relative w-full h-2.5 bg-zinc-950/40 rounded-full overflow-hidden border border-white/5">
+                <div className="relative w-full h-2.5 bg-slate-200/40 dark:bg-zinc-950/40 rounded-full overflow-hidden border border-black/10 dark:border-white/5">
                   <div
                     style={{
                       height: '100%',
@@ -667,32 +674,32 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
 
               {/* Autoplay statistics */}
               {tab === 'autoplay' && (
-                <div className="space-y-3 order-4 lg:order-4 border-t border-white/5 pt-3">
+                <div className="space-y-3 order-4 lg:order-4 border-t border-black/10 dark:border-white/5 pt-3">
                   <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Number of Bets</span>
-                    <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Number of Bets</span>
+                    <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
                       <input
                         type="number"
                         disabled={hasBet || bettingClosed || isAutoplayRunning}
-                        className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
+                        className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full"
                         value={numberOfBets}
                         onChange={(e) => setNumberOfBets(e.target.value)}
                       />
                       <div className="flex gap-1">
-                        <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">20</button>
-                        <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">50</button>
-                        <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">∞</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('20'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">20</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('50'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">50</button>
+                        <button onClick={() => { playClick(); setNumberOfBets('0'); }} disabled={hasBet || bettingClosed || isAutoplayRunning} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer transition-colors">∞</button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 bg-zinc-950/20 p-3 rounded-2xl border border-white/5">
+                  <div className="grid grid-cols-2 gap-3 bg-slate-200/20 dark:bg-zinc-950/20 p-3 rounded-2xl border border-black/10 dark:border-white/5">
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Total Wagered</span>
-                      <span className="text-white font-black text-xs">₹{totalWagered.toFixed(2)}</span>
+                      <span className="text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Total Wagered</span>
+                      <span className="text-slate-900 dark:text-white font-black text-xs">₹{totalWagered.toFixed(2)}</span>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block">Total Profits</span>
+                      <span className="text-[9px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider block">Total Profits</span>
                       <span className={`font-black text-xs ${totalProfit >= 0 ? 'text-[#3de796]' : 'text-accent-red'}`}>
                         {totalProfit >= 0 ? '+' : ''}₹{totalProfit.toFixed(2)}
                       </span>
@@ -709,9 +716,9 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                     disabled={hasBet || bettingClosed}
                     className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-lg border-0 cursor-pointer transition-all ${
                       hasBet
-                        ? 'bg-[#141622] text-[#3de796] border border-[#3de796]/20'
+                        ? 'bg-slate-50 dark:bg-[#141622] text-[#3de796] border border-[#3de796]/20'
                         : bettingClosed
-                        ? 'bg-zinc-800/80 text-white/20'
+                        ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
                         : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
                     }`}
                   >
@@ -722,7 +729,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                     <button
                       onClick={() => { playClick(); setShowAutoConfig(true); }}
                       disabled={hasBet || bettingClosed || isAutoplayRunning}
-                      className="w-full bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
+                      className="w-full bg-[#242938] hover:bg-[#2e3549] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
                     >
                       CONFIGURE AUTO
                     </button>
@@ -731,7 +738,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                       disabled={rolling}
                       className={`w-full py-4 rounded-2xl font-black text-sm tracking-wider border-0 cursor-pointer transition-all shadow-lg ${
                         isAutoplayRunning
-                          ? 'bg-accent-red hover:bg-accent-red/80 text-white shadow-red-500/10'
+                          ? 'bg-accent-red hover:bg-accent-red/80 text-slate-900 dark:text-white shadow-red-500/10'
                           : 'bg-[#3de796] hover:bg-[#3de796]/80 text-black shadow-[#3de796]/10'
                       }`}
                     >
@@ -750,63 +757,63 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
               exit={{ opacity: 0, x: -10 }}
               className="space-y-4 flex flex-col flex-1"
             >
-              <div className="flex items-center gap-2 border-b border-white/5 pb-2 mb-1 select-none">
-                <button onClick={() => { playClick(); setShowAutoConfig(false); }} className="bg-transparent border-0 text-text-muted hover:text-white cursor-pointer">
+              <div className="flex items-center gap-2 border-b border-black/10 dark:border-white/5 pb-2 mb-1 select-none">
+                <button onClick={() => { playClick(); setShowAutoConfig(false); }} className="bg-transparent border-0 text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white cursor-pointer">
                   <ChevronLeft size={16} />
                 </button>
-                <span className="text-xs font-black text-white uppercase tracking-wider">Configure Auto</span>
+                <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Configure Auto</span>
               </div>
 
               {/* On win settings */}
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Win</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">On Win</span>
                 <div className="flex gap-2">
-                  <button onClick={() => { playClick(); setOnWinReset(true); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'}`}>Reset</button>
-                  <button onClick={() => { playClick(); setOnWinReset(false); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${!onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'}`}>Increase By</button>
+                  <button onClick={() => { playClick(); setOnWinReset(true); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'}`}>Reset</button>
+                  <button onClick={() => { playClick(); setOnWinReset(false); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${!onWinReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'}`}>Increase By</button>
                 </div>
                 {!onWinReset && (
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
-                    <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={onWinIncrease} onChange={(e) => setOnWinIncrease(e.target.value)} />
-                    <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center">
+                    <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={onWinIncrease} onChange={(e) => setOnWinIncrease(e.target.value)} />
+                    <span className="text-[10px] font-black text-slate-500 dark:text-text-muted px-2">%</span>
                   </div>
                 )}
               </div>
 
               {/* On Loss settings */}
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">On Loss</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">On Loss</span>
                 <div className="flex gap-2">
-                  <button onClick={() => { playClick(); setOnLossReset(true); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'}`}>Reset</button>
-                  <button onClick={() => { playClick(); setOnLossReset(false); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${!onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-text-muted border-white/10 hover:text-white'}`}>Increase By</button>
+                  <button onClick={() => { playClick(); setOnLossReset(true); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'}`}>Reset</button>
+                  <button onClick={() => { playClick(); setOnLossReset(false); }} className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer border ${!onLossReset ? 'bg-[#3de796] text-black border-transparent' : 'bg-transparent text-slate-500 dark:text-text-muted border-black/15 dark:border-white/10 hover:text-slate-900 dark:text-white'}`}>Increase By</button>
                 </div>
                 {!onLossReset && (
-                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center">
-                    <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={onLossIncrease} onChange={(e) => setOnLossIncrease(e.target.value)} />
-                    <span className="text-[10px] font-black text-text-muted px-2">%</span>
+                  <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center">
+                    <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={onLossIncrease} onChange={(e) => setOnLossIncrease(e.target.value)} />
+                    <span className="text-[10px] font-black text-slate-500 dark:text-text-muted px-2">%</span>
                   </div>
                 )}
               </div>
 
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Profit</span>
-                <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">₹</div>
-                  <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={stopProfit} onChange={(e) => setStopProfit(e.target.value)} />
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Stop on Profit</span>
+                <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 px-1 font-bold text-slate-500 dark:text-text-muted text-sm select-none">₹</div>
+                  <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={stopProfit} onChange={(e) => setStopProfit(e.target.value)} />
                   <div className="flex gap-1">
-                    <button onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 0.5).toFixed(2)); }} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">1/2</button>
-                    <button onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 2.0).toFixed(2)); }} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">X2</button>
+                    <button onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 0.5).toFixed(2)); }} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">1/2</button>
+                    <button onClick={() => { playClick(); const val = parseFloat(stopProfit); if (!isNaN(val)) setStopProfit((val * 2.0).toFixed(2)); }} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">X2</button>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Stop on Loss</span>
-                <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 px-1 font-bold text-text-muted text-sm select-none">₹</div>
-                  <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} />
+                <span className="text-[10px] font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Stop on Loss</span>
+                <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-xl p-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 px-1 font-bold text-slate-500 dark:text-text-muted text-sm select-none">₹</div>
+                  <input type="number" className="form-input bg-transparent border-0 py-1 px-0 text-slate-900 dark:text-white font-extrabold text-xs outline-none focus:ring-0 w-full" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} />
                   <div className="flex gap-1">
-                    <button onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 0.5).toFixed(2)); }} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">1/2</button>
-                    <button onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 2.0).toFixed(2)); }} className="bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">X2</button>
+                    <button onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 0.5).toFixed(2)); }} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">1/2</button>
+                    <button onClick={() => { playClick(); const val = parseFloat(stopLoss); if (!isNaN(val)) setStopLoss((val * 2.0).toFixed(2)); }} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white px-2 py-1 rounded-lg text-[9px] font-black border-0 cursor-pointer">X2</button>
                   </div>
                 </div>
               </div>
@@ -820,7 +827,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                     setOnLossReset(true); setOnLossIncrease('0.00');
                     setStopProfit('0.00'); setStopLoss('0.00');
                   }}
-                  className="flex-1 bg-[#242938] hover:bg-[#2e3549] text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
+                  className="flex-1 bg-[#242938] hover:bg-[#2e3549] text-slate-900 dark:text-white py-3 rounded-xl font-bold text-xs tracking-wider border-0 cursor-pointer transition-all"
                 >
                   RESET ALL
                 </button>
@@ -846,7 +853,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                 className={`text-[10px] font-black px-3 py-1.5 rounded-full border shrink-0 transition-all ${
                   isWinner
                     ? 'bg-[#3de796]/15 text-[#3de796] border-[#3de796]/20'
-                    : 'bg-white/5 text-slate-400 border-white/5'
+                    : 'bg-black/5 dark:bg-white/5 text-slate-400 border-black/10 dark:border-white/5'
                 }`}
               >
                 {h.toFixed(2)}x
@@ -862,10 +869,10 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
           {/* Multiplier display */}
           <div className="relative z-10 flex flex-col items-center gap-3">
             {/* Target indicator chip */}
-            <div className="bg-white/5 border border-white/10 rounded-full px-4 py-1.5 flex items-center gap-2">
+            <div className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-full px-4 py-1.5 flex items-center gap-2">
               <TrendingUp size={11} className="text-[#3de796]" />
-              <span className="text-[10px] font-black text-text-muted uppercase tracking-wider">
-                Target: <span className="text-white">{targetMultiplier}x</span>
+              <span className="text-[10px] font-black text-slate-500 dark:text-text-muted uppercase tracking-wider">
+                Target: <span className="text-slate-900 dark:text-white">{targetMultiplier}x</span>
               </span>
             </div>
 
@@ -893,12 +900,12 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
               <motion.span
                 className={`relative text-6xl md:text-7xl font-black tracking-tight select-none tabular-nums ${
                   rolling
-                    ? 'text-white'
+                    ? 'text-slate-900 dark:text-white'
                     : won === true
                     ? 'text-[#3de796] drop-shadow-[0_0_30px_rgba(61,231,150,0.7)]'
                     : won === false
                     ? 'text-red-400 drop-shadow-[0_0_25px_rgba(255,100,100,0.5)]'
-                    : 'text-white/80'
+                    : 'text-slate-900 dark:text-white/80'
                 }`}
                 animate={
                   won === true
@@ -928,7 +935,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                     animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
                     transition={{ repeat: Infinity, duration: 0.7 }}
                   />
-                  <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">Rolling...</span>
+                  <span className="text-[10px] font-black text-slate-500 dark:text-text-muted uppercase tracking-widest">Rolling...</span>
                 </motion.div>
               ) : won !== null ? (
                 <motion.div
@@ -945,7 +952,7 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
                   key="idle"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-[10px] font-bold text-text-muted/50 uppercase tracking-widest"
+                  className="text-[10px] font-bold text-slate-500 dark:text-text-muted/50 uppercase tracking-widest"
                 >
                   Place Your Bet
                 </motion.div>
@@ -964,18 +971,18 @@ export default function Limbo({ socket, user, token, playableBalance, setPlayabl
         </div>
 
         {/* Lower indicator */}
-        <div className="flex justify-between items-center py-3 select-none border-t border-white/5 mt-4">
+        <div className="flex justify-between items-center py-3 select-none border-t border-black/10 dark:border-white/5 mt-4">
           {tab === 'manual' ? (
             <>
-              <div className="text-[10px] font-black tracking-wider uppercase text-text-muted">
-                Win Chance: <span className="text-white ml-1">{winChance}%</span>
+              <div className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-text-muted">
+                Win Chance: <span className="text-slate-900 dark:text-white ml-1">{winChance}%</span>
               </div>
-              <div className="text-[10px] font-black tracking-wider uppercase text-text-muted">
+              <div className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-text-muted">
                 Payout on Win: <span className="text-[#3de796] ml-1">₹{calculatedPayout}</span>
               </div>
             </>
           ) : (
-            <div className="text-[10px] font-black tracking-wider uppercase text-text-muted">
+            <div className="text-[10px] font-black tracking-wider uppercase text-slate-500 dark:text-text-muted">
               Autoplays Remaining: <span className="text-[#3de796] ml-1">{isAutoplayRunning ? (autoBetsRemaining === 999999 ? '∞' : autoBetsRemaining) : numberOfBets === '0' ? '∞' : numberOfBets}</span>
             </div>
           )}

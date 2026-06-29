@@ -140,21 +140,21 @@ export default function SupportChat({ socket, user }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="w-[360px] h-[580px] bg-[#0c0d14] rounded-3xl shadow-2xl border border-white/5 overflow-hidden flex flex-col mb-4 text-left"
+            className="w-[360px] h-[580px] bg-[#0c0d14] rounded-3xl shadow-2xl border border-black/10 dark:border-white/5 overflow-hidden flex flex-col mb-4 text-left"
           >
             {/* Header section (Gradient / branding) */}
             <div className="bg-gradient-to-b from-blue-700 via-indigo-950 to-[#0c0d14] p-6 pb-4 relative shrink-0">
               <div className="flex justify-between items-center mb-4">
                 {/* logo */}
                 <div className="flex items-center font-black tracking-tighter uppercase select-none">
-                  <span className="text-white text-xl">thrill</span>
+                  <span className="text-slate-900 dark:text-white text-xl">thrill</span>
                   <span className="text-[#3de796] bg-[#3de796]/10 border border-[#3de796]/20 px-1.5 py-0.5 rounded text-[10px] ml-1.5 font-bold tracking-wider">support</span>
                 </div>
                 
                 {/* Close Button */}
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-white/70 hover:text-white transition-all cursor-pointer border-0"
+                  className="w-8 h-8 rounded-full bg-black/5 dark:bg-black/20 hover:bg-black/15 dark:bg-black/40 flex items-center justify-center text-slate-600 dark:text-white/70 hover:text-slate-900 dark:text-white transition-all cursor-pointer border-0"
                 >
                   <X size={16} />
                 </button>
@@ -162,7 +162,7 @@ export default function SupportChat({ socket, user }) {
 
               {/* Greeting */}
               <div className="space-y-1 mt-6">
-                <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                   Hi {username} <span className="animate-bounce">👋</span>
                 </h2>
                 <p className="text-sm text-white/80 font-medium">How can we help?</p>
@@ -177,19 +177,19 @@ export default function SupportChat({ socket, user }) {
                   {lastSupportMessage ? (
                     <div 
                       onClick={() => setActiveTab('messages')}
-                      className="bg-white/5 border border-white/10 rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition-all space-y-2.5"
+                      className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-2xl p-4 cursor-pointer hover:bg-black/10 dark:bg-white/10 transition-all space-y-2.5"
                     >
-                      <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Recent message</div>
+                      <div className="text-[10px] text-slate-500 dark:text-text-muted font-bold uppercase tracking-wider">Recent message</div>
                       <div className="flex items-start gap-3">
                         <div className="w-9 h-9 rounded-full bg-blue-600/30 flex items-center justify-center text-blue-400 font-bold border border-blue-500/20">
                           M
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-baseline">
-                            <span className="text-xs font-bold text-white">Maddie (Support)</span>
-                            <span className="text-[9px] text-text-muted">Just now</span>
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">Maddie (Support)</span>
+                            <span className="text-[9px] text-slate-500 dark:text-text-muted">Just now</span>
                           </div>
-                          <p className="text-[11px] text-text-secondary truncate mt-0.5">
+                          <p className="text-[11px] text-slate-600 dark:text-text-secondary truncate mt-0.5">
                             {lastSupportMessage.text}
                           </p>
                         </div>
@@ -198,18 +198,18 @@ export default function SupportChat({ socket, user }) {
                   ) : (
                     <div 
                       onClick={() => setActiveTab('messages')}
-                      className="bg-white/5 border border-white/10 rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition-all space-y-2.5"
+                      className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-2xl p-4 cursor-pointer hover:bg-black/10 dark:bg-white/10 transition-all space-y-2.5"
                     >
-                      <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Start a conversation</div>
+                      <div className="text-[10px] text-slate-500 dark:text-text-muted font-bold uppercase tracking-wider">Start a conversation</div>
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#3de796] to-emerald-600 flex items-center justify-center text-black font-black text-sm">
                           ?
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-xs font-bold text-white block">Chat with support team</span>
-                          <span className="text-[10px] text-text-secondary">We reply in under 2 minutes</span>
+                          <span className="text-xs font-bold text-slate-900 dark:text-white block">Chat with support team</span>
+                          <span className="text-[10px] text-slate-600 dark:text-text-secondary">We reply in under 2 minutes</span>
                         </div>
-                        <ChevronRight size={16} className="text-text-muted" />
+                        <ChevronRight size={16} className="text-slate-500 dark:text-text-muted" />
                       </div>
                     </div>
                   )}
@@ -224,15 +224,15 @@ export default function SupportChat({ socket, user }) {
                   </button>
 
                   {/* Search for help box */}
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                  <div className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-2xl p-4 space-y-3">
                     <div className="relative">
-                      <Search size={14} className="absolute left-3.5 top-3.5 text-text-muted" />
+                      <Search size={14} className="absolute left-3.5 top-3.5 text-slate-500 dark:text-text-muted" />
                       <input
                         type="text"
                         placeholder="Search for help"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-[#12141f] border border-white/5 py-2.5 pl-10 pr-4 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                        className="w-full bg-[#12141f] border border-black/10 dark:border-white/5 py-2.5 pl-10 pr-4 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500/50"
                       />
                     </div>
 
@@ -244,10 +244,10 @@ export default function SupportChat({ socket, user }) {
                             setSelectedFaq(faq);
                             setActiveTab('help');
                           }}
-                          className="w-full text-left py-2.5 border-b border-white/5 flex justify-between items-center text-xs text-text-secondary hover:text-white transition-colors bg-transparent border-0 cursor-pointer"
+                          className="w-full text-left py-2.5 border-b border-black/10 dark:border-white/5 flex justify-between items-center text-xs text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white transition-colors bg-transparent border-0 cursor-pointer"
                         >
                           <span className="truncate pr-4">{faq.title}</span>
-                          <ChevronRight size={14} className="text-text-muted shrink-0" />
+                          <ChevronRight size={14} className="text-slate-500 dark:text-text-muted shrink-0" />
                         </button>
                       ))}
                     </div>
@@ -260,7 +260,7 @@ export default function SupportChat({ socket, user }) {
                 <div className="h-full flex flex-col pb-2">
                   <div className="flex-1 overflow-y-auto pr-1 space-y-3 py-3 scrollbar-none min-h-[300px]">
                     {messages.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-center p-6 text-text-muted">
+                      <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500 dark:text-text-muted">
                         <MessageSquare size={36} className="text-white/10 mb-2" />
                         <p className="text-xs font-bold">No messages yet</p>
                         <p className="text-[10px] mt-1">Send a message below to start a ticket with support</p>
@@ -281,8 +281,8 @@ export default function SupportChat({ socket, user }) {
                             <div
                               className={`max-w-[75%] p-3 rounded-2xl text-xs leading-relaxed ${
                                 isSupport 
-                                  ? 'bg-[#181a26] text-white border border-white/5 rounded-bl-sm' 
-                                  : 'bg-blue-600 text-white rounded-br-sm'
+                                  ? 'bg-[#181a26] text-slate-900 dark:text-white border border-black/10 dark:border-white/5 rounded-bl-sm' 
+                                  : 'bg-blue-600 text-slate-900 dark:text-white rounded-br-sm'
                               }`}
                             >
                               <p className="break-words font-medium">{msg.text}</p>
@@ -295,18 +295,18 @@ export default function SupportChat({ socket, user }) {
                   </div>
 
                   {/* Input Box */}
-                  <div className="flex gap-2 pt-2 border-t border-white/5 bg-[#0c0d14] sticky bottom-0">
+                  <div className="flex gap-2 pt-2 border-t border-black/10 dark:border-white/5 bg-[#0c0d14] sticky bottom-0">
                     <input
                       type="text"
                       placeholder="Type a message..."
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                      className="flex-1 bg-white/5 border border-white/10 py-2.5 px-4 rounded-xl text-xs text-white outline-none focus:border-blue-500/30"
+                      className="flex-1 bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 py-2.5 px-4 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500/30"
                     />
                     <button
                       onClick={handleSend}
-                      className="bg-blue-600 hover:bg-blue-500 p-2.5 rounded-xl text-white cursor-pointer border-0 transition-colors flex items-center justify-center"
+                      className="bg-blue-600 hover:bg-blue-500 p-2.5 rounded-xl text-slate-900 dark:text-white cursor-pointer border-0 transition-colors flex items-center justify-center"
                     >
                       <Send size={14} className="transform rotate-45" />
                     </button>
@@ -325,9 +325,9 @@ export default function SupportChat({ socket, user }) {
                       >
                         &larr; Back to Help list
                       </button>
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
-                        <h3 className="font-extrabold text-sm text-white leading-snug">{selectedFaq.title}</h3>
-                        <p className="text-xs text-text-secondary leading-relaxed font-medium">{selectedFaq.answer}</p>
+                      <div className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-2xl p-5 space-y-3">
+                        <h3 className="font-extrabold text-sm text-slate-900 dark:text-white leading-snug">{selectedFaq.title}</h3>
+                        <p className="text-xs text-slate-600 dark:text-text-secondary leading-relaxed font-medium">{selectedFaq.answer}</p>
                       </div>
                       <button
                         onClick={() => {
@@ -342,25 +342,25 @@ export default function SupportChat({ socket, user }) {
                   ) : (
                     <div className="space-y-3">
                       <div className="relative">
-                        <Search size={14} className="absolute left-3.5 top-3.5 text-text-muted" />
+                        <Search size={14} className="absolute left-3.5 top-3.5 text-slate-500 dark:text-text-muted" />
                         <input
                           type="text"
                           placeholder="Search FAQs"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full bg-white/5 border border-white/5 py-2.5 pl-10 pr-4 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                          className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/5 py-2.5 pl-10 pr-4 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500/50"
                         />
                       </div>
 
-                      <div className="bg-[#12141f]/40 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
+                      <div className="bg-[#12141f]/40 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
                         {filteredFaqs.map(faq => (
                           <div
                             key={faq.id}
                             onClick={() => setSelectedFaq(faq)}
-                            className="p-4 hover:bg-white/[0.02] cursor-pointer flex justify-between items-center transition-colors text-xs text-text-secondary hover:text-white"
+                            className="p-4 hover:bg-white/[0.02] cursor-pointer flex justify-between items-center transition-colors text-xs text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white"
                           >
                             <span className="font-medium pr-4">{faq.title}</span>
-                            <ChevronRight size={14} className="text-text-muted" />
+                            <ChevronRight size={14} className="text-slate-500 dark:text-text-muted" />
                           </div>
                         ))}
                       </div>
@@ -371,14 +371,14 @@ export default function SupportChat({ socket, user }) {
             </div>
 
             {/* 3. FIXED BOTTOM NAV BAR */}
-            <div className="h-[64px] bg-[#12141f] border-t border-white/5 flex justify-around items-center shrink-0 px-4">
+            <div className="h-[64px] bg-[#12141f] border-t border-black/10 dark:border-white/5 flex justify-around items-center shrink-0 px-4">
               <button
                 onClick={() => {
                   setActiveTab('home');
                   setSelectedFaq(null);
                 }}
                 className={`flex flex-col items-center gap-1 cursor-pointer bg-transparent border-0 ${
-                  activeTab === 'home' ? 'text-blue-500 font-bold' : 'text-text-muted hover:text-white/60'
+                  activeTab === 'home' ? 'text-blue-500 font-bold' : 'text-slate-500 dark:text-text-muted hover:text-slate-500 dark:text-white/60'
                 }`}
               >
                 <Home size={18} />
@@ -391,13 +391,13 @@ export default function SupportChat({ socket, user }) {
                   setHasNewMessage(false);
                 }}
                 className={`flex flex-col items-center gap-1 cursor-pointer bg-transparent border-0 relative ${
-                  activeTab === 'messages' ? 'text-blue-500 font-bold' : 'text-text-muted hover:text-white/60'
+                  activeTab === 'messages' ? 'text-blue-500 font-bold' : 'text-slate-500 dark:text-text-muted hover:text-slate-500 dark:text-white/60'
                 }`}
               >
                 <div className="relative">
                   <MessageSquare size={18} />
                   {hasNewMessage && (
-                    <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center animate-bounce">
+                    <span className="absolute -top-1 -right-1.5 bg-red-500 text-slate-900 dark:text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center animate-bounce">
                       1
                     </span>
                   )}
@@ -411,7 +411,7 @@ export default function SupportChat({ socket, user }) {
                   setSelectedFaq(null);
                 }}
                 className={`flex flex-col items-center gap-1 cursor-pointer bg-transparent border-0 ${
-                  activeTab === 'help' ? 'text-blue-500 font-bold' : 'text-text-muted hover:text-white/60'
+                  activeTab === 'help' ? 'text-blue-500 font-bold' : 'text-slate-500 dark:text-text-muted hover:text-slate-500 dark:text-white/60'
                 }`}
               >
                 <HelpCircle size={18} />
@@ -430,7 +430,7 @@ export default function SupportChat({ socket, user }) {
           setIsOpen(!isOpen);
           setHasNewMessage(false);
         }}
-        className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 cursor-pointer border-0 outline-none"
+        className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-slate-900 dark:text-white shadow-xl shadow-blue-500/20 cursor-pointer border-0 outline-none"
       >
         {isOpen ? (
           <X size={24} />

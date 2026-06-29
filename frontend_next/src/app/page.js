@@ -39,7 +39,9 @@ import {
   Settings,
   BarChart2,
   Maximize2,
-  Share2
+  Share2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -50,6 +52,7 @@ import Affiliate from '../components/pages/Affiliate';
 import Wallet from '../components/pages/Wallet';
 import VIPTasks from '../components/pages/VIPTasks';
 import SportsLobby from '../components/pages/SportsLobby';
+import PrivacyPolicy from '../components/pages/PrivacyPolicy';
 
 // Game components
 import WinGo from '../games/WinGo';
@@ -193,6 +196,23 @@ export default function App() {
       }
     }
   }, []);
+
+  // Apply Theme
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const root = window.document.documentElement;
+      // We will set the data-theme attribute for globals.css, and also a class for Tailwind `dark:` variant
+      root.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.add('light');
+        root.classList.remove('dark');
+      }
+      localStorage.setItem('theme', theme);
+    }
+  }, [theme]);
 
   const updateDemoBalance = (newBal) => {
     setDemoBalance((prev) => {
@@ -339,6 +359,8 @@ export default function App() {
         return <Wallet token={token} balance={playableBalance} setBalance={setPlayableBalance} user={user} />;
       case 'tasks':
         return <VIPTasks balance={playableBalance} setBalance={setPlayableBalance} />;
+      case 'privacy':
+        return <PrivacyPolicy />;
       default:
         return <Home setGameMode={(mode) => actionGuard(() => setGameMode(mode))} />;
     }
@@ -405,8 +427,8 @@ export default function App() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2 px-2 select-none">
           <div className="flex items-center gap-4">
             <div>
-              <h2 className="text-base font-black text-white leading-none capitalize">{gameMode === 'wingo' ? 'Win Go' : gameMode === 'trx' ? 'TRX Win Go' : gameMode}</h2>
-              <span className="text-[10px] text-text-muted font-bold block mt-1">By Thrill Originals</span>
+              <h2 className="text-base font-black text-slate-900 dark:text-white leading-none capitalize">{gameMode === 'wingo' ? 'Win Go' : gameMode === 'trx' ? 'TRX Win Go' : gameMode}</h2>
+              <span className="text-[10px] text-slate-500 dark:text-text-muted font-bold block mt-1">By Thrill Originals</span>
             </div>
             <div className="bg-[#3de796]/10 border border-[#3de796]/20 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[#3de796] text-[9px] font-black uppercase tracking-wider">
               <Shield size={11} />
@@ -416,38 +438,38 @@ export default function App() {
           
           {/* Bottom Tool Bar */}
           <div className="flex items-center gap-2.5">
-            <div className="bg-[#171a25] px-2.5 py-1.5 rounded-xl border border-white/5 flex items-center gap-1 text-[10px] font-black text-white cursor-pointer hover:bg-white/5 transition-all">
+            <div className="bg-white dark:bg-[#171a25] px-2.5 py-1.5 rounded-xl border border-black/10 dark:border-white/5 flex items-center gap-1 text-[10px] font-black text-slate-900 dark:text-white cursor-pointer hover:bg-black/5 dark:bg-white/5 transition-all">
               <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />
               <span>INR</span>
-              <svg className="w-3 h-3 text-[#94a3b8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3 h-3 text-slate-500 dark:text-[#94a3b8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
             
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
               <Heart size={14} />
             </button>
             
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
               <BarChart2 size={14} />
             </button>
 
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
               <Maximize2 size={14} />
             </button>
 
             <button 
               onClick={() => setSoundOn(!soundOn)}
-              className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all"
+              className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all"
             >
               {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
             </button>
 
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
               <Share2 size={14} />
             </button>
 
-            <button className="w-8 h-8 rounded-lg bg-[#171a25] border border-white/5 hover:bg-white/10 text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
+            <button className="w-8 h-8 rounded-lg bg-white dark:bg-[#171a25] border border-black/10 dark:border-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-500 dark:text-[#94a3b8] hover:text-[#3de796] flex items-center justify-center cursor-pointer transition-all">
               <Settings size={14} />
             </button>
           </div>
@@ -459,7 +481,7 @@ export default function App() {
 
 
   return (
-    <div className="flex w-screen h-screen overflow-hidden bg-bg-body text-white font-sans">
+    <div className="flex w-screen h-screen overflow-hidden bg-bg-body text-slate-900 dark:text-white font-sans">
       
       {/* Collapsible Left Sidebar */}
       {lobbyTab === 'casino' && (
@@ -477,7 +499,7 @@ export default function App() {
                 {/* Gift Button */}
                 <button 
                   onClick={() => { setGameMode(null); setActiveTab('tasks'); }}
-                  className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all"
+                  className="w-10 h-10 rounded-full bg-black/5 dark:bg-black/20 hover:bg-black/15 dark:bg-black/40 flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer border-0 transition-all"
                   title="VIP Tasks & Promotions"
                 >
                   <FilledGift size={18} />
@@ -488,7 +510,7 @@ export default function App() {
                   onClick={() => { setGameMode(null); setActiveTab('home'); setLobbyTab('casino'); }}
                   className="bg-transparent border-0 cursor-pointer hover:scale-102 active:scale-98 transition-all select-none"
                 >
-                  <span className="text-white text-2xl font-black font-sans tracking-tight italic select-none">
+                  <span className="text-slate-900 dark:text-white text-2xl font-black font-sans tracking-tight italic select-none">
                     thrill
                   </span>
                 </button>
@@ -496,7 +518,7 @@ export default function App() {
                 {/* Bell Button */}
                 <button 
                   onClick={() => { setGameMode(null); setActiveTab('home'); }}
-                  className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all"
+                  className="w-10 h-10 rounded-full bg-black/5 dark:bg-black/20 hover:bg-black/15 dark:bg-black/40 flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer border-0 transition-all"
                   title="Notifications"
                 >
                   <FilledBell size={18} />
@@ -506,7 +528,7 @@ export default function App() {
               <div className="w-full flex justify-center py-2 shrink-0 select-none">
                 <button 
                   onClick={() => { setGameMode(null); setActiveTab('home'); setLobbyTab('casino'); }}
-                  className="bg-transparent border-0 cursor-pointer font-black text-xl text-white italic"
+                  className="bg-transparent border-0 cursor-pointer font-black text-xl text-slate-900 dark:text-white italic"
                 >
                   t
                 </button>
@@ -517,14 +539,14 @@ export default function App() {
             <div className="w-full px-4 shrink-0">
               <motion.div 
                 layoutId="lobby-switcher-box"
-                className={`bg-black/30 p-1 rounded-2xl flex border border-white/5 relative overflow-hidden ${isSidebarExpanded ? 'flex-row' : 'flex-col gap-1.5'}`}
+                className={`bg-black/10 dark:bg-black/30 p-1 rounded-2xl flex border border-black/10 dark:border-white/5 relative overflow-hidden ${isSidebarExpanded ? 'flex-row' : 'flex-col gap-1.5'}`}
               >
                 <button
                   onClick={() => { setLobbyTab('casino'); setGameMode(null); setActiveTab('home'); }}
                   className={`flex-1 py-2 rounded-xl flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
                     lobbyTab === 'casino'
-                      ? 'text-[#0f111a] font-bold'
-                      : 'text-text-secondary hover:text-white bg-transparent'
+                      ? 'text-white dark:text-[#0f111a] font-bold'
+                      : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white bg-transparent'
                   }`}
                   title="Casino Lobby"
                 >
@@ -550,8 +572,8 @@ export default function App() {
                   onClick={() => { setLobbyTab('sports'); setGameMode(null); setActiveTab('home'); }}
                   className={`flex-1 py-2 rounded-xl flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
                     lobbyTab === 'sports'
-                      ? 'text-[#0f111a] font-bold'
-                      : 'text-text-secondary hover:text-white bg-transparent'
+                      ? 'text-white dark:text-[#0f111a] font-bold'
+                      : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white bg-transparent'
                   }`}
                   title="Sports Betting"
                 >
@@ -579,6 +601,7 @@ export default function App() {
               { label: 'Affiliate', icon: Users, tab: 'affiliate', key: 'affiliate' },
               { label: 'Wallet', icon: WalletIcon, tab: 'wallet', key: 'wallet' },
               { label: 'VIP Tasks', icon: Gift, tab: 'tasks', key: 'tasks' },
+              { label: 'Privacy Policy', icon: Shield, tab: 'privacy', key: 'privacy' },
             ].map((item, idx) => {
               const isActive = !gameMode && activeTab === item.tab && (item.tab === 'home' ? sidebarActiveKey === item.key : true);
               return (
@@ -595,8 +618,8 @@ export default function App() {
                     isSidebarExpanded ? 'px-4 py-3 gap-3.5' : 'p-3 justify-center'
                   }  ${
                     isActive
-                      ? 'bg-[#3de796] text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
-                      : 'text-text-muted hover:text-white hover:bg-white/5 font-semibold'
+                      ? 'bg-[#3de796] text-white dark:text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
+                      : 'text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white hover:bg-black/5 dark:bg-white/5 font-semibold'
                   }`}
                   title={item.label}
                 >
@@ -612,7 +635,7 @@ export default function App() {
 
             {/* Games Section */}
             {isSidebarExpanded && (
-              <div className="text-[9px] font-black uppercase tracking-[2px] text-text-dim px-4 pt-4 pb-1.5 select-none">
+              <div className="text-[9px] font-black uppercase tracking-[2px] text-slate-400 dark:text-text-dim px-4 pt-4 pb-1.5 select-none">
                 Games
               </div>
             )}
@@ -659,8 +682,8 @@ export default function App() {
                     isSidebarExpanded ? 'px-4 py-3 gap-3.5' : 'p-3 justify-center'
                   } ${
                     isActive
-                      ? 'bg-[#3de796] text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
-                      : 'text-text-muted hover:text-white hover:bg-white/5 font-semibold'
+                      ? 'bg-[#3de796] text-white dark:text-[#0f111a] shadow-lg shadow-[#3de796]/10 font-bold'
+                      : 'text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white hover:bg-black/5 dark:bg-white/5 font-semibold'
                   }`}
                   title={item.label}
                 >
@@ -690,7 +713,7 @@ export default function App() {
           {/* Sound toggle */}
           <button
             onClick={() => setSoundOn(!soundOn)}
-            className={`w-full flex items-center justify-start rounded-xl text-text-muted hover:text-white bg-transparent border-0 cursor-pointer ${
+            className={`w-full flex items-center justify-start rounded-xl text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer ${
               isSidebarExpanded ? 'px-4 py-3 gap-3' : 'p-3 justify-center'
             }`}
             title="Toggle Sound"
@@ -699,11 +722,23 @@ export default function App() {
             {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider">Sound</span>}
           </button>
 
+          {/* Theme toggle */}
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className={`w-full flex items-center justify-start rounded-xl text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer ${
+              isSidebarExpanded ? 'px-4 py-3 gap-3' : 'p-3 justify-center'
+            }`}
+            title="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {isSidebarExpanded && <span className="text-[10px] font-black uppercase tracking-wider">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+          </button>
+
           {/* Collapse Button */}
-          <div className={`flex w-full pt-2 border-t border-white/5 ${isSidebarExpanded ? 'justify-end pr-2' : 'justify-center'}`}>
+          <div className={`flex w-full pt-2 border-t border-black/10 dark:border-white/5 ${isSidebarExpanded ? 'justify-end pr-2' : 'justify-center'}`}>
             <button
               onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-              className="w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-text-secondary hover:text-white cursor-pointer border-0 transition-all outline-none"
+              className="w-10 h-10 rounded-full bg-black/5 dark:bg-black/20 hover:bg-black/15 dark:bg-black/40 flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer border-0 transition-all outline-none"
               title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
             >
               {isSidebarExpanded ? (
@@ -733,7 +768,7 @@ export default function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-[2px]"
+            className="fixed inset-0 bg-black/10 dark:bg-black/30 dark:bg-black/60 z-30 md:hidden backdrop-blur-[2px]"
           />
         )}
       </AnimatePresence>
@@ -747,7 +782,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             {lobbyTab === 'casino' && (
               <button 
-                className="text-white bg-transparent border-0 cursor-pointer p-1.5 md:hidden"
+                className="text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer p-1.5 md:hidden"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu size={20} />
@@ -756,21 +791,21 @@ export default function App() {
 
             {/* Combined Logo & Switcher Toggle - Only show when in Sports Mode */}
             {lobbyTab === 'sports' && (
-              <div className="bg-[#171a25]/90 py-2.5 pl-6 pr-2.5 rounded-[24px] flex items-center gap-4 shadow-lg relative overflow-hidden">
-                <span className="text-white text-[27px] font-black font-sans tracking-tight italic select-none leading-none">
+              <div className="bg-white dark:bg-[#171a25]/90 py-2.5 pl-6 pr-2.5 rounded-[24px] flex items-center gap-4 shadow-lg relative overflow-hidden">
+                <span className="text-slate-900 dark:text-white text-[27px] font-black font-sans tracking-tight italic select-none leading-none">
                   thrill
                 </span>
 
                 <motion.div 
                   layoutId="lobby-switcher-box"
-                  className="bg-black/35 p-1 rounded-[18px] flex items-center gap-1.5 relative overflow-hidden"
+                  className="bg-black/10 dark:bg-black/35 p-1 rounded-[18px] flex items-center gap-1.5 relative overflow-hidden"
                 >
                   <button
                     onClick={() => { setLobbyTab('casino'); setGameMode(null); setActiveTab('home'); }}
                     className={`px-4 py-2.5 rounded-[14px] flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
                       lobbyTab === 'casino'
-                        ? 'text-[#0f111a] font-bold'
-                        : 'text-text-secondary hover:text-white bg-transparent'
+                        ? 'text-white dark:text-[#0f111a] font-bold'
+                        : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white bg-transparent'
                     }`}
                     title="Casino Lobby"
                   >
@@ -795,8 +830,8 @@ export default function App() {
                     onClick={() => { setLobbyTab('sports'); setGameMode(null); setActiveTab('home'); }}
                     className={`px-4 py-2.5 rounded-[14px] flex items-center justify-center cursor-pointer transition-all border-0 relative z-10 ${
                       lobbyTab === 'sports'
-                        ? 'text-[#0f111a] font-bold'
-                        : 'text-text-secondary hover:text-white bg-transparent'
+                        ? 'text-white dark:text-[#0f111a] font-bold'
+                        : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white bg-transparent'
                     }`}
                     title="Sports Betting"
                   >
@@ -821,12 +856,12 @@ export default function App() {
           {/* Center authentication and notification hub (Hanging Tab Style) */}
           <div className="flex items-center gap-4 relative">
             {/* Gift Button */}
-            <button className="relative z-20 w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-[#94a3b8] hover:text-white cursor-pointer transition-all shadow-md" title="Promotions">
-              <FilledGift size={20} className="text-[#94a3b8]" />
+            <button className="relative z-20 w-10 h-10 rounded-full bg-white dark:bg-[#171a25] flex items-center justify-center text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white cursor-pointer transition-all shadow-md" title="Promotions">
+              <FilledGift size={20} className="text-slate-500 dark:text-[#94a3b8]" />
             </button>
 
             {/* Auth Hanging Tab */}
-            <div className="flex items-center bg-[#171a25] px-6 py-3 rounded-b-[36px] shadow-2xl gap-4 min-h-[48px] self-start -mt-4 pt-6 relative z-10">
+            <div className="flex items-center bg-white dark:bg-[#171a25] px-6 py-3 rounded-b-[36px] shadow-2xl gap-4 min-h-[48px] self-start -mt-4 pt-6 relative z-10">
               {/* Concave U-curves */}
               <div className="tab-curve-left" />
               <div className="tab-curve-right" />
@@ -836,16 +871,16 @@ export default function App() {
                   <div className="relative">
                     <button
                       onClick={() => setShowBalanceDropdown(!showBalanceDropdown)}
-                      className="bg-black/30 hover:bg-black/50 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/5 cursor-pointer transition-all outline-none"
+                      className="bg-black/10 dark:bg-black/30 hover:bg-black/5 dark:bg-black/20 dark:bg-black/50 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-black/10 dark:border-white/5 cursor-pointer transition-all outline-none"
                     >
                       {/* Rupee green icon */}
                       <div className="w-5 h-5 rounded-full bg-[#3de796]/20 flex items-center justify-center text-[#3de796] font-bold text-xs select-none">
                         ₹
                       </div>
-                      <span className="font-extrabold text-[13px] tracking-tight monospace-ledger text-white">
+                      <span className="font-extrabold text-[13px] tracking-tight monospace-ledger text-slate-900 dark:text-white">
                         {isDemo ? `₹${demoBalance.toFixed(2)}` : `₹${playableBalance.toFixed(2)}`}
                       </span>
-                      <svg className={`w-3 h-3 text-[#94a3b8] transition-transform duration-200 ${showBalanceDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className={`w-3 h-3 text-slate-500 dark:text-[#94a3b8] transition-transform duration-200 ${showBalanceDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -859,14 +894,14 @@ export default function App() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-full left-0 mt-2 bg-[#171a25] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[150px] z-50 py-1"
+                            className="absolute top-full left-0 mt-2 bg-white dark:bg-[#171a25] border border-black/15 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[150px] z-50 py-1"
                           >
                             <button
                               onClick={() => {
                                 setIsDemo(false);
                                 setShowBalanceDropdown(false);
                               }}
-                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${!isDemo ? 'text-[#3de796] bg-white/5' : 'text-text-secondary hover:text-white hover:bg-white/5'}`}
+                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${!isDemo ? 'text-[#3de796] bg-black/5 dark:bg-white/5' : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white hover:bg-black/5 dark:bg-white/5'}`}
                             >
                               <span>REAL Account</span>
                               {!isDemo && <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />}
@@ -876,7 +911,7 @@ export default function App() {
                                 setIsDemo(true);
                                 setShowBalanceDropdown(false);
                               }}
-                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${isDemo ? 'text-[#3de796] bg-white/5' : 'text-text-secondary hover:text-white hover:bg-white/5'}`}
+                              className={`w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between ${isDemo ? 'text-[#3de796] bg-black/5 dark:bg-white/5' : 'text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white hover:bg-black/5 dark:bg-white/5'}`}
                             >
                               <span>DEMO Account</span>
                               {isDemo && <span className="w-1.5 h-1.5 rounded-full bg-[#3de796]" />}
@@ -888,7 +923,7 @@ export default function App() {
                                   alert('Demo Balance refilled!');
                                   setShowBalanceDropdown(false);
                                 }}
-                                className="w-full text-left px-4 py-2 text-[10px] text-accent-orange hover:bg-white/5 font-extrabold uppercase border-t border-white/5"
+                                className="w-full text-left px-4 py-2 text-[10px] text-accent-orange hover:bg-black/5 dark:bg-white/5 font-extrabold uppercase border-t border-black/10 dark:border-white/5"
                               >
                                 Refill Demo (₹10,000)
                               </button>
@@ -902,7 +937,7 @@ export default function App() {
                   {/* Wallet Button */}
                   <button
                     onClick={() => { setGameMode(null); setActiveTab('wallet'); }}
-                    className="bg-[#3de796] hover:bg-[#5cf2aa] text-[#0f111a] font-black uppercase text-[11px] tracking-wider rounded-xl px-4 py-2 flex items-center gap-2 transition-all hover:scale-102 active:scale-98 shadow-md shadow-[#3de796]/10 cursor-pointer border-0"
+                    className="bg-[#3de796] hover:bg-[#5cf2aa] text-white dark:text-[#0f111a] font-black uppercase text-[11px] tracking-wider rounded-xl px-4 py-2 flex items-center gap-2 transition-all hover:scale-102 active:scale-98 shadow-md shadow-[#3de796]/10 cursor-pointer border-0"
                   >
                     <FilledWallet size={15} />
                     <span>WALLET</span>
@@ -924,7 +959,7 @@ export default function App() {
                           />
                         </div>
                       </div>
-                      <svg className={`w-3 h-3 text-[#94a3b8] transition-transform duration-200 ${showProfileDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className={`w-3 h-3 text-slate-500 dark:text-[#94a3b8] transition-transform duration-200 ${showProfileDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -938,11 +973,11 @@ export default function App() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-full right-0 mt-2 bg-[#171a25] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[160px] z-50 py-1"
+                            className="absolute top-full right-0 mt-2 bg-white dark:bg-[#171a25] border border-black/15 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[160px] z-50 py-1"
                           >
-                            <div className="px-4 py-2 border-b border-white/5 bg-white/[0.01]">
-                              <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Account</div>
-                              <div className="text-xs font-black text-white truncate mt-0.5">{user?.phone_number || 'Tester'}</div>
+                            <div className="px-4 py-2 border-b border-black/10 dark:border-white/5 bg-white/[0.01]">
+                              <div className="text-[10px] text-slate-500 dark:text-text-muted font-bold uppercase tracking-wider">Account</div>
+                              <div className="text-xs font-black text-slate-900 dark:text-white truncate mt-0.5">{user?.phone_number || 'Tester'}</div>
                             </div>
                             <button
                               onClick={() => {
@@ -950,9 +985,9 @@ export default function App() {
                                 setActiveTab('wallet');
                                 setShowProfileDropdown(false);
                               }}
-                              className="w-full text-left px-4 py-2.5 text-xs text-[#94a3b8] hover:text-white hover:bg-white/5 font-bold flex items-center gap-2 cursor-pointer bg-transparent border-0"
+                              className="w-full text-left px-4 py-2.5 text-xs text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white hover:bg-black/5 dark:bg-white/5 font-bold flex items-center gap-2 cursor-pointer bg-transparent border-0"
                             >
-                              <FilledWallet size={14} className="text-[#94a3b8]" />
+                              <FilledWallet size={14} className="text-slate-500 dark:text-[#94a3b8]" />
                               <span>My Wallet</span>
                             </button>
                             <button
@@ -960,7 +995,7 @@ export default function App() {
                                 handleLogout();
                                 setShowProfileDropdown(false);
                               }}
-                              className="w-full text-left px-4 py-2.5 text-xs text-accent-red hover:bg-red-500/10 font-bold flex items-center gap-2 border-t border-white/5 cursor-pointer bg-transparent border-0"
+                              className="w-full text-left px-4 py-2.5 text-xs text-accent-red hover:bg-red-500/10 font-bold flex items-center gap-2 border-t border-black/10 dark:border-white/5 cursor-pointer bg-transparent border-0"
                             >
                               <LogOut size={14} />
                               <span>Sign Out</span>
@@ -975,13 +1010,13 @@ export default function App() {
                 <>
                   <button 
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-transparent border-0 text-white hover:text-[#3de796] text-xs font-black uppercase tracking-wider cursor-pointer transition-all whitespace-nowrap"
+                    className="bg-transparent border-0 text-slate-900 dark:text-white hover:text-[#3de796] text-xs font-black uppercase tracking-wider cursor-pointer transition-all whitespace-nowrap"
                   >
                     Log In
                   </button>
                   <button 
                     onClick={() => setShowLoginModal(true)}
-                    className="bg-[#3de796] hover:bg-[#5cf2aa] text-[#0f111a] border-0 rounded-full px-6 py-2 text-xs font-black uppercase tracking-wider cursor-pointer transition-all hover:scale-102"
+                    className="bg-[#3de796] hover:bg-[#5cf2aa] text-white dark:text-[#0f111a] border-0 rounded-full px-6 py-2 text-xs font-black uppercase tracking-wider cursor-pointer transition-all hover:scale-102"
                   >
                     Sign Up
                   </button>
@@ -990,22 +1025,22 @@ export default function App() {
             </div>
 
             {/* Bell Button */}
-            <button className="relative z-20 w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-[#94a3b8] hover:text-white cursor-pointer transition-all shadow-md" title="Notifications">
-              <FilledBell size={20} className="text-[#94a3b8]" />
+            <button className="relative z-20 w-10 h-10 rounded-full bg-white dark:bg-[#171a25] flex items-center justify-center text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white cursor-pointer transition-all shadow-md" title="Notifications">
+              <FilledBell size={20} className="text-slate-500 dark:text-[#94a3b8]" />
             </button>
           </div>
 
           {/* Right actions (Search, Chat) */}
           <div className="flex items-center gap-3">
             {/* Search Icon (Filled) */}
-            <button className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all border-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-[#94a3b8]"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+            <button className="w-10 h-10 rounded-full bg-white dark:bg-[#171a25] flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer transition-all border-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-slate-500 dark:text-[#94a3b8]"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
             </button>
             
             {/* Chat Icon (Filled) */}
             <button 
                onClick={() => setChatOpen(!chatOpen)} 
-               className="w-10 h-10 rounded-full bg-[#171a25] flex items-center justify-center text-text-secondary hover:text-white cursor-pointer transition-all border-0"
+               className="w-10 h-10 rounded-full bg-white dark:bg-[#171a25] flex items-center justify-center text-slate-600 dark:text-text-secondary hover:text-slate-900 dark:text-white cursor-pointer transition-all border-0"
                title="Toggle Live Chat"
             >
               <div className="relative">
@@ -1058,20 +1093,20 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#0b1021] border border-white/5 rounded-3xl p-6 md:p-8 max-w-sm w-full relative shadow-2xl space-y-6"
+              className="bg-[#0b1021] border border-black/10 dark:border-white/5 rounded-3xl p-6 md:p-8 max-w-sm w-full relative shadow-2xl space-y-6"
             >
               <button
-                className="absolute top-4 right-4 text-text-muted hover:text-white bg-transparent border-0 cursor-pointer p-1"
+                className="absolute top-4 right-4 text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer p-1"
                 onClick={() => setShowLoginModal(false)}
               >
                 <X size={18} />
               </button>
 
               <div className="text-center space-y-1.5">
-                <h2 className="text-2xl font-black text-white tracking-tight">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   TEZCLUB<span className="text-[var(--accent-green)]">.IN</span>
                 </h2>
-                <p className="text-xs text-text-muted">
+                <p className="text-xs text-slate-500 dark:text-text-muted">
                   {isRegister ? 'Register your private testing account' : 'Sign in to access games lobby'}
                 </p>
               </div>
@@ -1079,14 +1114,14 @@ export default function App() {
               <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-3">
                 <input 
                   type="text" 
-                  className="form-input text-xs py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl w-full" 
+                  className="form-input text-xs py-2.5 px-3 bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl w-full" 
                   placeholder="Phone Number" 
                   value={phone} 
                   onChange={(e) => setPhone(e.target.value)} 
                 />
                 <input 
                   type="password" 
-                  className="form-input text-xs py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl w-full" 
+                  className="form-input text-xs py-2.5 px-3 bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl w-full" 
                   placeholder="Password" 
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
@@ -1094,7 +1129,7 @@ export default function App() {
                 {isRegister && (
                   <input 
                     type="text" 
-                    className="form-input text-xs py-2.5 px-3 bg-white/5 border border-white/10 rounded-xl w-full" 
+                    className="form-input text-xs py-2.5 px-3 bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl w-full" 
                     placeholder="Referral Code (Optional)" 
                     value={refCode} 
                     onChange={(e) => setRefCode(e.target.value)} 
@@ -1102,14 +1137,14 @@ export default function App() {
                 )}
                 <button 
                   type="submit" 
-                  className="action-btn w-full py-2.5 text-xs font-black text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-blue-500/25 mt-2"
+                  className="action-btn w-full py-2.5 text-xs font-black text-slate-900 dark:text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-blue-500/25 mt-2"
                 >
                   {isRegister ? 'Create Credentials' : 'Authenticate Session'}
                 </button>
               </form>
 
               <div className="text-center text-xs">
-                <span className="text-text-muted">
+                <span className="text-slate-500 dark:text-text-muted">
                   {isRegister ? 'Already have an account?' : "Don't have an account?"}
                 </span>{' '}
                 <button
@@ -1120,8 +1155,8 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3.5 text-[10px] leading-relaxed text-text-muted space-y-1">
-                <strong className="text-white block font-bold">Standard testing credentials:</strong>
+              <div className="bg-white/[0.02] border border-black/10 dark:border-white/5 rounded-xl p-3.5 text-[10px] leading-relaxed text-slate-500 dark:text-text-muted space-y-1">
+                <strong className="text-slate-900 dark:text-white block font-bold">Standard testing credentials:</strong>
                 <div>Phone Number: <code className="text-blue-400 font-bold select-all">9999999999</code></div>
                 <div>Access Password: <code className="text-blue-400 font-bold select-all">admin123</code></div>
               </div>

@@ -89,7 +89,7 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
 
   // Resolve Diamond Color Class
   const getDiamondColorClass = (level) => {
-    if (level === 1) return 'text-[#94a3b8]'; // grey/silver
+    if (level === 1) return 'text-slate-500 dark:text-[#94a3b8]'; // grey/silver
     if (level === 2) return 'text-[#b45309]'; // copper
     if (level === 3) return 'text-[#fbbf24]'; // gold
     if (level >= 4) return 'text-[#38bdf8]'; // diamond blue
@@ -105,7 +105,7 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
       const isMention = /^[A-Z0-9_-]{3,15}$/.test(word.replace(/[^A-Za-z0-9]/g, ''));
       if (isMention) {
         return (
-          <span key={idx} className="bg-black/40 text-[9px] px-1 py-0.5 rounded font-black text-[#e2e8f0] mx-0.5 inline-block border border-white/5">
+          <span key={idx} className="bg-black/15 dark:bg-black/40 text-[9px] px-1 py-0.5 rounded font-black text-[#e2e8f0] mx-0.5 inline-block border border-black/10 dark:border-white/5">
             {word}
           </span>
         );
@@ -143,9 +143,9 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
                 style={{ width: '70px', height: '70px' }}
                 whileHover={{ scale: 1.2, y: '-=10px', shadow: '0 0 25px rgba(245,158,11,0.8)' }}
               >
-                <Sparkles size={16} className="text-white animate-bounce mb-0.5" />
+                <Sparkles size={16} className="text-slate-900 dark:text-white animate-bounce mb-0.5" />
                 <span className="text-[10px] text-yellow-100 uppercase tracking-tighter">Claim</span>
-                <span className="text-white font-black text-sm">₹{packet.amount}</span>
+                <span className="text-slate-900 dark:text-white font-black text-sm">₹{packet.amount}</span>
               </motion.div>
             );
           })}
@@ -160,12 +160,12 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-            className="fixed top-0 right-0 w-80 h-full bg-[#11131c] border-l border-white/5 z-50 flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.6)]"
+            className="fixed top-0 right-0 w-80 h-full bg-[#11131c] border-l border-black/10 dark:border-white/5 z-50 flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.6)]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/5 bg-[#171a25]/40 shrink-0">
+            <div className="flex items-center justify-between p-4 border-b border-black/10 dark:border-white/5 bg-white/40 dark:bg-[#171a25]/40 shrink-0">
               <div className="relative">
-                <button className="bg-black/20 hover:bg-black/40 border border-white/5 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer text-[#94a3b8] hover:text-white transition-all outline-none">
+                <button className="bg-black/5 dark:bg-black/20 hover:bg-black/15 dark:bg-black/40 border border-black/10 dark:border-white/5 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl flex items-center gap-2 cursor-pointer text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white transition-all outline-none">
                   <span className="text-xs">🗣</span>
                   <span>General</span>
                   <span className="text-[8px] opacity-75">▼</span>
@@ -174,7 +174,7 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
               
               <button 
                 onClick={() => setIsOpen(false)}
-                className="text-[#94a3b8] hover:text-white bg-transparent border-0 cursor-pointer p-1.5 hover:bg-white/5 rounded-xl transition-all"
+                className="text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer p-1.5 hover:bg-black/5 dark:bg-white/5 rounded-xl transition-all"
                 title="Collapse Chat"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -201,32 +201,32 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       key={idx}
-                      className="bg-[#1c1d27]/40 hover:bg-[#1c1d27]/60 border border-white/[0.02] p-3 rounded-2xl flex flex-col gap-2.5"
+                      className="bg-[#1c1d27]/40 hover:bg-[#1c1d27]/60 border border-black/[0.05] dark:border-white/[0.02] p-3 rounded-2xl flex flex-col gap-2.5"
                     >
-                      <div className="flex items-center gap-2 text-[#94a3b8] text-[10px] font-black uppercase tracking-wider">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-[#94a3b8] text-[10px] font-black uppercase tracking-wider">
                         <span className={`${getDiamondColorClass(m.vip_level)} text-xs shrink-0`}>◆</span>
                         <span>{m.sender} shared this bet</span>
                       </div>
                       
-                      <div className="bg-[#0f111a]/85 border border-white/5 rounded-xl p-3 flex gap-3.5 items-center relative overflow-hidden">
+                      <div className="bg-slate-50/85 dark:bg-[#0f111a]/85 border border-black/10 dark:border-white/5 rounded-xl p-3 flex gap-3.5 items-center relative overflow-hidden">
                         {/* Game icon */}
                         <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 p-[1px] relative shrink-0 shadow-md">
                           <div className="w-full h-full rounded-lg bg-[#0c0d14] flex flex-col items-center justify-center text-[10px] font-black relative overflow-hidden">
-                            <span className="bg-blue-500 text-[6px] px-1 py-0.2 rounded absolute top-0.5 left-0.5 font-bold text-white">1</span>
-                            <span className="text-white text-[9px] tracking-tighter uppercase mt-1">KENO</span>
+                            <span className="bg-blue-500 text-[6px] px-1 py-0.2 rounded absolute top-0.5 left-0.5 font-bold text-slate-900 dark:text-white">1</span>
+                            <span className="text-slate-900 dark:text-white text-[9px] tracking-tighter uppercase mt-1">KENO</span>
                             <span className="text-purple-400 text-[6px] font-bold">20</span>
                           </div>
                         </div>
                         
                         {/* stats */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-[11px] font-black text-white leading-tight">{gameName}</h4>
+                          <h4 className="text-[11px] font-black text-slate-900 dark:text-white leading-tight">{gameName}</h4>
                           <p className="text-[9px] text-[#6b7280] font-semibold">{studioName}</p>
                           <div className="flex items-center gap-3 mt-1.5">
                             <span className="text-[10px] font-black text-[#3de796] flex items-center gap-1">
                               <span className="text-[#3de796] text-[9px]">₮</span> {amount}
                             </span>
-                            <span className="text-[10px] font-black text-[#94a3b8] flex items-center gap-1">
+                            <span className="text-[10px] font-black text-slate-500 dark:text-[#94a3b8] flex items-center gap-1">
                               <span>⏱</span> {multiplier}
                             </span>
                           </div>
@@ -241,12 +241,12 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     key={idx}
-                    className="bg-[#1c1d27]/70 hover:bg-[#1c1d27] border border-white/[0.01] px-3.5 py-2 rounded-xl text-[12.5px] leading-relaxed flex items-start gap-2 text-[#94a3b8]"
+                    className="bg-[#1c1d27]/70 hover:bg-[#1c1d27] border border-white/[0.01] px-3.5 py-2 rounded-xl text-[12.5px] leading-relaxed flex items-start gap-2 text-slate-500 dark:text-[#94a3b8]"
                   >
                     {/* Diamond icon colored by VIP */}
                     <span className={`${getDiamondColorClass(m.vip_level)} text-xs shrink-0 mt-[2px]`}>◆</span>
                     <div className="flex-1 min-w-0">
-                      <span className="font-extrabold text-white mr-1.5">{m.sender}:</span>
+                      <span className="font-extrabold text-slate-900 dark:text-white mr-1.5">{m.sender}:</span>
                       <span className="text-[#b2c1d4]">{renderMessageText(m.text)}</span>
                     </div>
                   </motion.div>
@@ -256,24 +256,24 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
             </div>
 
             {/* Locked Wager Progress box */}
-            <div className="px-4 py-3.5 mx-4 my-2 bg-[#1c1d27]/70 border border-white/[0.02] rounded-2xl space-y-2.5 shrink-0 select-none">
+            <div className="px-4 py-3.5 mx-4 my-2 bg-[#1c1d27]/70 border border-black/[0.05] dark:border-white/[0.02] rounded-2xl space-y-2.5 shrink-0 select-none">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
-                <span className="flex items-center gap-1.5 text-white">
+                <span className="flex items-center gap-1.5 text-slate-900 dark:text-white">
                   <span>🔒</span> Wager to unlock chat
                 </span>
-                <span className="text-[#94a3b8]">0/500 XP</span>
+                <span className="text-slate-500 dark:text-[#94a3b8]">0/500 XP</span>
               </div>
-              <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-black/15 dark:bg-black/40 h-2 rounded-full overflow-hidden">
                 <div className="w-[10%] h-full bg-[#3de796]" />
               </div>
             </div>
 
             {/* Input & Form footer */}
-            <div className="p-4 border-t border-white/5 bg-[#0c0d14] flex flex-col gap-2 shrink-0">
-              <div className="bg-black/30 border border-white/5 hover:border-white/10 rounded-full px-4.5 py-1.5 flex items-center justify-between transition-all">
+            <div className="p-4 border-t border-black/10 dark:border-white/5 bg-[#0c0d14] flex flex-col gap-2 shrink-0">
+              <div className="bg-black/10 dark:bg-black/30 border border-black/10 dark:border-white/5 hover:border-black/15 dark:border-white/10 rounded-full px-4.5 py-1.5 flex items-center justify-between transition-all">
                 <input
                   type="text"
-                  className="bg-transparent border-0 text-xs w-full text-white outline-none py-2 placeholder:text-[#6b7280] font-medium"
+                  className="bg-transparent border-0 text-xs w-full text-slate-900 dark:text-white outline-none py-2 placeholder:text-[#6b7280] font-medium"
                   placeholder="Message #General"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
@@ -294,7 +294,7 @@ export default function ChatRain({ socket, user, vipLevel, playableBalance, setP
                   <span>Online: 420</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="hover:text-white cursor-pointer transition-colors">Rules</span>
+                  <span className="hover:text-slate-900 dark:text-white cursor-pointer transition-colors">Rules</span>
                   <span>160</span>
                 </div>
               </div>

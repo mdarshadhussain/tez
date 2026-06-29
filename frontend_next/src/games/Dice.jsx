@@ -409,7 +409,7 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
         .pill-enter { animation: slide-in-right 0.3s ease forwards; }
       `}</style>
 
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0">
         {/* Tab switcher */}
         <div style={{ display: 'flex', background: '#0f111a', borderRadius: 999, padding: 4, border: '1px solid rgba(255,255,255,0.04)' }}>
           {['manual', 'autoplay'].map(tab => (
@@ -549,7 +549,7 @@ export default function Dice({ socket, user, token, playableBalance, setPlayable
         )}
       </div>
 
-      <div className="lg:col-span-8 flex flex-col justify-between h-full relative overflow-hidden p-6 rounded-3xl bg-[#0f121d]/40 border border-white/5" style={{ minHeight: 420 }}>
+      <div className="lg:col-span-8 flex flex-col justify-between h-full relative overflow-hidden p-6 rounded-3xl bg-[#0f121d]/40 border border-black/10 dark:border-white/5" style={{ minHeight: 420 }}>
         {/* Subtle grid lines */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', borderRadius: 24 }}>
           {[25, 50, 75].map(p => (

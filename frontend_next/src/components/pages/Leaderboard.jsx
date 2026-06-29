@@ -28,30 +28,30 @@ export default function Leaderboard() {
         <span className="text-amber-400 font-extrabold text-[10px] tracking-[4px] uppercase block mb-1">
           Monthly VIP Tournament
         </span>
-        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           WHALE TURNOVER CHALLENGE
         </h1>
-        <p className="text-text-muted text-xs md:text-sm max-w-md mx-auto mt-2 leading-relaxed">
+        <p className="text-slate-500 dark:text-text-muted text-xs md:text-sm max-w-md mx-auto mt-2 leading-relaxed">
           Top high-rollers compete for ultimate luxury vacation escapes & hardware. Play games to climb!
         </p>
       </div>
 
       {/* Prize Board */}
       <div>
-        <h2 className="text-xs font-black text-white tracking-widest uppercase mb-3">
+        <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase mb-3">
           Prize Allocations
         </h2>
-        <div className="bg-zinc-950/40 border border-white/5 rounded-2xl p-4 md:p-5 space-y-3">
-          <div className="flex gap-3 items-start text-xs leading-relaxed text-text-secondary">
+        <div className="bg-slate-200/40 dark:bg-zinc-950/40 border border-black/10 dark:border-white/5 rounded-2xl p-4 md:p-5 space-y-3">
+          <div className="flex gap-3 items-start text-xs leading-relaxed text-slate-600 dark:text-text-secondary">
             <Award size={18} className="text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <strong className="text-white">Rank 1 - 3:</strong> Luxury Vacation to Dubai or Bali (Premium flights, 5-Star Resort).
+              <strong className="text-slate-900 dark:text-white">Rank 1 - 3:</strong> Luxury Vacation to Dubai or Bali (Premium flights, 5-Star Resort).
             </div>
           </div>
-          <div className="flex gap-3 items-start text-xs leading-relaxed text-text-secondary">
+          <div className="flex gap-3 items-start text-xs leading-relaxed text-slate-600 dark:text-text-secondary">
             <Gift size={18} className="text-accent-green shrink-0 mt-0.5" />
             <div>
-              <strong className="text-white">Rank 4 - 10:</strong> iPhone 15 Pro Max (256GB) / ASUS ROG Strix SCAR 16 (RTX 5080).
+              <strong className="text-slate-900 dark:text-white">Rank 4 - 10:</strong> iPhone 15 Pro Max (256GB) / ASUS ROG Strix SCAR 16 (RTX 5080).
             </div>
           </div>
         </div>
@@ -59,12 +59,12 @@ export default function Leaderboard() {
 
       {/* Current Leaderboard */}
       <div>
-        <h2 className="text-xs font-black text-white tracking-widest uppercase mb-3">
+        <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase mb-3">
           Current Leaderboard Standings
         </h2>
-        <div className="bg-zinc-950/30 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-lg">
+        <div className="bg-slate-200/30 dark:bg-zinc-950/30 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5 shadow-lg">
           {leaderboard.length === 0 ? (
-            <div className="text-center text-text-muted py-8 text-xs">
+            <div className="text-center text-slate-500 dark:text-text-muted py-8 text-xs">
               No tournament logs found.
             </div>
           ) : (
@@ -89,15 +89,15 @@ export default function Leaderboard() {
                           : rank === 2 
                           ? 'bg-slate-300 border-slate-200 text-black' 
                           : rank === 3 
-                          ? 'bg-amber-700 border-amber-600 text-white' 
-                          : 'bg-zinc-900 border-white/5 text-text-muted'
+                          ? 'bg-amber-700 border-amber-600 text-slate-900 dark:text-white' 
+                          : 'bg-slate-100 dark:bg-zinc-900 border-black/10 dark:border-white/5 text-slate-500 dark:text-text-muted'
                       }`}
                     >
                       {rank}
                     </span>
                     <div>
-                      <div className="font-bold text-white text-xs md:text-sm">{item.phone}</div>
-                      <div className="text-[10px] text-text-muted flex items-center gap-1 mt-0.5">
+                      <div className="font-bold text-slate-900 dark:text-white text-xs md:text-sm">{item.phone}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-text-muted flex items-center gap-1 mt-0.5">
                         <Star size={10} className="text-amber-400 fill-amber-400" /> VIP Level {item.vip_level}
                       </div>
                     </div>
@@ -107,7 +107,7 @@ export default function Leaderboard() {
                     <div className="monospace-ledger font-black text-accent-green text-xs md:text-sm">
                       ₹{parseFloat(item.lifetime_turnover).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[10px] text-text-dim mt-0.5">Total Turnover</div>
+                    <div className="text-[10px] text-slate-400 dark:text-text-dim mt-0.5">Total Turnover</div>
                   </div>
                 </motion.div>
               );

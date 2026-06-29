@@ -445,8 +445,8 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
 
     socket.on('roulette_resolution', (data) => {
       if (isDemo && demoBetsRef.current) {
-        // Skip multiplayer event animation if demo was already simulated locally
-        return;
+        // Prevent double trigger
+        if (spinning) return;
       }
       setSpinning(true);
       
@@ -478,7 +478,28 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
         isAnimatingRef.current = false; // Reset animating ref to idle state!
 
         // Trigger creative result declaration
-        if (pendingBetResultRef.current) {
+        if (isDemo && demoBetsRef.current) {
+          let totalWin = 0;
+          Object.entries(demoBetsRef.current).forEach(([sel, amount]) => {
+            if (sel === data.lastOutcome) {
+              const mult = (sel === 'gold') ? 14 : 2;
+              totalWin += amount * mult;
+            }
+          });
+          demoBetsRef.current = null;
+
+          if (totalWin > 0) {
+            setPlayableBalance(prev => prev + totalWin);
+            playWinChime();
+            setResultModal({
+              show: true, won: true, amount: totalWin, sector: data.lastOutcome, isDemo: true
+            });
+          } else {
+            setResultModal({
+              show: true, won: false, amount: 0, sector: data.lastOutcome, isDemo: true
+            });
+          }
+        } else if (pendingBetResultRef.current) {
           const res = pendingBetResultRef.current;
           if (res.won) {
             playWinChime();
@@ -528,67 +549,6 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
     };
   }, [socket, setPlayableBalance, isDemo, bets]);
 
-  // Demo resolution trigger local simulation
-  const simulateDemoResolution = (lastOutcome) => {
-    setSpinning(true);
-    
-    const possibleIndices = [];
-    strip.forEach((col, idx) => {
-      if (col === lastOutcome) {
-        possibleIndices.push(idx);
-      }
-    });
-    const targetIdx = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
-    
-    startWheelAngleRef.current = wheelAngleRef.current % (Math.PI * 2);
-    startBallAngleRef.current = wheelAngleRef.current + Math.random() * Math.PI * 2;
-    targetOutcomeIdxRef.current = targetIdx;
-    spinStartTimeRef.current = Date.now();
-    isAnimatingRef.current = true;
-    playRouletteSpinSound(); // Play dynamic spin whirr and settle rattle audio!
-
-    // Settle demo bets after 3.5 seconds
-    setTimeout(() => {
-      let totalWin = 0;
-      let totalBetAmount = 0;
-      Object.entries(demoBetsRef.current).forEach(([sel, amount]) => {
-        totalBetAmount += amount;
-        if (sel === lastOutcome) {
-          const mult = (sel === 'gold') ? 14 : 2;
-          totalWin += amount * mult;
-        }
-      });
-
-      setWinSector(lastOutcome); // Set only when the ball stops!
-      currentWinSectorRef.current = lastOutcome; // Explicitly preserve the ball's last resting position
-      setHistory(prev => [lastOutcome, ...prev.slice(0, 15)]);
-      setBets({ red: 0, black: 0, gold: 0 });
-      setPlacedBets(false);
-      setSpinning(false);
-      isAnimatingRef.current = false; // Reset animating ref to idle state!
-      demoBetsRef.current = null;
-      
-      if (totalWin > 0) {
-        setPlayableBalance(prev => prev + totalWin);
-        playWinChime();
-        setResultModal({
-          show: true,
-          won: true,
-          amount: totalWin,
-          sector: lastOutcome,
-          isDemo: true
-        });
-      } else {
-        setResultModal({
-          show: true,
-          won: false,
-          amount: 0,
-          sector: lastOutcome,
-          isDemo: true
-        });
-      }
-    }, 3500);
-  };
 
   const addBet = (sector, chipVal = activeChip) => {
     if (timer <= 3 || spinning || placedBets) return;
@@ -655,9 +615,6 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
     if (isDemo) {
       setPlayableBalance(prev => prev - totalBetAmount);
       demoBetsRef.current = { ...bets };
-      // Randomly pick a winning color from the 37 sectors to simulate instant resolution
-      const winningOutcome = strip[Math.floor(Math.random() * strip.length)];
-      simulateDemoResolution(winningOutcome);
       return;
     }
 
@@ -701,19 +658,19 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
   // Stacked 3D realistic chips drawing
   const renderPlacedChipStack = (amt) => {
     if (amt <= 0) return null;
-    let chipColor = 'from-emerald-500 to-emerald-700 border-emerald-950 text-white';
+    let chipColor = 'from-emerald-500 to-emerald-700 border-emerald-950 text-slate-900 dark:text-white';
     let stripeColor = 'rgba(255,255,255,0.4)';
     if (amt >= 1000) {
       chipColor = 'from-amber-400 to-amber-600 border-amber-950 text-black';
       stripeColor = 'rgba(0,0,0,0.3)';
     } else if (amt >= 500) {
-      chipColor = 'from-purple-600 to-purple-800 border-purple-950 text-white';
+      chipColor = 'from-purple-600 to-purple-800 border-purple-950 text-slate-900 dark:text-white';
       stripeColor = 'rgba(255,255,255,0.4)';
     } else if (amt >= 100) {
-      chipColor = 'from-orange-500 to-orange-700 border-orange-950 text-white';
+      chipColor = 'from-orange-500 to-orange-700 border-orange-950 text-slate-900 dark:text-white';
       stripeColor = 'rgba(255,255,255,0.4)';
     } else if (amt < 50) {
-      chipColor = 'from-teal-500 to-teal-700 border-teal-950 text-white';
+      chipColor = 'from-teal-500 to-teal-700 border-teal-950 text-slate-900 dark:text-white';
       stripeColor = 'rgba(255,255,255,0.4)';
     }
 
@@ -728,7 +685,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
             {/* Edge stripes */}
             <div className="absolute inset-0 rounded-full border-4 border-dashed" style={{ borderColor: stripeColor }} />
             {/* Center core */}
-            <div className="w-5 h-5 rounded-full bg-zinc-900 border border-white/25 shadow-inner flex items-center justify-center text-[7px] font-black text-white font-mono leading-none">
+            <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-zinc-900 border border-white/25 shadow-inner flex items-center justify-center text-[7px] font-black text-slate-900 dark:text-white font-mono leading-none">
               ₹{amt}
             </div>
           </div>
@@ -746,18 +703,18 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full h-full select-none">
       
       {/* 1. LEFT SIDE: Console controls board */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden">
         
         {/* Toggle Manual / Autoplay */}
         <div className="space-y-3">
-          <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
             <button
               onClick={() => { playClick(); setActiveTab('manual'); }}
               disabled={spinning || placedBets}
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'manual'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               }`}
             >
               Manual
@@ -768,7 +725,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'autoplay'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-text-muted hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               }`}
             >
               Autoplay
@@ -776,13 +733,13 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           </div>
 
           {/* Wallet & Balance Header */}
-          <div className="bg-zinc-950/20 border border-white/5 rounded-2xl p-3 flex justify-between items-center">
+          <div className="bg-slate-200/20 dark:bg-zinc-950/20 border border-black/10 dark:border-white/5 rounded-2xl p-3 flex justify-between items-center">
             <div>
-              <span className="text-[8px] text-text-muted font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
-              <span className="text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
+              <span className="text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
+              <span className="text-slate-900 dark:text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
             </div>
             <div className="text-right">
-              <span className="text-[8px] text-text-muted font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
+              <span className="text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
               <span className="text-[#3de796] font-black text-sm block mt-1">₹{totalCurrentWager}</span>
             </div>
           </div>
@@ -791,7 +748,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
         {/* Chips Selector display */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-[9px] text-text-muted font-bold tracking-widest uppercase">Select Chip Value</span>
+            <span className="text-[9px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase">Select Chip Value</span>
             <button 
               onClick={clearBets}
               disabled={spinning || placedBets}
@@ -801,16 +758,16 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
             </button>
           </div>
           
-          <div className="grid grid-cols-5 gap-1.5 bg-zinc-950/40 p-2.5 rounded-2xl border border-white/5">
+          <div className="grid grid-cols-5 gap-1.5 bg-slate-200/40 dark:bg-zinc-950/40 p-2.5 rounded-2xl border border-black/10 dark:border-white/5">
             {chipsList.map((val) => {
-              let chipColor = 'from-emerald-500 to-emerald-700 border-emerald-950 text-white';
+              let chipColor = 'from-emerald-500 to-emerald-700 border-emerald-950 text-slate-900 dark:text-white';
               let stripeColor = 'rgba(255,255,255,0.35)';
               if (val === 10) {
-                chipColor = 'from-teal-500 to-teal-700 border-teal-950 text-white';
+                chipColor = 'from-teal-500 to-teal-700 border-teal-950 text-slate-900 dark:text-white';
               } else if (val === 100) {
-                chipColor = 'from-orange-500 to-orange-700 border-orange-950 text-white';
+                chipColor = 'from-orange-500 to-orange-700 border-orange-950 text-slate-900 dark:text-white';
               } else if (val === 500) {
-                chipColor = 'from-purple-600 to-purple-800 border-purple-950 text-white';
+                chipColor = 'from-purple-600 to-purple-800 border-purple-950 text-slate-900 dark:text-white';
               } else if (val === 1000) {
                 chipColor = 'from-amber-400 to-amber-600 border-amber-950 text-black';
                 stripeColor = 'rgba(0,0,0,0.2)';
@@ -848,7 +805,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                     <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rotate-45 bg-[#d4af37] shadow-[0_0_8px_rgba(212,175,55,0.7)] z-20 animate-[bounce_1.5s_infinite]" />
                   )}
                   {/* Bevel thickness */}
-                  <div className="absolute inset-0 rounded-full bg-black/60 translate-y-1" />
+                  <div className="absolute inset-0 rounded-full bg-black/10 dark:bg-black/30 dark:bg-black/60 translate-y-1" />
                   {/* Clay outer body */}
                   <div className={`absolute inset-0 rounded-full bg-gradient-to-b ${chipColor} border-2 border-black/30 flex items-center justify-center`}>
                     {/* Stripes */}
@@ -856,7 +813,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                     {/* Inner golden ring for selected */}
                     {isSelected && <div className="absolute inset-0.5 rounded-full border border-white animate-pulse" />}
                     {/* Center metallic core */}
-                    <div className="w-[60%] h-[60%] rounded-full bg-zinc-900 shadow-inner flex flex-col items-center justify-center text-white font-black leading-none font-mono">
+                    <div className="w-[60%] h-[60%] rounded-full bg-slate-100 dark:bg-zinc-900 shadow-inner flex flex-col items-center justify-center text-slate-900 dark:text-white font-black leading-none font-mono">
                       <span className="text-[7px] text-[#d4af37] font-bold">₹</span>
                       <span className="text-[10px] tracking-tighter">{val}</span>
                     </div>
@@ -868,14 +825,14 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
         </div>
 
         {/* Real-time Live Multiplayer Pools Widget to show live betting action */}
-        <div className="bg-zinc-950/30 border border-white/5 rounded-2xl p-3.5 space-y-2">
-          <div className="flex justify-between items-center text-[8px] text-text-muted font-bold tracking-widest uppercase">
+        <div className="bg-slate-200/30 dark:bg-zinc-950/30 border border-black/10 dark:border-white/5 rounded-2xl p-3.5 space-y-2">
+          <div className="flex justify-between items-center text-[8px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase">
             <span>LIVE MULTIPLAYER BETS</span>
             <span className="text-[#3de796] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#3de796] animate-pulse" /> LIVE POOL</span>
           </div>
           
           {/* Progress bar visualizer */}
-          <div className="flex h-2 rounded-full overflow-hidden bg-zinc-900 border border-white/5">
+          <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-900 border border-black/10 dark:border-white/5">
             <div 
               className="bg-[#d32f2f] transition-all duration-500 shadow-[0_0_8px_rgba(211,47,47,0.4)]" 
               style={{ width: `${pctRed}%` }} 
@@ -887,7 +844,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
               title={`Green: ₹${livePool.green.toLocaleString('en-IN')}`}
             />
             <div 
-              className="bg-[#1c1c1e] border-l border-white/10 transition-all duration-500 shadow-[0_0_8px_rgba(255,255,255,0.05)]" 
+              className="bg-[#1c1c1e] border-l border-black/15 dark:border-white/10 transition-all duration-500 shadow-[0_0_8px_rgba(255,255,255,0.05)]" 
               style={{ width: `${pctBlack}%` }} 
               title={`Black: ₹${livePool.black.toLocaleString('en-IN')}`}
             />
@@ -897,33 +854,33 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           <div className="grid grid-cols-3 gap-1.5 text-center text-[9px] font-black uppercase">
             <div className="bg-red-500/5 rounded p-1 border border-red-500/10 flex flex-col justify-center">
               <span className="text-red-400 block text-[6.5px] font-bold tracking-wider leading-none">RED POOL</span>
-              <span className="text-white font-mono text-[9px] mt-1">₹{livePool.red.toLocaleString('en-IN')}</span>
-              <span className="text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctRed}%)</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[9px] mt-1">₹{livePool.red.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctRed}%)</span>
             </div>
             <div className="bg-emerald-500/5 rounded p-1 border border-emerald-500/10 flex flex-col justify-center">
               <span className="text-emerald-400 block text-[6.5px] font-bold tracking-wider leading-none">GREEN POOL</span>
-              <span className="text-white font-mono text-[9px] mt-1">₹{livePool.green.toLocaleString('en-IN')}</span>
-              <span className="text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctGreen}%)</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[9px] mt-1">₹{livePool.green.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctGreen}%)</span>
             </div>
-            <div className="bg-zinc-800/10 rounded p-1 border border-white/5 flex flex-col justify-center">
-              <span className="text-zinc-400 block text-[6.5px] font-bold tracking-wider leading-none">BLACK POOL</span>
-              <span className="text-white font-mono text-[9px] mt-1">₹{livePool.black.toLocaleString('en-IN')}</span>
-              <span className="text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctBlack}%)</span>
+            <div className="bg-slate-300/10 dark:bg-zinc-800/10 rounded p-1 border border-black/10 dark:border-white/5 flex flex-col justify-center">
+              <span className="text-slate-500 dark:text-zinc-400 block text-[6.5px] font-bold tracking-wider leading-none">BLACK POOL</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[9px] mt-1">₹{livePool.black.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({pctBlack}%)</span>
             </div>
           </div>
 
           {/* Decorative Divider */}
-          <div className="w-full h-[1px] bg-white/5 my-1" />
+          <div className="w-full h-[1px] bg-black/5 dark:bg-white/5 my-1" />
 
           {/* Recent Live Wagers Log Feed */}
           <div className="space-y-1">
-            <span className="text-[7.5px] text-text-muted font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
+            <span className="text-[7.5px] text-slate-500 dark:text-text-muted font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
             <div className="space-y-1 max-h-[85px] overflow-hidden flex flex-col justify-end">
               {liveWagers.length > 0 ? (
                 liveWagers.map(wager => (
-                  <div key={wager.id} className="flex items-center text-[8px] bg-zinc-950/20 border border-white/[0.02] p-1 px-2.5 rounded-lg text-white font-mono animate-[wagerFadeIn_0.2s_ease-out_forwards]">
-                    <span className="w-16 font-semibold text-white/80 text-left">{wager.phone}</span>
-                    <span className="w-12 text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
+                  <div key={wager.id} className="flex items-center text-[8px] bg-slate-200/20 dark:bg-zinc-950/20 border border-black/[0.05] dark:border-white/[0.02] p-1 px-2.5 rounded-lg text-slate-900 dark:text-white font-mono animate-[wagerFadeIn_0.2s_ease-out_forwards]">
+                    <span className="w-16 font-semibold text-slate-900 dark:text-white/80 text-left">{wager.phone}</span>
+                    <span className="w-12 text-slate-900 dark:text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
                     <span className="w-12 flex justify-center">
                       <span 
                         className="w-2.5 h-2.5 rounded-full shadow-[0_0_6px_rgba(0,0,0,0.5)] transition-all" 
@@ -937,7 +894,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                   </div>
                 ))
               ) : (
-                <div className="text-[7.5px] text-white/20 italic p-1">Waiting for live wagers...</div>
+                <div className="text-[7.5px] text-slate-900 dark:text-white/20 italic p-1">Waiting for live wagers...</div>
               )}
             </div>
           </div>
@@ -948,7 +905,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           <button
             onClick={clearBets}
             disabled={spinning || placedBets}
-            className="bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] border border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+            className="bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] border border-black/10 dark:border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
           >
             <Trash2 size={13} />
             <span className="text-[8px] font-black uppercase tracking-wider">Clear</span>
@@ -956,7 +913,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           <button
             onClick={rebet}
             disabled={spinning || placedBets}
-            className="bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] border border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+            className="bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] border border-black/10 dark:border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
           >
             <RotateCcw size={13} />
             <span className="text-[8px] font-black uppercase tracking-wider">Rebet</span>
@@ -964,7 +921,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           <button
             onClick={doubleBets}
             disabled={spinning || placedBets}
-            className="bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] border border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+            className="bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] border border-black/10 dark:border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
           >
             <span className="text-[10px] font-bold">x2</span>
             <span className="text-[8px] font-black uppercase tracking-wider">Double</span>
@@ -972,7 +929,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           <button
             onClick={halfBets}
             disabled={spinning || placedBets}
-            className="bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] border border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+            className="bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] border border-black/10 dark:border-white/5 hover:border-[#3de796]/20 py-3 rounded-xl cursor-pointer flex flex-col items-center justify-center gap-1 transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
           >
             <span className="text-[10px] font-bold">½</span>
             <span className="text-[8px] font-black uppercase tracking-wider">Half</span>
@@ -986,10 +943,10 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest border-0 cursor-pointer transition-all ${
             timer > 3 && !spinning && totalCurrentWager > 0 && !placedBets
               ? 'bg-gradient-to-r from-emerald-400 to-[#3de796] hover:from-emerald-500 hover:to-[#3de796]/95 text-black shadow-[0_4px_20px_rgba(61,231,150,0.2)] hover:shadow-[0_6px_25px_rgba(61,231,150,0.35)] hover:scale-[1.01] active:scale-[0.99]'
-              : 'bg-zinc-800/80 text-white/20'
+              : 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20'
           }`}
         >
-          {spinning ? 'SPINNING...' : placedBets ? 'BETS LOCKED' : timer <= 3 ? 'CLOSED' : 'SPIN WHEEL'}
+          {spinning ? 'SPINNING...' : placedBets ? 'BETS LOCKED' : timer <= 3 ? 'CLOSED' : 'PLACE BET'}
         </button>
 
         {/* CSS Keyframes for sliding toasts */}
@@ -1030,9 +987,9 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
             <div className="text-[7.5px] text-[#d4af37] font-black tracking-widest uppercase mb-0.5 drop-shadow-md">
               {timer <= 3 ? 'SPINNING / CLOSED' : 'ACCEPTING BETS'}
             </div>
-            <div className="px-4 py-1 rounded-full bg-zinc-950/90 border border-[#d4af37]/30 flex items-center gap-2 shadow-2xl">
+            <div className="px-4 py-1 rounded-full bg-slate-200/90 dark:bg-zinc-950/90 border border-[#d4af37]/30 flex items-center gap-2 shadow-2xl">
               <span className={`w-1.5 h-1.5 rounded-full ${timer <= 3 ? 'bg-red-500 animate-ping' : 'bg-[#3de796] animate-pulse'}`} />
-              <span className="font-mono text-xs font-black tracking-widest text-white">
+              <span className="font-mono text-xs font-black tracking-widest text-slate-900 dark:text-white">
                 00:{timer < 10 ? `0${timer}` : timer}
               </span>
             </div>
@@ -1077,7 +1034,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
 
           {/* Creative In-Card Result Notification Overlay */}
           {resultModal.show && (
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-[6px] flex items-center justify-center z-30 animate-[rouletteFadeIn_0.2s_ease-out]">
+            <div className="absolute inset-0 bg-black/15 dark:bg-black/40 backdrop-blur-[6px] flex items-center justify-center z-30 animate-[rouletteFadeIn_0.2s_ease-out]">
               <style>{`
                 @keyframes rouletteFadeIn {
                   from { opacity: 0; backdrop-filter: blur(0px); }
@@ -1105,7 +1062,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                 {/* Close button */}
                 <button 
                   onClick={() => setResultModal(prev => ({ ...prev, show: false }))}
-                  className="absolute top-3 right-3 text-white/40 hover:text-white bg-transparent border-0 cursor-pointer text-xs font-black"
+                  className="absolute top-3 right-3 text-slate-900 dark:text-white/40 hover:text-slate-900 dark:text-white bg-transparent border-0 cursor-pointer text-xs font-black"
                 >
                   ✕
                 </button>
@@ -1120,7 +1077,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                 {/* Large landing sector display */}
                 <div className="flex flex-col items-center gap-0.5">
                   <div 
-                    className="w-12 h-12 rounded-xl border-2 border-white/20 flex items-center justify-center text-[9px] font-black uppercase text-white shadow-lg"
+                    className="w-12 h-12 rounded-xl border-2 border-black/20 dark:border-white/20 flex items-center justify-center text-[9px] font-black uppercase text-slate-900 dark:text-white shadow-lg"
                     style={{
                       backgroundColor: getPillColor(resultModal.sector),
                       boxShadow: '0 4px 10px rgba(0,0,0,0.35), inset 0 2px 6px rgba(255,255,255,0.3)'
@@ -1138,7 +1095,7 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                       <div className="text-[#3de796] font-black text-xs tracking-widest uppercase">
                         YOU WON!
                       </div>
-                      <div className="text-white font-mono text-sm font-black tracking-wider mt-0.5">
+                      <div className="text-slate-900 dark:text-white font-mono text-sm font-black tracking-wider mt-0.5">
                         ₹{resultModal.amount.toFixed(2)}
                       </div>
                       <div className="text-[#d4af37] text-[6px] font-black uppercase tracking-wider mt-0.5">
@@ -1147,10 +1104,10 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                     </div>
                   ) : (
                     <div>
-                      <div className="text-white/80 font-black text-[10px] tracking-wider uppercase">
+                      <div className="text-slate-900 dark:text-white/80 font-black text-[10px] tracking-wider uppercase">
                         {(resultModal.sector === 'gold' ? 'green' : resultModal.sector).toUpperCase()} LANDED
                       </div>
-                      <div className="text-text-muted text-[7.5px] font-black uppercase tracking-wider mt-0.5">
+                      <div className="text-slate-500 dark:text-text-muted text-[7.5px] font-black uppercase tracking-wider mt-0.5">
                         Try placing a chip next time!
                       </div>
                     </div>
@@ -1164,14 +1121,14 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
           )}
 
           {winSector && !resultModal.show && (
-            <div className="absolute bottom-4 bg-zinc-950/80 border border-[#d4af37]/25 px-3 py-1 rounded-xl flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-md z-20">
+            <div className="absolute bottom-4 bg-slate-200/80 dark:bg-zinc-950/80 border border-[#d4af37]/25 px-3 py-1 rounded-xl flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-slate-900 dark:text-white shadow-md z-20">
               Landed: <span className="px-2 py-0.5 rounded" style={{ backgroundColor: getPillColor(winSector), color: winSector === 'gold' ? '#000' : '#fff' }}>{winSector}</span>
             </div>
           )}
         </div>
 
         {/* Simplified color betting felt grid board */}
-        <div className="bg-[#141622] border border-white/[0.02] p-4 rounded-3xl flex flex-col gap-2.5 shadow-xl relative">
+        <div className="bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-4 rounded-3xl flex flex-col gap-2.5 shadow-xl relative">
           <style>{`
             @keyframes rouletteBadgeBounce {
               0% { transform: scale(0.5); opacity: 0; }
@@ -1179,10 +1136,10 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
               100% { transform: scale(1); opacity: 1; }
             }
           `}</style>
-          <div className="flex justify-between items-center text-[9px] font-black text-text-muted uppercase tracking-widest border-b border-white/5 pb-2">
+          <div className="flex justify-between items-center text-[9px] font-black text-slate-500 dark:text-text-muted uppercase tracking-widest border-b border-black/10 dark:border-white/5 pb-2">
             <span className="flex items-center gap-3">
               <span>PLACE YOUR BETS</span>
-              <span className="text-white/10">|</span>
+              <span className="text-slate-900 dark:text-white/10">|</span>
               <div className="flex items-center gap-1.5 py-0.5">
                 {history.slice(0, 10).map((h, i) => (
                   <div
@@ -1218,25 +1175,25 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                 boxShadow: bets.red > 0 ? '0 0 25px rgba(226,33,57,0.45), inset 0 2px 10px rgba(255,255,255,0.25)' : 'inset 0 2px 8px rgba(255,255,255,0.1)'
               }}
             >
-              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Red</span>
+              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Red</span>
 
 
 
               {/* Designated Chip Placement Circle (Centered) */}
               <div className={`w-8 h-8 rounded-full flex items-center justify-center relative shadow-inner mt-2 transition-all duration-300 ${
                 bets.red > 0 
-                  ? 'border-2 border-solid border-[#d4af37] bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
-                  : 'border border-dashed border-white/25 bg-black/35'
+                  ? 'border-2 border-solid border-[#d4af37] bg-black/10 dark:bg-black/30 dark:bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
+                  : 'border border-dashed border-white/25 bg-black/10 dark:bg-black/35'
               }`}>
                 {bets.red > 0 ? (
                   renderPlacedChipStack(bets.red)
                 ) : (
-                  <span className="text-[5.5px] text-white/30 font-black tracking-widest">BET</span>
+                  <span className="text-[5.5px] text-slate-900 dark:text-white/30 font-black tracking-widest">BET</span>
                 )}
               </div>
 
               {/* Watermark Payout Label on Right */}
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">2x</span>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">2x</span>
             </button>
 
             {/* GREEN felt slot */}
@@ -1256,25 +1213,25 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                 boxShadow: bets.gold > 0 ? '0 0 25px rgba(46,125,50,0.45), inset 0 2px 10px rgba(255,255,255,0.25)' : 'inset 0 2px 8px rgba(255,255,255,0.1)'
               }}
             >
-              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Green</span>
+              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Green</span>
 
 
 
               {/* Designated Chip Placement Circle (Centered) */}
               <div className={`w-8 h-8 rounded-full flex items-center justify-center relative shadow-inner mt-2 transition-all duration-300 ${
                 bets.gold > 0 
-                  ? 'border-2 border-solid border-[#d4af37] bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
-                  : 'border border-dashed border-white/25 bg-black/35'
+                  ? 'border-2 border-solid border-[#d4af37] bg-black/10 dark:bg-black/30 dark:bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
+                  : 'border border-dashed border-white/25 bg-black/10 dark:bg-black/35'
               }`}>
                 {bets.gold > 0 ? (
                   renderPlacedChipStack(bets.gold)
                 ) : (
-                  <span className="text-[5.5px] text-white/30 font-black tracking-widest">BET</span>
+                  <span className="text-[5.5px] text-slate-900 dark:text-white/30 font-black tracking-widest">BET</span>
                 )}
               </div>
 
               {/* Watermark Payout Label on Right */}
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">14x</span>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">14x</span>
             </button>
 
             {/* BLACK felt slot */}
@@ -1294,25 +1251,25 @@ export default function Roulette({ socket, user, playableBalance, setPlayableBal
                 boxShadow: bets.black > 0 ? '0 0 25px rgba(255,255,255,0.08), inset 0 2px 10px rgba(255,255,255,0.2)' : 'inset 0 2px 8px rgba(255,255,255,0.1)'
               }}
             >
-              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Black</span>
+              <span className="absolute top-2 left-1/2 -translate-x-1/2 text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-wider drop-shadow-md">Black</span>
 
 
 
               {/* Designated Chip Placement Circle (Centered) */}
               <div className={`w-8 h-8 rounded-full flex items-center justify-center relative shadow-inner mt-2 transition-all duration-300 ${
                 bets.black > 0 
-                  ? 'border-2 border-solid border-[#d4af37] bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
-                  : 'border border-dashed border-white/25 bg-black/35'
+                  ? 'border-2 border-solid border-[#d4af37] bg-black/10 dark:bg-black/30 dark:bg-black/60 shadow-[0_0_12px_rgba(212,175,55,0.5)] scale-105' 
+                  : 'border border-dashed border-white/25 bg-black/10 dark:bg-black/35'
               }`}>
                 {bets.black > 0 ? (
                   renderPlacedChipStack(bets.black)
                 ) : (
-                  <span className="text-[5.5px] text-white/30 font-black tracking-widest">BET</span>
+                  <span className="text-[5.5px] text-slate-900 dark:text-white/30 font-black tracking-widest">BET</span>
                 )}
               </div>
 
               {/* Watermark Payout Label on Right */}
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">2x</span>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white/[0.16] text-[48px] font-black tracking-tighter select-none pointer-events-none italic font-mono leading-none">2x</span>
             </button>
           </div>
         </div>

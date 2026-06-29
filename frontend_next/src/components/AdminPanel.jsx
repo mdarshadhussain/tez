@@ -50,7 +50,7 @@ export default function AdminPanel({ token, socket, user, setPlayableBalance }) 
             TezClub Developer Control Centre
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] text-text-muted hover:text-white transition-colors">
+        <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white transition-colors">
           <span>{collapsed ? 'EXPAND PANELS' : 'COLLAPSE'}</span>
           {collapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
         </div>
@@ -68,7 +68,7 @@ export default function AdminPanel({ token, socket, user, setPlayableBalance }) 
             <div className="flex gap-3 flex-wrap pb-1">
               <button
                 onClick={mintCredits}
-                className="flex-1 min-w-[150px] bg-white/5 border border-white/10 hover:border-accent-green/50 hover:bg-accent-green/10 rounded-xl text-white text-xs font-medium py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
+                className="flex-1 min-w-[150px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-accent-green/50 hover:bg-accent-green/10 rounded-xl text-slate-900 dark:text-white text-xs font-medium py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
               >
                 <Coins size={14} className="text-accent-green" />
                 Mint ₹1,00,000.00 Credits
@@ -76,7 +76,7 @@ export default function AdminPanel({ token, socket, user, setPlayableBalance }) 
 
               <button
                 onClick={triggerRain}
-                className="flex-1 min-w-[150px] bg-white/5 border border-white/10 hover:border-accent-blue/50 hover:bg-accent-blue/10 rounded-xl text-white text-xs font-medium py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
+                className="flex-1 min-w-[150px] bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 hover:border-accent-blue/50 hover:bg-accent-blue/10 rounded-xl text-slate-900 dark:text-white text-xs font-medium py-2.5 px-4 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
               >
                 <Sparkles size={14} className="text-accent-blue" />
                 Trigger Live Chat Rain Bot

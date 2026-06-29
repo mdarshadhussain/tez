@@ -277,7 +277,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
   const last12 = history.slice(0, 12).reverse();
 
   return (
-    <div className="coinflip-container w-full h-full flex flex-col md:flex-row gap-6 p-2 text-white font-sans selection:bg-transparent relative">
+    <div className="coinflip-container w-full h-full flex flex-col md:flex-row gap-6 p-2 text-slate-900 dark:text-white font-sans selection:bg-transparent relative">
       <style>{`
         @keyframes coin-toss-heads {
           0% {
@@ -365,12 +365,12 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
       <div className="w-full md:w-[320px] bg-[#1a1c2a] rounded-[24px] p-5 flex flex-col justify-between border border-white/[0.03] shadow-lg shrink-0">
         <div className="space-y-6">
           {/* Tab Selection */}
-          <div className="flex bg-[#0f111a] p-1 rounded-full border border-white/[0.04]">
+          <div className="flex bg-slate-50 dark:bg-[#0f111a] p-1 rounded-full border border-white/[0.04]">
             <button
               onClick={() => { playClick(); setBetTab('manual'); }}
               disabled={isAutoplayActive}
               className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border-none cursor-pointer ${
-                betTab === 'manual' ? 'bg-[#26293b] text-[#3de796]' : 'bg-transparent text-text-muted hover:text-white'
+                betTab === 'manual' ? 'bg-[#26293b] text-[#3de796]' : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               Manual
@@ -379,7 +379,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
               onClick={() => { playClick(); setBetTab('autoplay'); }}
               disabled={isAutoplayActive}
               className={`flex-1 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border-none cursor-pointer ${
-                betTab === 'autoplay' ? 'bg-[#26293b] text-[#3de796]' : 'bg-transparent text-text-muted hover:text-white'
+                betTab === 'autoplay' ? 'bg-[#26293b] text-[#3de796]' : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               Autoplay
@@ -388,17 +388,17 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
 
           {/* Bet Amount Input */}
           <div className="space-y-2.5">
-            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
               <span className="flex items-center gap-1">
-                BET AMOUNT <Info size={11} className="text-text-muted cursor-help" />
+                BET AMOUNT <Info size={11} className="text-slate-500 dark:text-text-muted cursor-help" />
               </span>
               <span>{playableBalance.toFixed(2)} INR</span>
             </div>
-            <div className="flex items-center bg-[#0f111a] rounded-xl px-3.5 py-3 border border-white/[0.05] focus-within:border-[#3de796]/50 transition-all">
+            <div className="flex items-center bg-slate-50 dark:bg-[#0f111a] rounded-xl px-3.5 py-3 border border-white/[0.05] focus-within:border-[#3de796]/50 transition-all">
               <span className="text-[#3de796] font-bold text-xs mr-2">₹</span>
               <input
                 type="number"
-                className="bg-transparent border-none outline-none text-white font-extrabold text-xs w-full focus:ring-0 p-0"
+                className="bg-transparent border-none outline-none text-slate-900 dark:text-white font-extrabold text-xs w-full focus:ring-0 p-0"
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
                 disabled={hasBet || bettingClosed || isAutoplayActive}
@@ -407,14 +407,14 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
                 <button
                   onClick={() => multiplyBet(0.5)}
                   disabled={hasBet || bettingClosed || isAutoplayActive}
-                  className="bg-[#26293b] hover:bg-[#2d3148] text-white text-[9px] font-black px-2.5 py-1.5 rounded border-none cursor-pointer transition-all disabled:opacity-40"
+                  className="bg-[#26293b] hover:bg-[#2d3148] text-slate-900 dark:text-white text-[9px] font-black px-2.5 py-1.5 rounded border-none cursor-pointer transition-all disabled:opacity-40"
                 >
                   1/2
                 </button>
                 <button
                   onClick={() => multiplyBet(2.0)}
                   disabled={hasBet || bettingClosed || isAutoplayActive}
-                  className="bg-[#26293b] hover:bg-[#2d3148] text-white text-[9px] font-black px-2.5 py-1.5 rounded border-none cursor-pointer transition-all disabled:opacity-40"
+                  className="bg-[#26293b] hover:bg-[#2d3148] text-slate-900 dark:text-white text-[9px] font-black px-2.5 py-1.5 rounded border-none cursor-pointer transition-all disabled:opacity-40"
                 >
                   X2
                 </button>
@@ -425,18 +425,18 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
           {/* Number of Bets (only for Autoplay) */}
           {betTab === 'autoplay' && (
             <div className="space-y-2.5">
-              <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+              <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
                 <span>NUMBER OF BETS</span>
                 <span>{autoplayCount} Rounds</span>
               </div>
-              <div className="flex bg-[#0f111a] p-1 rounded-xl border border-white/[0.04] gap-1">
+              <div className="flex bg-slate-50 dark:bg-[#0f111a] p-1 rounded-xl border border-white/[0.04] gap-1">
                 {['10', '25', '50', '100'].map((val) => (
                   <button
                     key={val}
                     onClick={() => { playClick(); setAutoplayCount(val); }}
                     disabled={isAutoplayActive}
                     className={`flex-1 py-1.5 rounded-lg text-[9px] font-black transition-all border-none cursor-pointer ${
-                      autoplayCount === val ? 'bg-[#26293b] text-white' : 'bg-transparent text-text-muted hover:text-white'
+                      autoplayCount === val ? 'bg-[#26293b] text-slate-900 dark:text-white' : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
                     } disabled:opacity-40`}
                   >
                     {val}
@@ -446,7 +446,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
               <input
                 type="number"
                 disabled={isAutoplayActive}
-                className="bg-[#0f111a] border border-white/[0.05] rounded-xl px-3.5 py-2.5 text-white font-extrabold text-xs w-full focus:ring-0 outline-none text-center"
+                className="bg-slate-50 dark:bg-[#0f111a] border border-white/[0.05] rounded-xl px-3.5 py-2.5 text-slate-900 dark:text-white font-extrabold text-xs w-full focus:ring-0 outline-none text-center"
                 value={autoplayCount}
                 placeholder="Custom count"
                 onChange={(e) => setAutoplayCount(e.target.value)}
@@ -456,11 +456,11 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
 
           {/* Countdown Timer */}
           <div className="space-y-2.5">
-            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-text-muted">
               <span>NEXT ROUND TIMER</span>
               <span className={bettingClosed ? "text-red-500 font-black" : "text-[#3de796] font-black"}>{timer}s</span>
             </div>
-            <div className="relative w-full h-2.5 bg-[#0f111a] rounded-full overflow-hidden border border-white/[0.04]">
+            <div className="relative w-full h-2.5 bg-slate-50 dark:bg-[#0f111a] rounded-full overflow-hidden border border-white/[0.04]">
               <div 
                 className={`h-full rounded-full transition-all duration-1000 ${
                   bettingClosed ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-[#3de796] shadow-[0_0_8px_#3de796]'
@@ -484,8 +484,8 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
             onClick={toggleAutoplay}
             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all border-none cursor-pointer mt-6 shadow-lg ${
               isAutoplayActive
-                ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/15'
-                : 'bg-[#2effb0] hover:bg-[#2effb0]/90 text-[#0f111a] shadow-[#2effb0]/15'
+                ? 'bg-red-500 hover:bg-red-600 text-slate-900 dark:text-white shadow-red-500/15'
+                : 'bg-[#2effb0] hover:bg-[#2effb0]/90 text-white dark:text-[#0f111a] shadow-[#2effb0]/15'
             }`}
           >
             {isAutoplayActive ? `Stop Autoplay (${autoplayCount})` : 'Start Autoplay'}
@@ -496,10 +496,10 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
             disabled={hasBet || bettingClosed}
             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all border-none cursor-pointer mt-6 shadow-lg ${
               hasBet
-                ? 'bg-[#141622] text-[#3de796] border border-[#3de796]/20 cursor-default'
+                ? 'bg-slate-50 dark:bg-[#141622] text-[#3de796] border border-[#3de796]/20 cursor-default'
                 : bettingClosed
-                ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-                : 'bg-[#2effb0] hover:bg-[#2effb0]/90 text-[#0f111a] shadow-[#2effb0]/15'
+                ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+                : 'bg-[#2effb0] hover:bg-[#2effb0]/90 text-white dark:text-[#0f111a] shadow-[#2effb0]/15'
             }`}
           >
             {hasBet ? 'Bet Placed' : bettingClosed ? `Betting Closed (${timer}s)` : `Play`}
@@ -511,10 +511,10 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
       <div className="flex-1 bg-[#161824] rounded-[24px] p-6 flex flex-col items-center justify-between border border-white/[0.03] shadow-lg relative min-h-[480px]">
         
         {/* Timer Bar or Count details in top header */}
-        <div className="w-full flex justify-between items-center px-4 py-2 bg-[#0f111a]/80 rounded-2xl border border-white/[0.04]">
+        <div className="w-full flex justify-between items-center px-4 py-2 bg-slate-50 dark:bg-[#0f111a]/80 rounded-2xl border border-white/[0.04]">
           <div className="flex items-center gap-2">
             <div className={`w-2.5 h-2.5 rounded-full ${bettingClosed ? 'bg-red-500 animate-pulse' : 'bg-[#3de796] animate-pulse'}`} />
-            <span className="text-[10px] font-black tracking-widest text-text-muted uppercase">
+            <span className="text-[10px] font-black tracking-widest text-slate-500 dark:text-text-muted uppercase">
               {bettingClosed ? 'Round Processing' : 'Betting Phase'}
             </span>
           </div>
@@ -543,7 +543,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
                   style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
                 >
                   <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-yellow-200/40 flex flex-col items-center justify-center">
-                    <span className="text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">H</span>
+                    <span className="text-slate-900 dark:text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">H</span>
                     <span className="text-[8px] font-black tracking-widest text-yellow-100 uppercase mt-0.5">HEADS</span>
                   </div>
                 </div>
@@ -554,7 +554,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
                   style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
                   <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-slate-100/40 flex flex-col items-center justify-center">
-                    <span className="text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">T</span>
+                    <span className="text-slate-900 dark:text-white text-5xl font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">T</span>
                     <span className="text-[8px] font-black tracking-widest text-slate-100 uppercase mt-0.5">TAILS</span>
                   </div>
                 </div>
@@ -563,18 +563,18 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
 
             {/* Dynamic Coin Shadow */}
             <div 
-              className={`absolute bottom-8 w-28 h-3 bg-black/60 rounded-full blur-md transition-all ${
+              className={`absolute bottom-8 w-28 h-3 bg-black/10 dark:bg-black/30 dark:bg-black/60 rounded-full blur-md transition-all ${
                 spinning ? 'coin-shadow-toss' : 'opacity-60 scale-100'
               }`}
             />
 
             {/* Micro-effects on Win/Loss */}
             {result && !spinning && (
-              <div className="absolute bottom-0 bg-[#0f111a]/95 border border-white/5 px-4 py-1.5 rounded-full text-[11px] font-black shadow-lg">
+              <div className="absolute bottom-0 bg-slate-50 dark:bg-[#0f111a]/95 border border-black/10 dark:border-white/5 px-4 py-1.5 rounded-full text-[11px] font-black shadow-lg">
                 {won ? (
                   <span className="text-[#3de796]">WON +₹{(activeBetAmount * 1.95).toFixed(2)}</span>
                 ) : (
-                  <span className="text-text-muted">Landed on {result.toUpperCase()}</span>
+                  <span className="text-slate-500 dark:text-text-muted">Landed on {result.toUpperCase()}</span>
                 )}
               </div>
             )}
@@ -582,14 +582,14 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
         </div>
 
         {/* Prediction Selector Controls */}
-        <div className="flex items-center bg-[#0f111a] rounded-[18px] p-1.5 border border-white/[0.04] gap-2 mb-6">
+        <div className="flex items-center bg-slate-50 dark:bg-[#0f111a] rounded-[18px] p-1.5 border border-white/[0.04] gap-2 mb-6">
           <button
             onClick={() => { playClick(); setPrediction('heads'); }}
             disabled={hasBet || bettingClosed || isAutoplayActive}
             className={`flex items-center gap-2 px-5 py-3 rounded-xl font-black text-[11px] tracking-wider transition-all border-none cursor-pointer ${
               prediction === 'heads'
-                ? 'bg-[#26293b] text-white shadow-lg'
-                : 'bg-transparent text-text-muted hover:text-white'
+                ? 'bg-[#26293b] text-slate-900 dark:text-white shadow-lg'
+                : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
             } disabled:opacity-50`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
@@ -599,7 +599,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
           <button
             onClick={selectRandom}
             disabled={hasBet || bettingClosed || isAutoplayActive}
-            className="p-3 bg-[#1e2130] hover:bg-[#26293b] text-text-muted hover:text-white rounded-xl border-none cursor-pointer transition-all flex items-center justify-center disabled:opacity-50"
+            className="p-3 bg-[#1e2130] hover:bg-[#26293b] text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white rounded-xl border-none cursor-pointer transition-all flex items-center justify-center disabled:opacity-50"
             title="Random Selection"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -617,8 +617,8 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
             disabled={hasBet || bettingClosed || isAutoplayActive}
             className={`flex items-center gap-2 px-5 py-3 rounded-xl font-black text-[11px] tracking-wider transition-all border-none cursor-pointer ${
               prediction === 'tails'
-                ? 'bg-[#26293b] text-white shadow-lg'
-                : 'bg-transparent text-text-muted hover:text-white'
+                ? 'bg-[#26293b] text-slate-900 dark:text-white shadow-lg'
+                : 'bg-transparent text-slate-500 dark:text-text-muted hover:text-slate-900 dark:text-white'
             } disabled:opacity-50`}
           >
             <span className="w-2.5 h-2.5 bg-[#cbd5e1] rotate-45" />
@@ -652,7 +652,7 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
               ))}
             </AnimatePresence>
             {last12.length === 0 && (
-              <span className="text-[10px] text-text-dim uppercase tracking-widest font-black py-1">Waiting for history...</span>
+              <span className="text-[10px] text-slate-400 dark:text-text-dim uppercase tracking-widest font-black py-1">Waiting for history...</span>
             )}
           </div>
         </div>
@@ -661,21 +661,21 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
       {/* Center Result Overlay Popup Modal */}
       {showResultPopup && (
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 rounded-[24px] transition-all animate-fadeIn cursor-pointer"
+          className="absolute inset-0 bg-black/10 dark:bg-black/30 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 rounded-[24px] transition-all animate-fadeIn cursor-pointer"
           onClick={() => setShowResultPopup(false)}
         >
           <div 
             className={`p-6 rounded-3xl border text-center shadow-2xl max-w-xs w-full mx-4 transition-all scale-100 cursor-default ${
               popupData.won 
-                ? 'bg-gradient-to-b from-[#1a2e26] to-[#0d1713] border-[#3de796]/30 text-white' 
-                : 'bg-gradient-to-b from-[#2d1e22] to-[#180f11] border-red-500/30 text-white'
+                ? 'bg-gradient-to-b from-[#1a2e26] to-[#0d1713] border-[#3de796]/30 text-slate-900 dark:text-white' 
+                : 'bg-gradient-to-b from-[#2d1e22] to-[#180f11] border-red-500/30 text-slate-900 dark:text-white'
             }`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-end -mt-2 -mr-2">
               <button 
                 onClick={() => setShowResultPopup(false)} 
-                className="text-white/40 hover:text-white bg-transparent border-none cursor-pointer"
+                className="text-slate-900 dark:text-white/40 hover:text-slate-900 dark:text-white bg-transparent border-none cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -697,17 +697,17 @@ export default function CoinFlip({ socket, user, token, playableBalance, setPlay
               {popupData.won ? 'Winner!' : 'No Luck!'}
             </h3>
             
-            <p className="text-[11px] text-white/60 mb-4 font-semibold">
-              Round Outcome: <span className="font-extrabold text-white capitalize">{popupData.outcome}</span>
+            <p className="text-[11px] text-slate-900 dark:text-white/60 mb-4 font-semibold">
+              Round Outcome: <span className="font-extrabold text-slate-900 dark:text-white capitalize">{popupData.outcome}</span>
             </p>
 
-            <div className="bg-[#0f111a]/60 px-4 py-2.5 rounded-xl border border-white/[0.04] inline-block">
+            <div className="bg-slate-50 dark:bg-[#0f111a]/60 px-4 py-2.5 rounded-xl border border-white/[0.04] inline-block">
               {popupData.won ? (
                 <span className="text-[#3de796] text-lg font-black tracking-wide">
                   +₹{popupData.amount.toFixed(2)}
                 </span>
               ) : (
-                <span className="text-white/70 text-xs font-black tracking-wide">
+                <span className="text-slate-900 dark:text-white/70 text-xs font-black tracking-wide">
                   Bet amount: ₹{activeBetAmount}
                 </span>
               )}

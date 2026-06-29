@@ -568,7 +568,7 @@ export default function AdminDashboard({ token, socket }) {
 
   if (loading && !stats) {
     return (
-      <div className="min-h-screen bg-[#070913] flex flex-col items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-[#070913] flex flex-col items-center justify-center text-slate-500 dark:text-zinc-400">
         <RefreshCw className="animate-spin text-purple-500 mb-2" size={28} />
         <span className="text-xs uppercase font-black tracking-widest">Loading Master platform panel...</span>
       </div>
@@ -582,13 +582,13 @@ export default function AdminDashboard({ token, socket }) {
       <div className="flex-1 flex overflow-hidden">
         
         {/* Left Side Navigation Sidebar */}
-        <aside className="w-64 bg-[#0a0d18]/60 backdrop-blur-md border-r border-white/5 flex flex-col shrink-0">
-          <div className="p-6 border-b border-white/5 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+        <aside className="w-64 bg-[#0a0d18]/60 backdrop-blur-md border-r border-black/10 dark:border-white/5 flex flex-col shrink-0">
+          <div className="p-6 border-b border-black/10 dark:border-white/5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-slate-900 dark:text-white shadow-md">
               <Shield size={16} />
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-black uppercase tracking-wider text-white">TEZCLUB Admin</span>
+              <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">TEZCLUB Admin</span>
               <span className="text-[9px] text-[#3de796] font-bold">System Online</span>
             </div>
           </div>
@@ -631,11 +631,11 @@ export default function AdminDashboard({ token, socket }) {
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider border-0 cursor-pointer transition-all text-left ${
                     isActive 
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/20' 
-                      : 'bg-transparent text-zinc-400 hover:bg-white/5 hover:text-white'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-slate-900 dark:text-white shadow-lg shadow-purple-600/20' 
+                      : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:bg-black/5 dark:bg-white/5 hover:text-slate-900 dark:text-white'
                   }`}
                 >
-                  <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-500'} />
+                  <Icon size={14} className={isActive ? 'text-slate-900 dark:text-white' : 'text-zinc-500'} />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -658,23 +658,23 @@ export default function AdminDashboard({ token, socket }) {
                 className="space-y-6 text-left"
               >
                 {/* Header Row */}
-                <div className="flex justify-between items-center bg-[#0a0d18]/45 border border-white/5 p-4 rounded-2xl">
+                <div className="flex justify-between items-center bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-4 rounded-2xl">
                   <div>
-                    <h1 className="text-lg font-black uppercase text-white tracking-tight">Dashboard Overview</h1>
-                    <p className="text-[10px] text-zinc-400">Enterprise summary dashboard and analytics terminal.</p>
+                    <h1 className="text-lg font-black uppercase text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h1>
+                    <p className="text-[10px] text-slate-500 dark:text-zinc-400">Enterprise summary dashboard and analytics terminal.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setMaintenanceMode(!maintenanceMode)} 
                       className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider border-0 cursor-pointer transition-all ${
                         maintenanceMode 
-                          ? 'bg-red-500 text-white shadow shadow-red-500/20' 
-                          : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                          ? 'bg-red-500 text-slate-900 dark:text-white shadow shadow-red-500/20' 
+                          : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-zinc-400 hover:bg-black/10 dark:bg-white/10'
                       }`}
                     >
                       {maintenanceMode ? '🛑 MAINTENANCE ON' : '⚙️ MAINTENANCE OFF'}
                     </button>
-                    <button onClick={fetchData} className="p-2.5 rounded-xl bg-white/5 border-0 hover:bg-white/10 text-white cursor-pointer transition-all">
+                    <button onClick={fetchData} className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 border-0 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white cursor-pointer transition-all">
                       <RefreshCw size={14} />
                     </button>
                   </div>
@@ -686,11 +686,11 @@ export default function AdminDashboard({ token, socket }) {
                     { label: 'Stakes Volume', value: `₹${stats.total_bets.toLocaleString('en-IN')}`, desc: 'Total client bets', color: 'text-purple-400', icon: Database },
                     { label: 'Total Payouts', value: `₹${stats.total_payouts.toLocaleString('en-IN')}`, desc: 'Total settled payouts', color: 'text-emerald-400', icon: ArrowUpRight },
                     { label: 'Net Income', value: `₹${stats.house_profit.toLocaleString('en-IN')}`, desc: 'Net house margin profit', color: 'text-cyan-400', icon: TrendingUp },
-                    { label: 'Customers', value: stats.total_users, desc: 'Registered user index', color: 'text-white', icon: Users }
+                    { label: 'Customers', value: stats.total_users, desc: 'Registered user index', color: 'text-slate-900 dark:text-white', icon: Users }
                   ].map((s, idx) => {
                     const Icon = s.icon;
                     return (
-                      <div key={idx} className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl flex items-center justify-between shadow-md hover:scale-[1.01] transition-transform">
+                      <div key={idx} className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl flex items-center justify-between shadow-md hover:scale-[1.01] transition-transform">
                         <div>
                           <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider block">{s.label}</span>
                           <div className={`text-xl font-black mt-2 font-mono ${s.color}`}>{s.value}</div>
@@ -706,9 +706,9 @@ export default function AdminDashboard({ token, socket }) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   
                   {/* SVG Chart Panel */}
-                  <div className="lg:col-span-8 bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md">
+                  <div className="lg:col-span-8 bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md">
                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xs font-black uppercase text-white tracking-widest">Platform Growth Trends (7 Days)</h3>
+                      <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest">Platform Growth Trends (7 Days)</h3>
                       <div className="flex items-center gap-3 text-[10px] font-bold">
                         <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Stakes</span>
                         <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500" /> Payouts</span>
@@ -739,8 +739,8 @@ export default function AdminDashboard({ token, socket }) {
                   </div>
 
                   {/* Quick Action Operations Hub */}
-                  <div className="lg:col-span-4 bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md space-y-4">
-                    <h3 className="text-xs font-black uppercase text-white tracking-widest">Quick Operations</h3>
+                  <div className="lg:col-span-4 bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md space-y-4">
+                    <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest">Quick Operations</h3>
                     
                     {/* Instant Credit form */}
                     <form onSubmit={handleQuickCredit} className="space-y-2">
@@ -750,37 +750,37 @@ export default function AdminDashboard({ token, socket }) {
                         placeholder="Customer phone..."
                         value={quickCreditPhone}
                         onChange={(e) => setQuickCreditPhone(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-[11px] text-white focus:outline-none focus:border-purple-500 font-mono"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
                       />
                       <input
                         type="number"
                         placeholder="Amount in ₹..."
                         value={quickCreditAmount}
                         onChange={(e) => setQuickCreditAmount(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-[11px] text-white focus:outline-none focus:border-purple-500 font-mono"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
                       />
                       <button 
                         type="submit" 
                         disabled={quickCreditSubmitting}
-                        className="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2 rounded-xl text-[10px] uppercase tracking-wider cursor-pointer border-0 transition-colors"
+                        className="w-full bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white font-black py-2 rounded-xl text-[10px] uppercase tracking-wider cursor-pointer border-0 transition-colors"
                       >
                         {quickCreditSubmitting ? 'Crediting...' : 'Credit Balance'}
                       </button>
                     </form>
 
                     {/* Announcement Broadcast Form */}
-                    <form onSubmit={handleSendAnnouncement} className="space-y-2 border-t border-white/5 pt-3">
+                    <form onSubmit={handleSendAnnouncement} className="space-y-2 border-t border-black/10 dark:border-white/5 pt-3">
                       <div className="text-[9px] text-zinc-500 font-bold uppercase">System Broadcast Announcement</div>
                       <input
                         type="text"
                         placeholder="Broadcast message text..."
                         value={announcementText}
                         onChange={(e) => setAnnouncementText(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-[11px] text-white focus:outline-none focus:border-purple-500"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                       />
                       <button 
                         type="submit" 
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-2 rounded-xl text-[10px] uppercase tracking-wider cursor-pointer border-0 transition-colors"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-slate-900 dark:text-white font-black py-2 rounded-xl text-[10px] uppercase tracking-wider cursor-pointer border-0 transition-colors"
                       >
                         Broadcast Alert
                       </button>
@@ -792,8 +792,8 @@ export default function AdminDashboard({ token, socket }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
                   {/* System Health Indicators */}
-                  <div className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md space-y-4">
-                    <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-1.5">
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md space-y-4">
+                    <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest flex items-center gap-1.5">
                       <Cpu size={14} className="text-purple-500" />
                       <span>Platform Health Desk</span>
                     </h3>
@@ -802,14 +802,14 @@ export default function AdminDashboard({ token, socket }) {
                       <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl flex items-center justify-between">
                         <div>
                           <span className="text-[9px] text-zinc-500 font-bold uppercase block">API Latency</span>
-                          <span className="text-sm font-black text-white block mt-1 font-mono">14ms</span>
+                          <span className="text-sm font-black text-slate-900 dark:text-white block mt-1 font-mono">14ms</span>
                         </div>
                         <Wifi size={20} className="text-[#3de796]" />
                       </div>
                       <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl flex items-center justify-between">
                         <div>
                           <span className="text-[9px] text-zinc-500 font-bold uppercase block">Socket Listeners</span>
-                          <span className="text-sm font-black text-white block mt-1 font-mono">
+                          <span className="text-sm font-black text-slate-900 dark:text-white block mt-1 font-mono">
                             {socket ? '1 Connected' : 'Disconnected'}
                           </span>
                         </div>
@@ -817,24 +817,24 @@ export default function AdminDashboard({ token, socket }) {
                       </div>
                       <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
                         <span className="text-[9px] text-zinc-500 font-bold uppercase block">Simulated Memory Load</span>
-                        <div className="w-full bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div className="w-full bg-black/5 dark:bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
                           <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1.5" style={{ width: '42%' }} />
                         </div>
-                        <span className="text-[9px] text-zinc-400 mt-1 block">42% utilized</span>
+                        <span className="text-[9px] text-slate-500 dark:text-zinc-400 mt-1 block">42% utilized</span>
                       </div>
                       <div className="bg-white/[0.01] border border-white/[0.03] p-4 rounded-xl">
                         <span className="text-[9px] text-zinc-500 font-bold uppercase block">Simulated CPU Load</span>
-                        <div className="w-full bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div className="w-full bg-black/5 dark:bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
                           <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1.5" style={{ width: '18%' }} />
                         </div>
-                        <span className="text-[9px] text-zinc-400 mt-1 block">18% utilization</span>
+                        <span className="text-[9px] text-slate-500 dark:text-zinc-400 mt-1 block">18% utilization</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Real-time Activity Feed */}
-                  <div className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md space-y-4 flex flex-col justify-between">
-                    <h3 className="text-xs font-black uppercase text-white tracking-widest flex items-center gap-1.5">
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md space-y-4 flex flex-col justify-between">
+                    <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest flex items-center gap-1.5">
                       <Activity size={14} className="text-[#3de796]" />
                       <span>Live Platform Ticker</span>
                     </h3>
@@ -863,32 +863,32 @@ export default function AdminDashboard({ token, socket }) {
                 className="space-y-6 text-left"
               >
                 <div>
-                  <h1 className="text-xl font-black uppercase text-white tracking-tight">Income & Finances</h1>
-                  <p className="text-xs text-zinc-400">Detailed bookkeeping, margins, and active ledger calculations.</p>
+                  <h1 className="text-xl font-black uppercase text-slate-900 dark:text-white tracking-tight">Income & Finances</h1>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400">Detailed bookkeeping, margins, and active ledger calculations.</p>
                 </div>
 
-                <div className="bg-[#0a0d18]/45 border border-white/5 rounded-2xl overflow-hidden shadow-md">
-                  <div className="p-6 border-b border-white/5">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-white">Cumulative House Margin Profit</h3>
+                <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden shadow-md">
+                  <div className="p-6 border-b border-black/10 dark:border-white/5">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">Cumulative House Margin Profit</h3>
                   </div>
                   <div className="divide-y divide-white/5">
                     <div className="flex justify-between items-center p-5">
                       <div>
-                        <span className="text-xs font-black text-white block">Total Deposited Volume</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white block">Total Deposited Volume</span>
                         <span className="text-[10px] text-zinc-500 mt-1 block">Total funds credited into player accounts.</span>
                       </div>
-                      <div className="text-lg font-black text-white font-mono">₹{(stats.total_bets * 0.45).toLocaleString('en-IN')}</div>
+                      <div className="text-lg font-black text-slate-900 dark:text-white font-mono">₹{(stats.total_bets * 0.45).toLocaleString('en-IN')}</div>
                     </div>
                     <div className="flex justify-between items-center p-5">
                       <div>
-                        <span className="text-xs font-black text-white block">Withdrawals Processing Volume</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white block">Withdrawals Processing Volume</span>
                         <span className="text-[10px] text-zinc-500 mt-1 block">Total funds successfully cashed out.</span>
                       </div>
-                      <div className="text-lg font-black text-white font-mono">₹{(stats.total_payouts * 0.35).toLocaleString('en-IN')}</div>
+                      <div className="text-lg font-black text-slate-900 dark:text-white font-mono">₹{(stats.total_payouts * 0.35).toLocaleString('en-IN')}</div>
                     </div>
                     <div className="flex justify-between items-center p-5">
                       <div>
-                        <span className="text-xs font-black text-white block">Net House Margin</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white block">Net House Margin</span>
                         <span className="text-[10px] text-zinc-500 mt-1 block">Calculated revenue margin ratio.</span>
                       </div>
                       <div className="text-lg font-black text-[#3de796] font-mono">
@@ -911,8 +911,8 @@ export default function AdminDashboard({ token, socket }) {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h1 className="text-xl font-black uppercase text-white tracking-tight">Customers Registry</h1>
-                    <p className="text-xs text-zinc-400">Manage user balances, status, and view detailed individual wagers.</p>
+                    <h1 className="text-xl font-black uppercase text-slate-900 dark:text-white tracking-tight">Customers Registry</h1>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">Manage user balances, status, and view detailed individual wagers.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative">
@@ -922,26 +922,26 @@ export default function AdminDashboard({ token, socket }) {
                         placeholder="Search phone / ID..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-[#0a0d18]/45 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-purple-500 w-48 transition-all"
+                        className="bg-[#0a0d18]/45 border border-black/15 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 w-48 transition-all"
                       />
                     </div>
                     <select
                       value={sortOrder}
                       onChange={(e) => setSortOrder(e.target.value)}
-                      className="bg-[#0a0d18]/45 border border-white/10 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                      className="bg-[#0a0d18]/45 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 cursor-pointer"
                     >
-                      <option value="phone" className="bg-zinc-950 text-white">Sort: A-Z Phone</option>
-                      <option value="balance" className="bg-zinc-950 text-white">Sort: Balance</option>
-                      <option value="status" className="bg-zinc-950 text-white">Sort: Blocked</option>
+                      <option value="phone" className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white">Sort: A-Z Phone</option>
+                      <option value="balance" className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white">Sort: Balance</option>
+                      <option value="status" className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white">Sort: Blocked</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="bg-[#0a0d18]/45 border border-white/5 rounded-2xl overflow-hidden shadow-md">
+                <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden shadow-md">
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left border-collapse">
                       <thead>
-                        <tr className="bg-white/[0.02] border-b border-white/5 text-zinc-500 font-bold uppercase">
+                        <tr className="bg-white/[0.02] border-b border-black/10 dark:border-white/5 text-zinc-500 font-bold uppercase">
                           <th className="p-4">Customer Phone</th>
                           <th className="p-4">User ID</th>
                           <th className="p-4">Playable Balance</th>
@@ -958,7 +958,7 @@ export default function AdminDashboard({ token, socket }) {
                         ) : (
                           filteredUsers.map((u) => (
                             <tr key={u.id} className="hover:bg-white/[0.01] transition-colors">
-                              <td className="p-4 font-bold text-white">{u.phone_number}</td>
+                              <td className="p-4 font-bold text-slate-900 dark:text-white">{u.phone_number}</td>
                               <td className="p-4 text-zinc-500 font-mono">{u.id}</td>
                               <td className="p-4 text-[#3de796] font-black font-mono">₹{(u.playable_balance || 0).toFixed(2)}</td>
                               <td className="p-4">
@@ -978,7 +978,7 @@ export default function AdminDashboard({ token, socket }) {
                               <td className="p-4 text-right">
                                 <button
                                   onClick={() => handleViewUserDetail(u)}
-                                  className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-black uppercase tracking-wider cursor-pointer border-0 transition-colors shadow"
+                                  className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 dark:text-white rounded-lg font-black uppercase tracking-wider cursor-pointer border-0 transition-colors shadow"
                                 >
                                   Manage Details
                                 </button>
@@ -1004,15 +1004,15 @@ export default function AdminDashboard({ token, socket }) {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h1 className="text-xl font-black uppercase text-white tracking-tight">Transactions Gate</h1>
-                    <p className="text-xs text-zinc-400">Review pending client deposit submissions and manual approvals.</p>
+                    <h1 className="text-xl font-black uppercase text-slate-900 dark:text-white tracking-tight">Transactions Gate</h1>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">Review pending client deposit submissions and manual approvals.</p>
                   </div>
-                  <button onClick={fetchPendingDeposits} className="p-2.5 rounded-xl bg-white/5 border-0 hover:bg-white/10 text-white cursor-pointer transition-all">
+                  <button onClick={fetchPendingDeposits} className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 border-0 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white cursor-pointer transition-all">
                     <RefreshCw size={14} />
                   </button>
                 </div>
 
-                <div className="bg-[#0a0d18]/45 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
+                <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
                   {pendingDeposits.length === 0 ? (
                     <div className="p-8 text-center text-zinc-500 italic text-xs">No pending deposit approval wagers in queue</div>
                   ) : (
@@ -1022,7 +1022,7 @@ export default function AdminDashboard({ token, socket }) {
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 hover:bg-white/[0.01] transition-colors gap-4 text-xs"
                       >
                         <div>
-                          <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                          <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
                             <span>Phone: {dep.phone_number}</span>
                             <span className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded font-mono select-all">
                               UTR: {dep.reference_id}
@@ -1040,7 +1040,7 @@ export default function AdminDashboard({ token, socket }) {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleDepositAction(dep.id, 'approve')}
-                              className="bg-[#3de796] hover:bg-[#3de796]/80 text-[#0f111a] px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer border-0 transition-colors"
+                              className="bg-[#3de796] hover:bg-[#3de796]/80 text-white dark:text-[#0f111a] px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer border-0 transition-colors"
                             >
                               Approve
                             </button>
@@ -1070,8 +1070,8 @@ export default function AdminDashboard({ token, socket }) {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h1 className="text-xl font-black uppercase text-white tracking-tight">Game Wagers Feed</h1>
-                    <p className="text-xs text-zinc-400">Detailed continuous log of all game wagers placed across the platform.</p>
+                    <h1 className="text-xl font-black uppercase text-slate-900 dark:text-white tracking-tight">Game Wagers Feed</h1>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">Detailed continuous log of all game wagers placed across the platform.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Search className="absolute ml-3 text-zinc-500" size={12} />
@@ -1080,19 +1080,19 @@ export default function AdminDashboard({ token, socket }) {
                       placeholder="Filter game (e.g. wingo)..."
                       value={wagersFilter}
                       onChange={(e) => setWagersFilter(e.target.value)}
-                      className="bg-[#0a0d18]/45 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-purple-500 w-44"
+                      className="bg-[#0a0d18]/45 border border-black/15 dark:border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 w-44"
                     />
-                    <button onClick={fetchWagersFeed} className="p-2 bg-white/5 hover:bg-white/10 text-white rounded-xl cursor-pointer border-0">
+                    <button onClick={fetchWagersFeed} className="p-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white rounded-xl cursor-pointer border-0">
                       <RefreshCw size={14} />
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-[#0a0d18]/45 border border-white/5 rounded-2xl overflow-hidden shadow-md">
+                <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden shadow-md">
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
                       <thead>
-                        <tr className="bg-white/[0.02] border-b border-white/5 text-zinc-500 font-bold uppercase">
+                        <tr className="bg-white/[0.02] border-b border-black/10 dark:border-white/5 text-zinc-500 font-bold uppercase">
                           <th className="p-4">Timestamp</th>
                           <th className="p-4">Customer Phone</th>
                           <th className="p-4">Game</th>
@@ -1109,10 +1109,10 @@ export default function AdminDashboard({ token, socket }) {
                             return (
                               <tr key={w.id} className="hover:bg-white/[0.01] transition-colors">
                                 <td className="p-4 text-zinc-500">{new Date(w.created_at).toLocaleString('en-IN')}</td>
-                                <td className="p-4 text-white font-sans font-bold">{w.phone_number}</td>
-                                <td className="p-4 uppercase font-sans font-black tracking-wide text-zinc-300">{w.game}</td>
+                                <td className="p-4 text-slate-900 dark:text-white font-sans font-bold">{w.phone_number}</td>
+                                <td className="p-4 uppercase font-sans font-black tracking-wide text-slate-600 dark:text-zinc-300">{w.game}</td>
                                 <td className="p-4">₹{w.bet_amount.toFixed(2)}</td>
-                                <td className="p-4 text-zinc-400">{w.payout_multiplier.toFixed(2)}x</td>
+                                <td className="p-4 text-slate-500 dark:text-zinc-400">{w.payout_multiplier.toFixed(2)}x</td>
                                 <td className={`p-4 text-right font-bold ${isWin ? 'text-[#3de796]' : 'text-red-400'}`}>
                                   {isWin ? `+₹${w.payout_amount.toFixed(2)}` : `-₹${w.bet_amount.toFixed(2)}`}
                                 </td>
@@ -1141,13 +1141,13 @@ export default function AdminDashboard({ token, socket }) {
                 className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] text-left relative overflow-hidden"
               >
                 {/* Threads Left Sidebar - Hidden on mobile if a thread is selected */}
-                <div className={`lg:col-span-4 bg-[#0a0d18]/45 border border-white/5 rounded-2xl flex flex-col overflow-hidden ${
+                <div className={`lg:col-span-4 bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl flex flex-col overflow-hidden ${
                   selectedSessionId ? 'hidden lg:flex' : 'flex'
                 }`}>
-                  <div className="p-4 border-b border-white/5 bg-white/[0.01] space-y-3">
+                  <div className="p-4 border-b border-black/10 dark:border-white/5 bg-white/[0.01] space-y-3">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xs font-black uppercase text-white tracking-widest">Active Chats</h3>
-                      <button onClick={fetchSupportThreads} className="bg-transparent border-0 text-zinc-500 hover:text-white cursor-pointer p-1">
+                      <h3 className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-widest">Active Chats</h3>
+                      <button onClick={fetchSupportThreads} className="bg-transparent border-0 text-zinc-500 hover:text-slate-900 dark:text-white cursor-pointer p-1">
                         <RefreshCw size={14} />
                       </button>
                     </div>
@@ -1159,7 +1159,7 @@ export default function AdminDashboard({ token, socket }) {
                         placeholder="Search chats by phone number..."
                         value={supportSearchQuery}
                         onChange={(e) => setSupportSearchQuery(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-[11px] text-white focus:outline-none focus:border-purple-500"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 pl-9 pr-3 text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                       />
                     </div>
                   </div>
@@ -1182,16 +1182,16 @@ export default function AdminDashboard({ token, socket }) {
                                 fetchThreadMessages(thread.session_id);
                               }}
                               className={`w-full flex flex-col p-4 text-left border-0 cursor-pointer transition-all ${
-                                isSelected ? 'bg-purple-900/10 text-white border-l-2 border-purple-500' : 'bg-transparent text-zinc-400 hover:bg-white/[0.01]'
+                                isSelected ? 'bg-purple-900/10 text-slate-900 dark:text-white border-l-2 border-purple-500' : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:bg-white/[0.01]'
                               }`}
                             >
                               <div className="flex justify-between items-center w-full">
-                                <span className="text-xs font-bold text-white">{thread.phone_number}</span>
+                                <span className="text-xs font-bold text-slate-900 dark:text-white">{thread.phone_number}</span>
                                 <span className="text-[8px] text-zinc-500 font-mono">
                                   {new Date(thread.last_msg_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
-                              <span className="text-[10px] text-zinc-400 mt-1 truncate max-w-full italic font-medium">
+                              <span className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 truncate max-w-full italic font-medium">
                                 {thread.last_msg || 'No messages yet'}
                               </span>
                               {thread.assigned_manager_phone && (
@@ -1207,21 +1207,21 @@ export default function AdminDashboard({ token, socket }) {
                 </div>
 
                 {/* Messages Right Desk - Full width on mobile if a thread is selected */}
-                <div className={`lg:col-span-8 bg-[#0a0d18]/45 border border-white/5 rounded-2xl flex flex-col overflow-hidden relative ${
+                <div className={`lg:col-span-8 bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl flex flex-col overflow-hidden relative ${
                   selectedSessionId ? 'flex' : 'hidden lg:flex'
                 }`}>
                   {selectedSessionId ? (
                     <div className="flex-1 flex flex-col overflow-hidden">
                       {/* Header with back button on mobile & Assignment dropdown */}
-                      <div className="p-4 border-b border-white/5 bg-white/[0.01] flex justify-between items-center shrink-0 flex-wrap gap-3">
+                      <div className="p-4 border-b border-black/10 dark:border-white/5 bg-white/[0.01] flex justify-between items-center shrink-0 flex-wrap gap-3">
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => setSelectedSessionId(null)}
-                            className="lg:hidden px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold border-0 text-white cursor-pointer"
+                            className="lg:hidden px-3 py-1 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 rounded-lg text-xs font-bold border-0 text-slate-900 dark:text-white cursor-pointer"
                           >
                             &larr; Chats
                           </button>
-                          <span className="text-xs font-black text-white uppercase tracking-wider">
+                          <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
                             Session: {selectedSessionId.replace('support_sess_', '')}
                           </span>
                         </div>
@@ -1232,11 +1232,11 @@ export default function AdminDashboard({ token, socket }) {
                           <select
                             value={supportThreads.find(t => t.session_id === selectedSessionId)?.assigned_manager_id || ''}
                             onChange={(e) => handleAssignChat(selectedSessionId, e.target.value)}
-                            className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-[11px] text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                            className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl px-3 py-1.5 text-[11px] text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 cursor-pointer"
                           >
-                            <option value="" className="bg-zinc-950 text-white">Unassigned (Lobby)</option>
+                            <option value="" className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white">Unassigned (Lobby)</option>
                             {managers.map(m => (
-                              <option key={m.id} value={m.id} className="bg-zinc-950 text-white">
+                              <option key={m.id} value={m.id} className="bg-white dark:bg-zinc-950 text-slate-900 dark:text-white">
                                 {m.phone_number} (Manager)
                               </option>
                             ))}
@@ -1252,8 +1252,8 @@ export default function AdminDashboard({ token, socket }) {
                             <div key={m.id} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
                               <div className={`max-w-[75%] p-3.5 rounded-2xl text-xs font-sans shadow ${
                                 isAdmin 
-                                  ? 'bg-purple-600 text-white rounded-br-none shadow shadow-purple-600/10' 
-                                  : 'bg-zinc-800/80 text-zinc-100 rounded-bl-none shadow'
+                                  ? 'bg-purple-600 text-slate-900 dark:text-white rounded-br-none shadow shadow-purple-600/10' 
+                                  : 'bg-slate-300/80 dark:bg-zinc-800/80 text-zinc-100 rounded-bl-none shadow'
                               }`}>
                                 <p className="break-words font-medium">{m.text}</p>
                                 <span className="text-[8px] text-white/40 block text-right mt-1.5 font-mono">
@@ -1266,18 +1266,18 @@ export default function AdminDashboard({ token, socket }) {
                         <div ref={chatEndRef} />
                       </div>
 
-                      <div className="p-4 border-t border-white/5 bg-[#0a0d18]/60 flex gap-2 shrink-0">
+                      <div className="p-4 border-t border-black/10 dark:border-white/5 bg-[#0a0d18]/60 flex gap-2 shrink-0">
                         <input
                           type="text"
                           placeholder="Type response to client..."
                           value={replyText}
                           onChange={(e) => setReplyText(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && sendSupportReply()}
-                          className="flex-1 py-3 px-4 text-xs bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-purple-500"
+                          className="flex-1 py-3 px-4 text-xs bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                         />
                         <button
                           onClick={sendSupportReply}
-                          className="bg-purple-600 hover:bg-purple-500 text-white px-6 rounded-xl font-black text-xs cursor-pointer transition-colors border-0 flex items-center justify-center gap-1.5"
+                          className="bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white px-6 rounded-xl font-black text-xs cursor-pointer transition-colors border-0 flex items-center justify-center gap-1.5"
                         >
                           <Send size={12} />
                           <span>Send</span>
@@ -1305,15 +1305,15 @@ export default function AdminDashboard({ token, socket }) {
               >
                 {/* Manager Creation Form */}
                 <div className="lg:col-span-4 space-y-4">
-                  <h2 className="text-xs font-black text-white tracking-widest uppercase">Create Manager Account</h2>
-                  <div className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md">
+                  <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase">Create Manager Account</h2>
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md">
                     <form onSubmit={handleCreateManager} className="space-y-4">
                       <div>
                         <label className="text-[10px] text-zinc-500 font-bold block mb-1.5 uppercase">Manager Phone Number</label>
                         <input
                           type="text"
                           required
-                          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-white w-full focus:outline-none focus:border-purple-500 font-mono"
+                          className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white w-full focus:outline-none focus:border-purple-500 font-mono"
                           placeholder="e.g. 9991234567"
                           value={newManagerPhone}
                           onChange={(e) => setNewManagerPhone(e.target.value)}
@@ -1324,7 +1324,7 @@ export default function AdminDashboard({ token, socket }) {
                         <input
                           type="password"
                           required
-                          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-white w-full focus:outline-none focus:border-purple-500"
+                          className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white w-full focus:outline-none focus:border-purple-500"
                           placeholder="Password"
                           value={newManagerPassword}
                           onChange={(e) => setNewManagerPassword(e.target.value)}
@@ -1334,7 +1334,7 @@ export default function AdminDashboard({ token, socket }) {
                       <button 
                         type="submit" 
                         disabled={creatingManager}
-                        className="py-2.5 w-full text-xs font-black bg-purple-600 hover:bg-purple-500 text-white rounded-xl cursor-pointer border-0 transition-colors shadow"
+                        className="py-2.5 w-full text-xs font-black bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white rounded-xl cursor-pointer border-0 transition-colors shadow"
                       >
                         {creatingManager ? 'Creating manager...' : 'Create Account'}
                       </button>
@@ -1344,11 +1344,11 @@ export default function AdminDashboard({ token, socket }) {
 
                 {/* Managers List Table */}
                 <div className="lg:col-span-8 space-y-4">
-                  <h2 className="text-xs font-black text-white tracking-widest uppercase">Registered System Managers</h2>
-                  <div className="bg-[#0a0d18]/45 border border-white/5 rounded-2xl overflow-hidden shadow-md">
+                  <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase">Registered System Managers</h2>
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 rounded-2xl overflow-hidden shadow-md">
                     <table className="w-full text-xs text-left border-collapse">
                       <thead>
-                        <tr className="bg-white/[0.02] border-b border-white/5 text-zinc-500 font-bold uppercase">
+                        <tr className="bg-white/[0.02] border-b border-black/10 dark:border-white/5 text-zinc-500 font-bold uppercase">
                           <th className="p-4">Manager ID</th>
                           <th className="p-4">Phone Number</th>
                           <th className="p-4">Designated Role</th>
@@ -1364,7 +1364,7 @@ export default function AdminDashboard({ token, socket }) {
                           managers.map((m) => (
                             <tr key={m.id} className="hover:bg-white/[0.01] transition-colors">
                               <td className="p-4 text-zinc-500 font-bold">#{m.id}</td>
-                              <td className="p-4 text-white font-bold select-all">{m.phone_number}</td>
+                              <td className="p-4 text-slate-900 dark:text-white font-bold select-all">{m.phone_number}</td>
                               <td className="p-4">
                                 <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-sans">
                                   {m.role || 'manager'}
@@ -1394,15 +1394,15 @@ export default function AdminDashboard({ token, socket }) {
               >
                 {/* UPI QR Payment Configuration */}
                 <div className="space-y-4">
-                  <h2 className="text-xs font-black text-white tracking-widest uppercase">Payment Gateways</h2>
-                  <div className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md">
+                  <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase">Payment Gateways</h2>
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md">
                     <form onSubmit={handleUpdatePaymentSettings} className="space-y-4">
                       <div>
                         <label className="text-[10px] text-zinc-500 font-bold block mb-1.5 uppercase">Receiver UPI ID</label>
                         <input
                           type="text"
                           required
-                          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-white w-full focus:outline-none focus:border-purple-500 font-mono"
+                          className="bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-slate-900 dark:text-white w-full focus:outline-none focus:border-purple-500 font-mono"
                           placeholder="e.g. pay@upi"
                           value={upiId}
                           onChange={(e) => setUpiId(e.target.value)}
@@ -1412,7 +1412,7 @@ export default function AdminDashboard({ token, socket }) {
                       <button 
                         type="submit" 
                         disabled={updatingSettings}
-                        className="py-2.5 w-full text-xs font-black bg-purple-600 hover:bg-purple-500 text-white rounded-xl cursor-pointer border-0 transition-colors shadow"
+                        className="py-2.5 w-full text-xs font-black bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white rounded-xl cursor-pointer border-0 transition-colors shadow"
                       >
                         {updatingSettings ? 'Saving Settings...' : 'Save UPI Settings'}
                       </button>
@@ -1422,15 +1422,15 @@ export default function AdminDashboard({ token, socket }) {
 
                 {/* Game Outcome Mode resolvers */}
                 <div className="space-y-4">
-                  <h2 className="text-xs font-black text-white tracking-widest uppercase">Game Outcome Logic</h2>
-                  <div className="bg-[#0a0d18]/45 border border-white/5 p-6 rounded-2xl shadow-md divide-y divide-white/5">
+                  <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-widest uppercase">Game Outcome Logic</h2>
+                  <div className="bg-[#0a0d18]/45 border border-black/10 dark:border-white/5 p-6 rounded-2xl shadow-md divide-y divide-white/5">
                     {gameSettings && Object.keys(gameSettings).map((game) => {
                       const settings = gameSettings[game];
                       return (
                         <div key={game} className="py-4 first:pt-0 last:pb-0">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="text-xs font-black uppercase text-white tracking-wide">{game} resolver</span>
+                              <span className="text-xs font-black uppercase text-slate-900 dark:text-white tracking-wide">{game} resolver</span>
                               <span className="text-[10px] text-zinc-500 block mt-1">Mode: <code className="text-purple-400 uppercase font-bold">{settings.mode}</code></span>
                             </div>
                             <div className="flex gap-1.5">
@@ -1441,8 +1441,8 @@ export default function AdminDashboard({ token, socket }) {
                                   disabled={updatingGame === game}
                                   className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded border-0 cursor-pointer transition-all ${
                                     settings.mode === m 
-                                      ? 'bg-purple-600 text-white font-bold' 
-                                      : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                                      ? 'bg-purple-600 text-slate-900 dark:text-white font-bold' 
+                                      : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-zinc-400 hover:bg-black/10 dark:bg-white/10'
                                   }`}
                                 >
                                   {m}
@@ -1458,12 +1458,12 @@ export default function AdminDashboard({ token, socket }) {
                               placeholder="Outcome override (e.g. green)..."
                               value={nextOutcomeInputs[game] || ''}
                               onChange={(e) => setNextOutcomeInputs(prev => ({ ...prev, [game]: e.target.value }))}
-                              className="flex-1 bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-purple-500"
+                              className="flex-1 bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                             />
                             <button
                               onClick={() => handleApplyGameOutcomeOverride(game)}
                               disabled={updatingGame === game}
-                              className="px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer border-0 transition-colors shadow"
+                              className="px-4 bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer border-0 transition-colors shadow"
                             >
                               Apply
                             </button>
@@ -1499,12 +1499,12 @@ export default function AdminDashboard({ token, socket }) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-2xl h-full bg-[#0a0d18] border-l border-white/5 flex flex-col z-10 shadow-2xl overflow-hidden text-left"
+              className="relative w-full max-w-2xl h-full bg-[#0a0d18] border-l border-black/10 dark:border-white/5 flex flex-col z-10 shadow-2xl overflow-hidden text-left"
             >
               {/* Header */}
-              <div className="p-6 border-b border-white/5 bg-white/[0.01] flex justify-between items-center shrink-0">
+              <div className="p-6 border-b border-black/10 dark:border-white/5 bg-white/[0.01] flex justify-between items-center shrink-0">
                 <div>
-                  <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
                     <Shield size={16} className="text-purple-500" />
                     <span>Customer Profile: {selectedUser.phone_number}</span>
                   </h3>
@@ -1512,7 +1512,7 @@ export default function AdminDashboard({ token, socket }) {
                 </div>
                 <button
                   onClick={() => setSelectedUser(null)}
-                  className="bg-white/5 hover:bg-white/10 border-0 p-2 rounded-xl text-zinc-400 hover:text-white cursor-pointer transition-all"
+                  className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 border-0 p-2 rounded-xl text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white cursor-pointer transition-all"
                 >
                   ✕
                 </button>
@@ -1528,7 +1528,7 @@ export default function AdminDashboard({ token, socket }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                   
                   {/* Account Editor Pane */}
-                  <div className="p-6 border-b border-white/5 bg-zinc-950/20 shrink-0 space-y-4">
+                  <div className="p-6 border-b border-black/10 dark:border-white/5 bg-slate-200/20 dark:bg-zinc-950/20 shrink-0 space-y-4">
                     <form onSubmit={handleUpdateUserDetails} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -1540,7 +1540,7 @@ export default function AdminDashboard({ token, socket }) {
                               placeholder="Reset user password..."
                               value={editPassword}
                               onChange={(e) => setEditPassword(e.target.value)}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500"
+                              className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 dark:text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500"
                             />
                           </div>
                           <span className="text-[8px] text-zinc-600 block mt-0.5 truncate max-w-full">
@@ -1555,10 +1555,10 @@ export default function AdminDashboard({ token, socket }) {
                             <select
                               value={editVipLevel}
                               onChange={(e) => setEditVipLevel(parseInt(e.target.value))}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                              className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 cursor-pointer"
                             >
                               {[1,2,3,4,5,6,7,8,9,10].map(v => (
-                                <option key={v} value={v} className="bg-zinc-900 text-white">VIP Level {v}</option>
+                                <option key={v} value={v} className="bg-slate-100 dark:bg-zinc-900 text-slate-900 dark:text-white">VIP Level {v}</option>
                               ))}
                             </select>
                           </div>
@@ -1571,7 +1571,7 @@ export default function AdminDashboard({ token, socket }) {
                             step="0.01"
                             value={editPlayableBalance}
                             onChange={(e) => setEditPlayableBalance(parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
                           />
                         </div>
 
@@ -1582,7 +1582,7 @@ export default function AdminDashboard({ token, socket }) {
                             step="0.01"
                             value={editCommissionBalance}
                             onChange={(e) => setEditCommissionBalance(parseFloat(e.target.value) || 0)}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 rounded-xl py-2 px-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
                           />
                         </div>
                       </div>
@@ -1594,7 +1594,7 @@ export default function AdminDashboard({ token, socket }) {
                           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer border ${
                             selectedUser.is_blocked
                               ? 'bg-red-500/20 text-red-400 border-red-500/30'
-                              : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+                              : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-zinc-400 border-black/15 dark:border-white/10 hover:bg-black/10 dark:bg-white/10'
                           }`}
                         >
                           {selectedUser.is_blocked ? 'Unblock User' : 'Block User'}
@@ -1602,7 +1602,7 @@ export default function AdminDashboard({ token, socket }) {
                         <button
                           type="submit"
                           disabled={savingUser}
-                          className="bg-purple-600 hover:bg-purple-500 text-white font-black px-6 py-2 rounded-xl text-xs uppercase tracking-wider cursor-pointer border-0 shadow"
+                          className="bg-purple-600 hover:bg-purple-500 text-slate-900 dark:text-white font-black px-6 py-2 rounded-xl text-xs uppercase tracking-wider cursor-pointer border-0 shadow"
                         >
                           {savingUser ? 'Saving System Changes...' : 'Save Settings'}
                         </button>
@@ -1611,7 +1611,7 @@ export default function AdminDashboard({ token, socket }) {
                   </div>
 
                   {/* detailed histories selectors */}
-                  <div className="bg-white/[0.01] border-b border-white/5 shrink-0 flex">
+                  <div className="bg-white/[0.01] border-b border-black/10 dark:border-white/5 shrink-0 flex">
                     {[
                       { id: 'gameplays', label: 'Game Plays Tree' },
                       { id: 'payments', label: 'Payment Logs' },
@@ -1623,8 +1623,8 @@ export default function AdminDashboard({ token, socket }) {
                         onClick={() => setDetailsTab(tab.id)}
                         className={`flex-1 py-3.5 text-center text-[10px] font-black uppercase tracking-wider cursor-pointer border-0 border-b-2 transition-all ${
                           detailsTab === tab.id 
-                            ? 'border-purple-500 text-white bg-white/[0.01]' 
-                            : 'border-transparent text-zinc-500 hover:text-white'
+                            ? 'border-purple-500 text-slate-900 dark:text-white bg-white/[0.01]' 
+                            : 'border-transparent text-zinc-500 hover:text-slate-900 dark:text-white'
                         }`}
                       >
                         {tab.label}
@@ -1645,10 +1645,10 @@ export default function AdminDashboard({ token, socket }) {
                             const isWin = gp.is_won === 1;
                             const selection = JSON.parse(gp.raw_selection || '{}');
                             return (
-                              <div key={gp.id} className="bg-zinc-950/50 border border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
+                              <div key={gp.id} className="bg-slate-200/50 dark:bg-zinc-950/50 border border-black/10 dark:border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <span className="font-black text-white uppercase tracking-wide">{gp.game}</span>
+                                    <span className="font-black text-slate-900 dark:text-white uppercase tracking-wide">{gp.game}</span>
                                     <span className="text-[10px] text-zinc-500 font-mono">{gp.game_round_id}</span>
                                   </div>
                                   <div className="text-[10px] text-zinc-600 mt-1 space-y-0.5">
@@ -1689,7 +1689,7 @@ export default function AdminDashboard({ token, socket }) {
                           userDetails.payments.map((p) => {
                             const isDeposit = p.type === 'deposit';
                             return (
-                              <div key={p.id} className="bg-zinc-950/50 border border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
+                              <div key={p.id} className="bg-slate-200/50 dark:bg-zinc-950/50 border border-black/10 dark:border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
                                 <div>
                                   <div className="flex items-center gap-2">
                                     <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
@@ -1705,7 +1705,7 @@ export default function AdminDashboard({ token, socket }) {
                                 </div>
 
                                 <div className="text-right">
-                                  <span className="text-sm font-black font-mono text-white block">₹{p.amount.toFixed(2)}</span>
+                                  <span className="text-sm font-black font-mono text-slate-900 dark:text-white block">₹{p.amount.toFixed(2)}</span>
                                   <span className={`text-[9px] font-bold block mt-1 uppercase ${
                                     p.status === 'completed' ? 'text-[#3de796]' : p.status === 'pending' ? 'text-amber-500' : 'text-red-400'
                                   }`}>
@@ -1726,7 +1726,7 @@ export default function AdminDashboard({ token, socket }) {
                           <div className="text-center py-12 text-zinc-500 text-xs">No affiliate earnings found</div>
                         ) : (
                           userDetails.earnings.map((e) => (
-                            <div key={e.id} className="bg-zinc-950/50 border border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
+                            <div key={e.id} className="bg-slate-200/50 dark:bg-zinc-950/50 border border-black/10 dark:border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
                               <div>
                                 <span className="text-[10px] text-zinc-500 font-mono block">Reference: {e.reference_id}</span>
                                 <span className="text-[9px] text-zinc-600 block mt-1">
@@ -1750,9 +1750,9 @@ export default function AdminDashboard({ token, socket }) {
                           <div className="text-center py-12 text-zinc-500 text-xs">No VIP reward logs found</div>
                         ) : (
                           userDetails.rewards.map((r) => (
-                            <div key={r.id} className="bg-zinc-950/50 border border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
+                            <div key={r.id} className="bg-slate-200/50 dark:bg-zinc-950/50 border border-black/10 dark:border-white/5 p-4 rounded-2xl flex justify-between items-center text-xs">
                               <div>
-                                <span className="font-bold text-white block uppercase">{r.reference_id || 'System Reward'}</span>
+                                <span className="font-bold text-slate-900 dark:text-white block uppercase">{r.reference_id || 'System Reward'}</span>
                                 <span className="text-[9px] text-zinc-600 block mt-1">
                                   Awarded: {new Date(r.created_at).toLocaleString('en-IN')}
                                 </span>

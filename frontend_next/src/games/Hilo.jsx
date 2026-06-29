@@ -370,10 +370,10 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
   const lowPercent = Math.round((lowPoolValue / totalPool) * 100);
 
   const ThrillCardBack = () => (
-    <div className="absolute inset-0 bg-gradient-to-br from-[#5c56f8] to-[#4038d3] rounded-3xl flex items-center justify-center p-3 select-none border border-white/10 shadow-2xl">
-      <div className="w-full h-full border-2 border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-br from-[#5c56f8] to-[#4038d3] rounded-3xl flex items-center justify-center p-3 select-none border border-black/15 dark:border-white/10 shadow-2xl">
+      <div className="w-full h-full border-2 border-black/15 dark:border-white/10 rounded-2xl flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_8px,#fff_8px,#fff_16px)]" />
-        <span className="text-white text-3xl font-black font-sans tracking-tight italic select-none rotate-[-90deg] opacity-40">
+        <span className="text-slate-900 dark:text-white text-3xl font-black font-sans tracking-tight italic select-none rotate-[-90deg] opacity-40">
           thrill
         </span>
       </div>
@@ -384,17 +384,17 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full h-full select-none bg-transparent">
       
       {/* LEFT SIDE PANEL - UNIFIED CONSOLE CONTROLS */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0 animate-fade-in">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0 animate-fade-in">
         
         {/* MANUAL / AUTOPLAY TAB SWITCHER */}
         <div className="space-y-3">
-          <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
             <button
               onClick={() => { setActiveTab('manual'); setIsAutoplayActive(false); }}
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'manual'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-zinc-400 hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
               }`}
             >
               Manual
@@ -404,7 +404,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'autoplay'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-zinc-400 hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
               }`}
             >
               Autoplay
@@ -412,13 +412,13 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
           </div>
 
           {/* WALLET / PLAY BALANCE DISPLAY */}
-          <div className="bg-zinc-950/20 border border-white/5 rounded-2xl p-3 flex justify-between items-center">
+          <div className="bg-slate-200/20 dark:bg-zinc-950/20 border border-black/10 dark:border-white/5 rounded-2xl p-3 flex justify-between items-center">
             <div>
-              <span className="text-[8px] text-zinc-400 font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
-              <span className="text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
+              <span className="text-[8px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block leading-none">PLAY BALANCE</span>
+              <span className="text-slate-900 dark:text-white font-extrabold text-sm block mt-1">₹{playableBalance.toFixed(2)}</span>
             </div>
             <div className="text-right">
-              <span className="text-[8px] text-zinc-400 font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
+              <span className="text-[8px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block leading-none">TOTAL BET</span>
               <span className="text-[#3de796] font-black text-sm block mt-1">₹{hasBet ? betAmount : '0'}</span>
             </div>
           </div>
@@ -426,9 +426,9 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
 
         {/* BET AMOUNT INPUT COMPONENT */}
         <div className="space-y-2">
-          <span className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase block">Bet Amount</span>
+          <span className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">Bet Amount</span>
           
-          <div className="flex gap-1.5 bg-zinc-950/40 p-2.5 rounded-2xl border border-white/5">
+          <div className="flex gap-1.5 bg-slate-200/40 dark:bg-zinc-950/40 p-2.5 rounded-2xl border border-black/10 dark:border-white/5">
             <div className="relative flex-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-[#3de796]">₹</span>
               <input
@@ -436,18 +436,18 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                 value={betAmount}
                 onChange={e => setBetAmount(e.target.value)}
                 disabled={hasBet || timeLeft <= 3 || isAutoplayActive}
-                className="w-full bg-zinc-900/60 border border-white/5 rounded-xl py-2 pl-7 pr-3 text-xs font-black text-white focus:outline-none focus:border-[#3de796]/30 transition-all font-mono"
+                className="w-full bg-slate-200/60 dark:bg-zinc-900/60 border border-black/10 dark:border-white/5 rounded-xl py-2 pl-7 pr-3 text-xs font-black text-slate-900 dark:text-white focus:outline-none focus:border-[#3de796]/30 transition-all font-mono"
               />
             </div>
             <button
               disabled={hasBet || timeLeft <= 3 || isAutoplayActive}
               onClick={() => setBetAmount(prev => String(Math.max(10, parseFloat(prev) / 2)))}
-              className="px-3 bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-white/5"
+              className="px-3 bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
             >1/2</button>
             <button
               disabled={hasBet || timeLeft <= 3 || isAutoplayActive}
               onClick={() => setBetAmount(prev => String(parseFloat(prev) * 2))}
-              className="px-3 bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-white/5"
+              className="px-3 bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
             >2x</button>
           </div>
 
@@ -457,7 +457,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                 key={val}
                 disabled={hasBet || timeLeft <= 3 || isAutoplayActive}
                 onClick={() => setBetAmount(val)}
-                className="py-1.5 bg-zinc-950/20 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-lg font-black text-[9px] transition-all cursor-pointer border border-white/5"
+                className="py-1.5 bg-slate-200/20 dark:bg-zinc-950/20 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-lg font-black text-[9px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
               >
                 ₹{val}
               </button>
@@ -468,15 +468,15 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
         {/* AUTOPLAY OPTIONS */}
         {activeTab === 'autoplay' && (
           <div className="space-y-2">
-            <span className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase block">Autoplay Prediction Direction</span>
-            <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+            <span className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">Autoplay Prediction Direction</span>
+            <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
               <button
                 onClick={() => setAutoplayGuess('high')}
                 disabled={isAutoplayActive}
                 className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                   autoplayGuess === 'high'
                     ? 'bg-emerald-500 text-black shadow-md'
-                    : 'bg-transparent text-zinc-400 hover:text-white'
+                    : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
                 }`}
               >
                 ▲ HIGHER
@@ -486,8 +486,8 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                 disabled={isAutoplayActive}
                 className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                   autoplayGuess === 'low'
-                    ? 'bg-[#ef4444] text-white shadow-md'
-                    : 'bg-transparent text-zinc-400 hover:text-white'
+                    ? 'bg-[#ef4444] text-slate-900 dark:text-white shadow-md'
+                    : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
                 }`}
               >
                 ▼ LOWER
@@ -497,13 +497,13 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
         )}
 
         {/* LIVE MULTIPLAYER POOLS & WAGERS FEED */}
-        <div className="bg-zinc-950/30 border border-white/5 rounded-2xl p-3.5 space-y-2">
-          <div className="flex justify-between items-center text-[8px] text-zinc-400 font-bold tracking-widest uppercase">
+        <div className="bg-slate-200/30 dark:bg-zinc-950/30 border border-black/10 dark:border-white/5 rounded-2xl p-3.5 space-y-2">
+          <div className="flex justify-between items-center text-[8px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase">
             <span>LIVE MULTIPLAYER POOLS</span>
             <span className="text-[#3de796] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#3de796] animate-pulse" /> LIVE POOL</span>
           </div>
           
-          <div className="flex h-2 rounded-full overflow-hidden bg-zinc-900 border border-white/5">
+          <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-900 border border-black/10 dark:border-white/5">
             <div 
               className="bg-emerald-500 transition-all duration-500" 
               style={{ width: `${highPercent}%` }} 
@@ -517,21 +517,21 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
           <div className="grid grid-cols-2 gap-1.5 text-center text-[9px] font-black uppercase">
             <div className="bg-emerald-500/5 rounded p-1 border border-emerald-500/10 flex flex-col justify-center">
               <span className="text-emerald-400 block text-[6.5px] font-bold tracking-wider leading-none">HIGHER POOL</span>
-              <span className="text-white font-mono text-[9px] mt-1">₹{highPoolValue.toLocaleString('en-IN')}</span>
-              <span className="text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({highPercent}%)</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[9px] mt-1">₹{highPoolValue.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({highPercent}%)</span>
             </div>
             <div className="bg-rose-500/5 rounded p-1 border border-rose-500/10 flex flex-col justify-center">
               <span className="text-rose-400 block text-[6.5px] font-bold tracking-wider leading-none">LOWER POOL</span>
-              <span className="text-white font-mono text-[9px] mt-1">₹{lowPoolValue.toLocaleString('en-IN')}</span>
-              <span className="text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({lowPercent}%)</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[9px] mt-1">₹{lowPoolValue.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white/30 text-[5.5px] mt-0.5 font-sans lowercase">({lowPercent}%)</span>
             </div>
           </div>
 
-          <div className="w-full h-[1px] bg-white/5 my-1" />
+          <div className="w-full h-[1px] bg-black/5 dark:bg-white/5 my-1" />
 
           {/* RECENT LIVE WAGERS LOG FEED */}
           <div className="space-y-1">
-            <span className="text-[7.5px] text-zinc-400 font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
+            <span className="text-[7.5px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
             <div className="space-y-1 max-h-[85px] overflow-y-auto scrollbar-none flex flex-col justify-end">
               {(() => {
                 const displayBets = [];
@@ -540,9 +540,9 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                 }
                 displayBets.push(...liveBets);
                 return displayBets.slice(0, 2).map(wager => (
-                  <div key={wager.id} className="flex items-center text-[8px] bg-zinc-950/20 border border-white/[0.02] p-1 px-2.5 rounded-lg text-white font-mono animate-fade-in">
-                    <span className="w-16 font-semibold text-white/80 text-left">{wager.username}</span>
-                    <span className="w-12 text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
+                  <div key={wager.id} className="flex items-center text-[8px] bg-slate-200/20 dark:bg-zinc-950/20 border border-black/[0.05] dark:border-white/[0.02] p-1 px-2.5 rounded-lg text-slate-900 dark:text-white font-mono animate-fade-in">
+                    <span className="w-16 font-semibold text-slate-900 dark:text-white/80 text-left">{wager.username}</span>
+                    <span className="w-12 text-slate-900 dark:text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
                     <span className="w-12 flex justify-center">
                       <span className={`w-2.5 h-2.5 rounded-full ${wager.choice === 'high' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                     </span>
@@ -552,7 +552,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
               })()}
 
               {liveBets.length === 0 && !hasBet && (
-                <div className="text-[7.5px] text-white/20 italic p-1 text-center">Waiting for live wagers...</div>
+                <div className="text-[7.5px] text-slate-900 dark:text-white/20 italic p-1 text-center">Waiting for live wagers...</div>
               )}
             </div>
           </div>
@@ -564,7 +564,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
             onClick={() => setIsAutoplayActive(prev => !prev)}
             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-wider border-0 cursor-pointer transition-all ${
               isAutoplayActive
-                ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25 hover:bg-rose-600'
+                ? 'bg-rose-500 text-slate-900 dark:text-white shadow-lg shadow-rose-500/25 hover:bg-rose-600'
                 : 'bg-gradient-to-r from-emerald-400 to-[#3de796] hover:from-emerald-500 hover:to-[#3de796]/95 text-black shadow-md'
             }`}
           >
@@ -579,10 +579,10 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                   disabled={hasBet || gameState !== 'betting' || timeLeft <= 3}
                   className={`flex-1 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider border-0 cursor-pointer transition-all ${
                     hasBet && selectedGuess === 'low'
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20 scale-[0.98]'
+                      ? 'bg-rose-500 text-slate-900 dark:text-white shadow-lg shadow-rose-500/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white shadow-md hover:scale-[1.01]'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-slate-900 dark:text-white shadow-md hover:scale-[1.01]'
                   }`}
                 >
                   ▼ LOWER
@@ -592,10 +592,10 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                   disabled={hasBet || gameState !== 'betting' || timeLeft <= 3}
                   className={`flex-1 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider border-0 cursor-pointer transition-all ${
                     hasBet && selectedGuess === 'same'
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20 scale-[0.98]'
+                      ? 'bg-purple-600 text-slate-900 dark:text-white shadow-lg shadow-purple-600/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md hover:scale-[1.01]'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-500 to-purple-600 text-slate-900 dark:text-white shadow-md hover:scale-[1.01]'
                   }`}
                 >
                   🟰 SAME (12.61x)
@@ -610,7 +610,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                     hasBet && selectedGuess === 'high'
                       ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
                       : 'bg-gradient-to-r from-emerald-400 to-[#3de796] hover:from-emerald-500 hover:to-[#3de796]/95 text-black shadow-md hover:scale-[1.01]'
                   }`}
                 >
@@ -621,10 +621,10 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                   disabled={hasBet || gameState !== 'betting' || timeLeft <= 3}
                   className={`flex-1 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider border-0 cursor-pointer transition-all ${
                     hasBet && selectedGuess === 'same'
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20 scale-[0.98]'
+                      ? 'bg-purple-600 text-slate-900 dark:text-white shadow-lg shadow-purple-600/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md hover:scale-[1.01]'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-500 to-purple-600 text-slate-900 dark:text-white shadow-md hover:scale-[1.01]'
                   }`}
                 >
                   🟰 SAME (12.61x)
@@ -639,7 +639,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                     hasBet && selectedGuess === 'high'
                       ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
                       : 'bg-gradient-to-r from-emerald-400 to-[#3de796] hover:from-emerald-500 hover:to-[#3de796]/95 text-black shadow-md hover:scale-[1.01]'
                   }`}
                 >
@@ -650,10 +650,10 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                   disabled={hasBet || gameState !== 'betting' || timeLeft <= 3}
                   className={`flex-1 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider border-0 cursor-pointer transition-all ${
                     hasBet && selectedGuess === 'low'
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20 scale-[0.98]'
+                      ? 'bg-rose-500 text-slate-900 dark:text-white shadow-lg shadow-rose-500/20 scale-[0.98]'
                       : hasBet || timeLeft <= 3
-                      ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white shadow-md hover:scale-[1.01]'
+                      ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-slate-900 dark:text-white shadow-md hover:scale-[1.01]'
                   }`}
                 >
                   ▼ LOWER
@@ -685,32 +685,32 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
           {currentCard.val === 1 ? (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-[#10b981] text-lg font-black select-none">︽</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Higher</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Higher</div>
               <div className="text-xl font-black text-[#10b981] font-mono">{options.high.mult.toFixed(2)}x</div>
               <div className="bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>★ {options.high.chance}%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">Ace Lowest</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">Ace Lowest</div>
             </div>
           ) : currentCard.val === 13 ? (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-purple-400 text-lg font-black select-none">🟰</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Same (K)</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Same (K)</div>
               <div className="text-xl font-black text-purple-400 font-mono">12.61x</div>
               <div className="bg-purple-500/15 text-purple-400 border border-purple-500/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>★ 7.69%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">High Payout</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">High Payout</div>
             </div>
           ) : (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-[#10b981] text-lg font-black select-none">︽</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Higher / Same</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Higher / Same</div>
               <div className="text-xl font-black text-[#10b981] font-mono">{options.high.mult.toFixed(2)}x</div>
               <div className="bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>★ {options.high.chance}%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">King Highest</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">King Highest</div>
             </div>
           )}
 
@@ -776,7 +776,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                   animate={{ rotateY: 0, opacity: 1, scale: 1 }}
                   exit={{ rotateY: 180, opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute inset-0 bg-white rounded-[24px] flex flex-col justify-between p-4.5 shadow-[0_12px_28px_rgba(0,0,0,0.5)] border border-white/10"
+                  className="absolute inset-0 bg-white rounded-[24px] flex flex-col justify-between p-4.5 shadow-[0_12px_28px_rgba(0,0,0,0.5)] border border-black/15 dark:border-white/10"
                 >
                   <div className="text-left font-black text-2xl leading-none" style={{ color: currentCard.color }}>
                     {currentCard.label}
@@ -797,38 +797,38 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
           {currentCard.val === 13 ? (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-[#a7e846] text-lg font-black select-none">︾</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Lower</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Lower</div>
               <div className="text-xl font-black text-[#a7e846] font-mono">{options.low.mult.toFixed(2)}x</div>
               <div className="bg-[#a7e846]/15 text-[#a7e846] border border-[#a7e846]/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>↙ {options.low.chance}%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">King Highest</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">King Highest</div>
             </div>
           ) : currentCard.val === 1 ? (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-purple-400 text-lg font-black select-none">🟰</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Same (A)</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Same (A)</div>
               <div className="text-xl font-black text-purple-400 font-mono">12.61x</div>
               <div className="bg-purple-500/15 text-purple-400 border border-purple-500/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>★ 7.69%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">High Payout</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">High Payout</div>
             </div>
           ) : (
             <div className="w-[110px] h-[160px] bg-black/45 border border-white/[0.04] rounded-2xl flex flex-col justify-between items-center p-3.5 text-center shrink-0 shadow-lg">
               <span className="text-[#a7e846] text-lg font-black select-none">︾</span>
-              <div className="text-[8px] font-black text-zinc-300 uppercase tracking-wider">Lower / Same</div>
+              <div className="text-[8px] font-black text-slate-600 dark:text-zinc-300 uppercase tracking-wider">Lower / Same</div>
               <div className="text-xl font-black text-[#a7e846] font-mono">{options.low.mult.toFixed(2)}x</div>
               <div className="bg-[#a7e846]/15 text-[#a7e846] border border-[#a7e846]/25 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wide flex items-center gap-0.5">
                 <span>↙ {options.low.chance}%</span>
               </div>
-              <div className="text-[8px] text-zinc-400 font-black uppercase tracking-wider">Ace Lowest</div>
+              <div className="text-[8px] text-slate-500 dark:text-zinc-400 font-black uppercase tracking-wider">Ace Lowest</div>
             </div>
           )}
 
         </div>
 
-        <div className="text-[10px] font-black uppercase text-white tracking-wider mb-2 text-center z-10 shrink-0 drop-shadow-md">
+        <div className="text-[10px] font-black uppercase text-slate-900 dark:text-white tracking-wider mb-2 text-center z-10 shrink-0 drop-shadow-md">
           {gameState === 'betting' ? (
             timeLeft <= 3 ? (
               <span className="text-red-400 font-extrabold tracking-widest animate-pulse">BETS LOCKED! DRAWING SOON</span>
@@ -851,7 +851,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
               return (
                 <React.Fragment key={item.id}>
                   {!isStart && (
-                    <div className="w-[16px] h-[28px] bg-[#0c0d15] border border-white/10 rounded-full flex items-center justify-center shrink-0 mx-[-8px] z-20 shadow-lg">
+                    <div className="w-[16px] h-[28px] bg-[#0c0d15] border border-black/15 dark:border-white/10 rounded-full flex items-center justify-center shrink-0 mx-[-8px] z-20 shadow-lg">
                       {item.guessType === 'high' && <span className="text-[9px] font-black text-[#3de796] select-none">︽</span>}
                       {item.guessType === 'low' && <span className="text-[9px] font-black text-[#3de796] select-none">︾</span>}
                       {item.guessType === 'same' && <span className="text-[9px] font-black text-[#3de796] select-none">=</span>}
@@ -880,7 +880,7 @@ export default function Hilo({ token, playableBalance, setPlayableBalance, isDem
                     {isStart ? (
                       <span className="text-[8px] text-zinc-200 font-extrabold uppercase tracking-wider mt-2.5 select-none drop-shadow-md">Start Card</span>
                     ) : (
-                      <span className="bg-[#3de796] text-[#0f111a] px-2.5 py-0.5 rounded-full text-[8px] font-black mt-1.5 font-mono shadow-md select-none min-w-[48px] text-center">
+                      <span className="bg-[#3de796] text-white dark:text-[#0f111a] px-2.5 py-0.5 rounded-full text-[8px] font-black mt-1.5 font-mono shadow-md select-none min-w-[48px] text-center">
                         {item.mult.toFixed(2)}x
                       </span>
                     )}

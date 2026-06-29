@@ -202,17 +202,17 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full h-full select-none bg-transparent">
       
       {/* LEFT SIDEBAR - CONTROL PANEL */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-black/[0.05] dark:border-white/[0.02] p-5 rounded-3xl flex flex-col gap-4 shadow-xl justify-between h-full relative overflow-hidden shrink-0">
         
         <div className="space-y-3">
           {/* TAB MODE SELECTOR */}
-          <div className="bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="bg-slate-200/40 dark:bg-zinc-950/40 p-1 rounded-xl flex gap-1 border border-black/10 dark:border-white/5">
             <button
               onClick={() => { setActiveTab('color'); setSelectedBet(null); }}
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'color'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-zinc-400 hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
               }`}
             >
               Colors & Numbers
@@ -222,7 +222,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
               className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border-0 cursor-pointer ${
                 activeTab === 'bigsmall'
                   ? 'bg-[#3de796] text-black shadow-md shadow-[#3de796]/10'
-                  : 'bg-transparent text-zinc-400 hover:text-white'
+                  : 'bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'
               }`}
             >
               Big / Small Range
@@ -232,7 +232,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
 
         {/* BET TARGET SELECTION COMPONENT */}
         <div className="space-y-2">
-          <span className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase block">Select Bet Option</span>
+          <span className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">Select Bet Option</span>
           {activeTab === 'color' ? (
             <div className="space-y-3">
               {/* Primary Color Targets */}
@@ -242,7 +242,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                     key={c}
                     onClick={() => setSelectedBet(c)}
                     disabled={timer <= 3 || hasBet}
-                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border-2 cursor-pointer text-white ${
+                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border-2 cursor-pointer text-slate-900 dark:text-white ${
                       selectedBet === c ? 'border-white shadow-lg' : 'border-transparent'
                     }`}
                     style={{
@@ -264,7 +264,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                     className={`py-2 rounded-lg text-[9px] font-black transition-all cursor-pointer border ${
                       selectedBet === String(n)
                         ? 'bg-[#3de796] border-[#3de796] text-black shadow-md'
-                        : 'bg-zinc-950/20 border-white/5 text-zinc-300 hover:text-white'
+                        : 'bg-slate-200/20 dark:bg-zinc-950/20 border-black/10 dark:border-white/5 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white'
                     }`}
                   >
                     {n} (9x)
@@ -277,27 +277,27 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
               <button
                 onClick={() => setSelectedBet('small')}
                 disabled={timer <= 3 || hasBet}
-                className={`flex-1 p-3 rounded-2xl text-xs font-black uppercase transition-all border text-white cursor-pointer ${
+                className={`flex-1 p-3 rounded-2xl text-xs font-black uppercase transition-all border text-slate-900 dark:text-white cursor-pointer ${
                   selectedBet === 'small'
                     ? 'bg-[#3de796] border-[#3de796] text-black shadow-md'
-                    : 'bg-zinc-950/20 border-white/5 hover:text-white'
+                    : 'bg-slate-200/20 dark:bg-zinc-950/20 border-black/10 dark:border-white/5 hover:text-slate-900 dark:text-white'
                 }`}
               >
                 <div>Small (0-4)</div>
-                <div className="text-[9px] text-zinc-400 font-bold mt-1 font-mono">1.96x payout</div>
+                <div className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold mt-1 font-mono">1.96x payout</div>
               </button>
 
               <button
                 onClick={() => setSelectedBet('big')}
                 disabled={timer <= 3 || hasBet}
-                className={`flex-1 p-3 rounded-2xl text-xs font-black uppercase transition-all border text-white cursor-pointer ${
+                className={`flex-1 p-3 rounded-2xl text-xs font-black uppercase transition-all border text-slate-900 dark:text-white cursor-pointer ${
                   selectedBet === 'big'
                     ? 'bg-[#3de796] border-[#3de796] text-black shadow-md'
-                    : 'bg-zinc-950/20 border-white/5 hover:text-white'
+                    : 'bg-slate-200/20 dark:bg-zinc-950/20 border-black/10 dark:border-white/5 hover:text-slate-900 dark:text-white'
                 }`}
               >
                 <div>Big (5-9)</div>
-                <div className="text-[9px] text-zinc-400 font-bold mt-1 font-mono">1.96x payout</div>
+                <div className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold mt-1 font-mono">1.96x payout</div>
               </button>
             </div>
           )}
@@ -305,9 +305,9 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
 
         {/* BET AMOUNT INPUT COMPONENT */}
         <div className="space-y-2">
-          <span className="text-[9px] text-zinc-400 font-bold tracking-widest uppercase block">Bet Amount</span>
+          <span className="text-[9px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">Bet Amount</span>
           
-          <div className="flex gap-1.5 bg-zinc-950/40 p-2.5 rounded-2xl border border-white/5">
+          <div className="flex gap-1.5 bg-slate-200/40 dark:bg-zinc-950/40 p-2.5 rounded-2xl border border-black/10 dark:border-white/5">
             <div className="relative flex-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-[#3de796]">₹</span>
               <input
@@ -315,18 +315,18 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                 value={betAmount}
                 onChange={e => setBetAmount(e.target.value)}
                 disabled={timer <= 3 || hasBet}
-                className="w-full bg-zinc-900/60 border border-white/5 rounded-xl py-2 pl-7 pr-3 text-xs font-black text-white focus:outline-none focus:border-[#3de796]/30 transition-all font-mono"
+                className="w-full bg-slate-200/60 dark:bg-zinc-900/60 border border-black/10 dark:border-white/5 rounded-xl py-2 pl-7 pr-3 text-xs font-black text-slate-900 dark:text-white focus:outline-none focus:border-[#3de796]/30 transition-all font-mono"
               />
             </div>
             <button
               disabled={timer <= 3 || hasBet}
               onClick={() => setBetAmount(prev => String(Math.max(10, parseFloat(prev) / 2)))}
-              className="px-3 bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-white/5"
+              className="px-3 bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
             >1/2</button>
             <button
               disabled={timer <= 3 || hasBet}
               onClick={() => setBetAmount(prev => String(parseFloat(prev) * 2))}
-              className="px-3 bg-zinc-900/60 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-white/5"
+              className="px-3 bg-slate-200/60 dark:bg-zinc-900/60 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-xl font-black text-[10px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
             >2x</button>
           </div>
 
@@ -336,7 +336,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                 key={val}
                 disabled={timer <= 3 || hasBet}
                 onClick={() => setBetAmount(val)}
-                className="py-1.5 bg-zinc-950/20 hover:bg-[#3de796]/10 text-white hover:text-[#3de796] rounded-lg font-black text-[9px] transition-all cursor-pointer border border-white/5"
+                className="py-1.5 bg-slate-200/20 dark:bg-zinc-950/20 hover:bg-[#3de796]/10 text-slate-900 dark:text-white hover:text-[#3de796] rounded-lg font-black text-[9px] transition-all cursor-pointer border border-black/10 dark:border-white/5"
               >
                 ₹{val}
               </button>
@@ -345,13 +345,13 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
         </div>
 
         {/* LIVE MULTIPLAYER POOLS & WAGERS FEED */}
-        <div className="bg-zinc-950/30 border border-white/5 rounded-2xl p-3.5 space-y-2">
-          <div className="flex justify-between items-center text-[8px] text-zinc-400 font-bold tracking-widest uppercase">
+        <div className="bg-slate-200/30 dark:bg-zinc-950/30 border border-black/10 dark:border-white/5 rounded-2xl p-3.5 space-y-2">
+          <div className="flex justify-between items-center text-[8px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase">
             <span>LIVE MULTIPLAYER POOLS</span>
             <span className="text-[#3de796] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#3de796] animate-pulse" /> LIVE POOL</span>
           </div>
           
-          <div className="flex h-2 rounded-full overflow-hidden bg-zinc-900 border border-white/5">
+          <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-zinc-900 border border-black/10 dark:border-white/5">
             <div className="bg-emerald-500 transition-all duration-500" style={{ width: `${greenPercent}%` }} />
             <div className="bg-purple-500 transition-all duration-500" style={{ width: `${violetPercent}%` }} />
             <div className="bg-rose-500 transition-all duration-500" style={{ width: `${redPercent}%` }} />
@@ -360,23 +360,23 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
           <div className="grid grid-cols-3 gap-1 text-center text-[9px] font-black uppercase">
             <div className="bg-emerald-500/5 rounded p-1 border border-emerald-500/10 flex flex-col justify-center">
               <span className="text-emerald-400 block text-[5.5px] font-bold tracking-wider leading-none">GREEN</span>
-              <span className="text-white font-mono text-[8px] mt-1">₹{greenPoolValue.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[8px] mt-1">₹{greenPoolValue.toLocaleString('en-IN')}</span>
             </div>
             <div className="bg-purple-500/5 rounded p-1 border border-purple-500/10 flex flex-col justify-center">
               <span className="text-purple-400 block text-[5.5px] font-bold tracking-wider leading-none">VIOLET</span>
-              <span className="text-white font-mono text-[8px] mt-1">₹{violetPoolValue.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[8px] mt-1">₹{violetPoolValue.toLocaleString('en-IN')}</span>
             </div>
             <div className="bg-rose-500/5 rounded p-1 border border-rose-500/10 flex flex-col justify-center">
               <span className="text-rose-400 block text-[5.5px] font-bold tracking-wider leading-none">RED</span>
-              <span className="text-white font-mono text-[8px] mt-1">₹{redPoolValue.toLocaleString('en-IN')}</span>
+              <span className="text-slate-900 dark:text-white font-mono text-[8px] mt-1">₹{redPoolValue.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
-          <div className="w-full h-[1px] bg-white/5 my-1" />
+          <div className="w-full h-[1px] bg-black/5 dark:bg-white/5 my-1" />
 
           {/* RECENT LIVE WAGERS LOG FEED */}
           <div className="space-y-1">
-            <span className="text-[7.5px] text-zinc-400 font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
+            <span className="text-[7.5px] text-slate-500 dark:text-zinc-400 font-bold tracking-widest uppercase block">RECENT LIVE WAGERS</span>
             <div className="space-y-1 max-h-[85px] overflow-y-auto scrollbar-none flex flex-col justify-end">
               {(() => {
                 const displayBets = [];
@@ -385,9 +385,9 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                 }
                 displayBets.push(...liveBets);
                 return displayBets.slice(0, 2).map(wager => (
-                  <div key={wager.id} className="flex items-center text-[8px] bg-zinc-950/20 border border-white/[0.02] p-1 px-2.5 rounded-lg text-white font-mono animate-fade-in">
-                    <span className="w-16 font-semibold text-white/80 text-left">{wager.username}</span>
-                    <span className="w-12 text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
+                  <div key={wager.id} className="flex items-center text-[8px] bg-slate-200/20 dark:bg-zinc-950/20 border border-black/[0.05] dark:border-white/[0.02] p-1 px-2.5 rounded-lg text-slate-900 dark:text-white font-mono animate-fade-in">
+                    <span className="w-16 font-semibold text-slate-900 dark:text-white/80 text-left">{wager.username}</span>
+                    <span className="w-12 text-slate-900 dark:text-white/40 text-[7px] uppercase font-sans text-center">bet on</span>
                     <span className="w-12 flex justify-center">
                       <span className="font-extrabold text-[8.5px] uppercase" style={{
                         color: ['green','red','violet'].includes(wager.choice)
@@ -403,7 +403,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
               })()}
 
               {liveBets.length === 0 && !selectedBet && (
-                <div className="text-[7.5px] text-white/20 italic p-1 text-center">Waiting for live wagers...</div>
+                <div className="text-[7.5px] text-slate-900 dark:text-white/20 italic p-1 text-center">Waiting for live wagers...</div>
               )}
             </div>
           </div>
@@ -417,9 +417,9 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
             hasBet
               ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 scale-[0.98]'
               : timer <= 3
-              ? 'bg-zinc-800/80 text-white/20 cursor-not-allowed'
+              ? 'bg-slate-300/80 dark:bg-zinc-800/80 text-slate-900 dark:text-white/20 cursor-not-allowed'
               : !selectedBet
-              ? 'bg-zinc-900/60 text-zinc-500 cursor-not-allowed'
+              ? 'bg-slate-200/60 dark:bg-zinc-900/60 text-zinc-500 cursor-not-allowed'
               : 'bg-gradient-to-r from-emerald-400 to-[#3de796] hover:from-emerald-500 hover:to-[#3de796]/95 text-black shadow-md hover:scale-[1.01]'
           }`}
         >
@@ -443,7 +443,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
         {/* GIANT COUNTDOWN RADAR DIAL (Takes up 75% of the panel space) */}
         <div className="flex-1 flex items-center justify-center relative py-6 z-10">
           
-          <div className="relative w-[310px] h-[310px] rounded-full flex items-center justify-center bg-black/60 border border-white/[0.04] shadow-2xl">
+          <div className="relative w-[310px] h-[310px] rounded-full flex items-center justify-center bg-black/10 dark:bg-black/30 dark:bg-black/60 border border-white/[0.04] shadow-2xl">
             
             {/* Spinning decorative orbit lines */}
             <div className="absolute inset-4 rounded-full border border-dashed border-[#3de796]/10 animate-spin-slow" />
@@ -463,7 +463,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
               return (
                 <div
                   key={n}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-white border border-white/10 transition-all duration-200 ${getNumberBg(n)} ${
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-slate-900 dark:text-white border border-black/15 dark:border-white/10 transition-all duration-200 ${getNumberBg(n)} ${
                     isWinningIndex 
                       ? 'scale-[1.3] ring-4 ring-[#d4af37] border-white z-20' 
                       : isShufflingActive
@@ -482,7 +482,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
 
             {/* Inner Glowing Holographic Timer Console Core */}
             <div 
-              className="w-40 h-40 rounded-full flex flex-col items-center justify-center relative bg-gradient-to-b from-[#11131e]/98 to-[#05060a]/99 border border-white/10 shadow-2xl backdrop-blur-md"
+              className="w-40 h-40 rounded-full flex flex-col items-center justify-center relative bg-gradient-to-b from-[#11131e]/98 to-[#05060a]/99 border border-black/15 dark:border-white/10 shadow-2xl backdrop-blur-md"
               style={{
                 boxShadow: timer <= 3
                   ? '0 0 35px rgba(239,68,68,0.3), inset 0 0 20px rgba(239,68,68,0.15)'
@@ -533,7 +533,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                   </>
                 ) : (
                   <>
-                    <span className="text-4xl font-black font-mono text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+                    <span className="text-4xl font-black font-mono text-slate-900 dark:text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
                       {timer}s
                     </span>
                     <span className="text-[7px] text-[#3de796] font-black uppercase mt-1 tracking-wider leading-none">NEXT DRAW</span>
@@ -547,18 +547,18 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
         </div>
 
         {/* ACTIVE TARGET METADATA FOOTER DISPLAY */}
-        <div className="flex justify-between items-center bg-black/45 border border-white/5 rounded-2xl p-3 px-5 mx-2.5 z-10 shadow-lg">
+        <div className="flex justify-between items-center bg-black/45 border border-black/10 dark:border-white/5 rounded-2xl p-3 px-5 mx-2.5 z-10 shadow-lg">
           <div>
-            <span className="text-[7.5px] text-zinc-400 font-bold uppercase tracking-widest block leading-none">Selected Prediction</span>
-            <span className="text-xs font-black text-white block mt-1 uppercase">
+            <span className="text-[7.5px] text-slate-500 dark:text-zinc-400 font-bold uppercase tracking-widest block leading-none">Selected Prediction</span>
+            <span className="text-xs font-black text-slate-900 dark:text-white block mt-1 uppercase">
               {selectedBet ? `🎯 ${selectedBet}` : 'No Bet Placed'}
             </span>
           </div>
 
-          <div className="w-[1.5px] h-8 bg-white/5" />
+          <div className="w-[1.5px] h-8 bg-black/5 dark:bg-white/5" />
 
           <div className="text-right">
-            <span className="text-[7.5px] text-zinc-400 font-bold uppercase tracking-widest block leading-none">Last Settled Round</span>
+            <span className="text-[7.5px] text-slate-500 dark:text-zinc-400 font-bold uppercase tracking-widest block leading-none">Last Settled Round</span>
             <span className="text-xs font-black text-[#d4af37] block mt-1">
               {lastOutcome ? `#${lastOutcome.round} → Result: ${lastOutcome.num}` : 'Waiting...'}
             </span>
@@ -582,7 +582,7 @@ export default function WinGo({ socket, user, playableBalance, setPlayableBalanc
                 <motion.div 
                   initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-white shadow-md border border-white/10"
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-slate-900 dark:text-white shadow-md border border-black/15 dark:border-white/10"
                   style={{
                     background: h.color === 'red' ? '#ef4444' : h.color === 'green' ? '#10b981' : '#8b5cf6',
                     boxShadow: `0 0 10px ${

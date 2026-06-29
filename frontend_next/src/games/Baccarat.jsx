@@ -85,7 +85,7 @@ function PlayingCard({ card, flipped, dealDelay, deckOffX, deckOffY }) {
                 <div key={i} className="w-3 h-3 rounded-sm bg-white/40" />
               ))}
             </div>
-            <div className="absolute inset-0 flex items-center justify-center text-white/30 text-2xl font-black">🂠</div>
+            <div className="absolute inset-0 flex items-center justify-center text-slate-900 dark:text-white/30 text-2xl font-black">🂠</div>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ function PlayingCard({ card, flipped, dealDelay, deckOffX, deckOffY }) {
 function CardSlot() {
   return (
     <div
-      className="rounded-[8px] border-2 border-dashed border-white/10"
+      className="rounded-[8px] border-2 border-dashed border-black/15 dark:border-white/10"
       style={{ width: 72, height: 102 }}
     />
   );
@@ -151,7 +151,7 @@ function Deck({ dealing, shuffling }) {
             {isTop && (
               <div className="w-full h-full relative flex items-center justify-center">
                 <div className="absolute inset-1 rounded-[4px] border border-blue-400/20" />
-                <span className="text-white/30 text-lg font-black">🂠</span>
+                <span className="text-slate-900 dark:text-white/30 text-lg font-black">🂠</span>
               </div>
             )}
           </motion.div>
@@ -174,9 +174,9 @@ function ScoreBadge({ score, winner, side }) {
         isTie ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' :
         isWin
           ? side === 'player'
-            ? 'bg-red-500 text-white border-red-400 shadow-red-500/40'
+            ? 'bg-red-500 text-slate-900 dark:text-white border-red-400 shadow-red-500/40'
             : 'bg-[#3de796] text-black border-[#3de796]/50 shadow-[#3de796]/40'
-          : 'bg-white/10 text-white/60 border-white/10'
+          : 'bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white/60 border-black/15 dark:border-white/10'
       }`}
     >
       {score}
@@ -186,46 +186,79 @@ function ScoreBadge({ score, winner, side }) {
 }
 
 // ─── Bet Zone ─────────────────────────────────────────────────────────────────
-const ZONE_COLORS = {
-  player: { bar: 'bg-blue-500', glow: 'shadow-blue-500/20', border: 'border-blue-500/50', badge: 'bg-blue-600' },
-  tie:    { bar: 'bg-[#3de796]', glow: 'shadow-[#3de796]/20', border: 'border-[#3de796]/50', badge: 'bg-[#3de796]' },
-  banker: { bar: 'bg-red-500', glow: 'shadow-red-500/20', border: 'border-red-500/50', badge: 'bg-red-600' },
+const ZONE_STYLES = {
+  player: {
+    bg: 'bg-gradient-to-b from-blue-900/40 to-blue-900/10',
+    border: 'border-blue-500/50',
+    glow: 'shadow-[0_0_20px_rgba(59,130,246,0.15)]',
+    textGlow: 'drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]',
+    badge: 'bg-blue-600',
+    accent: 'text-blue-400',
+    pattern: 'radial-gradient(circle at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 70%)'
+  },
+  tie: {
+    bg: 'bg-gradient-to-b from-[#113a29] to-[#0d1f17]',
+    border: 'border-[#3de796]/50',
+    glow: 'shadow-[0_0_20px_rgba(61,231,150,0.15)]',
+    textGlow: 'drop-shadow-[0_0_8px_rgba(61,231,150,0.8)]',
+    badge: 'bg-[#3de796]',
+    accent: 'text-[#3de796]',
+    pattern: 'radial-gradient(circle at 50% 0%, rgba(61,231,150,0.15) 0%, transparent 70%)'
+  },
+  banker: {
+    bg: 'bg-gradient-to-b from-red-900/40 to-red-900/10',
+    border: 'border-red-500/50',
+    glow: 'shadow-[0_0_20px_rgba(239,68,68,0.15)]',
+    textGlow: 'drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]',
+    badge: 'bg-red-600',
+    accent: 'text-red-400',
+    pattern: 'radial-gradient(circle at 50% 0%, rgba(239,68,68,0.15) 0%, transparent 70%)'
+  },
 };
 
 function BetZone({ id, label, odds, amount, active, onClick, disabled }) {
-  const c = ZONE_COLORS[id];
+  const s = ZONE_STYLES[id];
   return (
     <motion.button
       onClick={onClick}
       disabled={disabled}
       data-bet-zone={id}
-      whileHover={!disabled ? { scale: 1.03, y: -2 } : {}}
-      whileTap={!disabled ? { scale: 0.97 } : {}}
-      className={`flex-1 flex flex-col items-center rounded-2xl border pt-0 pb-4 overflow-hidden cursor-pointer bg-[#141622] transition-all select-none ${
-        active ? `${c.border} shadow-xl ${c.glow}` : 'border-white/[0.06]'
-      } ${disabled ? 'opacity-60' : ''}`}
+      whileHover={!disabled ? { scale: 1.02, y: -4 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
+      className={`relative flex-1 flex flex-col items-center rounded-[20px] border pt-5 pb-5 overflow-hidden cursor-pointer transition-all duration-300 select-none ${
+        active ? `${s.border} ${s.glow} ${s.bg}` : 'border-white/[0.04] bg-slate-50 dark:bg-[#141622]/80 hover:bg-slate-100 dark:bg-[#1a1c29]'
+      } ${disabled ? 'opacity-50' : 'opacity-100'}`}
+      style={{
+        background: active ? undefined : 'rgba(20, 22, 34, 0.6)',
+        backdropFilter: 'blur(10px)'
+      }}
     >
-      <div className={`w-full h-1.5 ${c.bar} mb-4`} />
-      <span className="font-black text-white text-xs tracking-wider">{label}</span>
-      <span className="text-text-muted text-[9px] font-bold mt-0.5">{odds}</span>
+      {/* Background ambient light */}
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: s.pattern, opacity: active ? 1 : 0.4 }} />
 
-      <div className="mt-4 mb-3 h-10 flex items-center justify-center">
+      <span className={`relative font-black text-sm tracking-[0.2em] uppercase z-10 ${active ? 'text-slate-900 dark:text-white ' + s.textGlow : 'text-slate-900 dark:text-white/70'}`}>
+        {label}
+      </span>
+      <span className={`relative text-[10px] font-bold mt-1 z-10 ${active ? s.accent : 'text-slate-900 dark:text-white/40'}`}>{odds}</span>
+
+      <div className="relative mt-5 mb-4 h-12 flex items-center justify-center z-10">
         {amount > 0 ? (
-          <div className="relative w-9 h-9 flex items-center justify-center">
+          <div className="relative w-11 h-11 flex items-center justify-center">
             {/* Chip stack */}
             {[...Array(Math.min(5, Math.ceil(amount / 100) + 1))].map((_, i, arr) => {
               const isTop = i === arr.length - 1;
               return (
                 <motion.div
                   key={i}
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`absolute w-9 h-9 rounded-full ${c.badge} border-2 border-dashed border-white/20 shadow-md flex items-center justify-center`}
-                  style={{ bottom: i * 3.5, left: 0, zIndex: i }}
+                  initial={{ y: -30, scale: 0.5, opacity: 0 }}
+                  animate={{ y: 0, scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20, delay: i * 0.04 }}
+                  className={`absolute w-11 h-11 rounded-full ${s.badge} border-[2.5px] border-dashed border-black/30 shadow-lg flex items-center justify-center`}
+                  style={{ bottom: i * 4, left: 0, zIndex: i }}
                 >
+                  <div className="absolute inset-0 rounded-full border border-white/30" />
                   {isTop && (
-                    <span className="font-black text-[8px] text-white select-none">
+                    <span className="font-black text-[10px] text-slate-900 dark:text-white drop-shadow-md select-none">
                       {amount >= 1000 ? `${(amount / 1000).toFixed(1).replace('.0', '')}K` : amount}
                     </span>
                   )}
@@ -235,18 +268,21 @@ function BetZone({ id, label, odds, amount, active, onClick, disabled }) {
           </div>
         ) : (
           <motion.div
-            animate={{ opacity: [0.3, 0.7, 0.3] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="w-7 h-7 rounded-full border-2 border-dashed border-white/15 flex items-center justify-center"
+            animate={{ opacity: [0.2, 0.5, 0.2], scale: [0.95, 1.05, 0.95] }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+            className={`w-10 h-10 rounded-full border border-dashed flex items-center justify-center ${active ? s.border : 'border-black/20 dark:border-white/20'}`}
           >
-            <span className="text-white/30 text-base leading-none">+</span>
+            <span className={`text-2xl font-light leading-none ${active ? s.accent : 'text-slate-900 dark:text-white/20'}`}>+</span>
           </motion.div>
         )}
       </div>
 
-      <div className="flex items-center gap-1 text-[11px] font-black text-white/70">
-        <span className="text-[#3de796] text-[10px]">₹</span>
-        {(amount || 0).toFixed(2)}
+      <div className="relative flex flex-col items-center gap-0.5 z-10">
+        <span className="text-[8px] font-black text-slate-900 dark:text-white/30 uppercase tracking-widest">Total Wager</span>
+        <div className="flex items-center gap-1 font-black">
+          <span className={s.accent}>₹</span>
+          <span className={active ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white/60'}>{(amount || 0).toFixed(2)}</span>
+        </div>
       </div>
     </motion.button>
   );
@@ -277,7 +313,7 @@ function WinOverlay({ winner, winAmount, totalBet, onDismiss }) {
         className="absolute inset-0 z-40 flex items-center justify-center rounded-2xl"
         onClick={onDismiss}
       >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] rounded-2xl" />
+        <div className="absolute inset-0 bg-black/5 dark:bg-black/20 dark:bg-black/50 backdrop-blur-[2px] rounded-2xl" />
 
         {/* Particles on win */}
         {isWin && [...Array(12)].map((_, i) => (
@@ -299,13 +335,13 @@ function WinOverlay({ winner, winAmount, totalBet, onDismiss }) {
           initial={{ scale: 0.5, opacity: 0, y: 30 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }}
-          className="relative z-10 text-center px-8 py-6 rounded-3xl border border-white/10 bg-[#1a1d29]/90 shadow-2xl min-w-[220px]"
+          className="relative z-10 text-center px-8 py-6 rounded-3xl border border-black/15 dark:border-white/10 bg-[#1a1d29]/90 shadow-2xl min-w-[220px]"
         >
           {isTie && !isWin ? (
             <>
               <div className="text-3xl mb-2">🤝</div>
               <div className="text-yellow-300 font-black text-xl tracking-wide">IT'S A TIE!</div>
-              <div className="text-white/50 text-xs font-bold mt-1">Stakes returned</div>
+              <div className="text-slate-900 dark:text-white/50 text-xs font-bold mt-1">Stakes returned</div>
             </>
           ) : isWin ? (
             <>
@@ -313,20 +349,20 @@ function WinOverlay({ winner, winAmount, totalBet, onDismiss }) {
               <div className="text-[#3de796] font-black text-xl tracking-wide drop-shadow-[0_0_20px_rgba(61,231,150,0.7)]">
                 {winner.toUpperCase()} WINS!
               </div>
-              <div className="text-white font-black text-3xl mt-1">+₹{profit.toFixed(2)}</div>
-              <div className="text-white/40 text-[10px] font-bold mt-1">Total payout ₹{winAmount.toFixed(2)}</div>
+              <div className="text-slate-900 dark:text-white font-black text-3xl mt-1">+₹{profit.toFixed(2)}</div>
+              <div className="text-slate-900 dark:text-white/40 text-[10px] font-bold mt-1">Total payout ₹{winAmount.toFixed(2)}</div>
             </>
           ) : (
             <>
               <div className="text-3xl mb-2">💸</div>
               <div className="text-red-400 font-black text-xl">YOU LOST</div>
-              <div className="text-white/50 text-sm font-bold mt-1">-₹{Math.abs(profit).toFixed(2)}</div>
+              <div className="text-slate-900 dark:text-white/50 text-sm font-bold mt-1">-₹{Math.abs(profit).toFixed(2)}</div>
             </>
           )}
           <motion.p
             animate={{ opacity: [0.3, 0.8, 0.3] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
-            className="text-white/30 text-[9px] font-bold tracking-widest uppercase mt-4"
+            className="text-slate-900 dark:text-white/30 text-[9px] font-bold tracking-widest uppercase mt-4"
           >
             Tap to continue
           </motion.p>
@@ -412,9 +448,8 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
           setTimeout(() => {
             if (isAutoRef.current) return;
             const currentBets = betsRef.current;
-            const betSum = currentBets.playerBet + currentBets.tieBet + currentBets.bankerBet;
-            if (betSum > 0 && runRoundRef.current) {
-              runRoundRef.current(currentBets.playerBet, currentBets.tieBet, currentBets.bankerBet);
+            if (runRoundRef.current) {
+              runRoundRef.current(currentBets.playerBet, currentBets.tieBet, currentBets.bankerBet, true);
             } else {
               startTimer();
             }
@@ -721,14 +756,14 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch h-full">
 
       {/* ── LEFT: Console ── */}
-      <div className="lg:col-span-4 bg-[#141622] border border-white/[0.03] p-4 rounded-2xl flex flex-col gap-2.5 overflow-hidden order-2 lg:order-1 relative z-30 max-h-full">
+      <div className="lg:col-span-4 bg-slate-50 dark:bg-[#141622] border border-white/[0.03] p-4 rounded-2xl flex flex-col gap-2.5 overflow-hidden order-2 lg:order-1 relative z-30 max-h-full">
 
         {/* Tabs */}
         <div className="bg-[#1a1b26] p-1.5 rounded-full flex gap-1">
           {['manual', 'autoplay'].map(t => (
             <button key={t} onClick={() => { playClick(); setTab(t); }} disabled={isDealing}
               className={`flex-1 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-all border-0 cursor-pointer 
-                ${tab === t ? 'bg-[#3de796] text-[#0d1f17] shadow-lg shadow-[#3de796]/20' : 'bg-transparent text-white/50 hover:text-white/80'}`}>
+                ${tab === t ? 'bg-[#3de796] text-[#0d1f17] shadow-lg shadow-[#3de796]/20' : 'bg-transparent text-slate-900 dark:text-white/50 hover:text-slate-900 dark:text-white/80'}`}>
               {t}
             </button>
           ))}
@@ -739,19 +774,19 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
             {/* Chip Value */}
             <div className="space-y-2 mt-1">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">CHIP VALUE</span>
-                <span className="text-[10px] font-black text-white/60">₹{selectedChip}</span>
+                <span className="text-[10px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[2px]">CHIP VALUE</span>
+                <span className="text-[10px] font-black text-slate-900 dark:text-white/60">₹{selectedChip}</span>
               </div>
-              <div className="bg-[#1a1b26] border border-white/5 rounded-2xl p-2 pl-4 flex items-center gap-3">
+              <div className="bg-[#1a1b26] border border-black/10 dark:border-white/5 rounded-2xl p-2 pl-4 flex items-center gap-3">
                 <div className="text-[#3de796] font-black text-sm">₹</div>
                 <input
                   type="number" value={selectedChip} disabled={isDealing}
                   onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v) && v > 0) setSelectedChip(v); }}
-                  className="bg-transparent border-0 py-1.5 px-0 text-white font-black text-sm outline-none w-full"
+                  className="bg-transparent border-0 py-1.5 px-0 text-slate-900 dark:text-white font-black text-sm outline-none w-full"
                 />
                 <div className="flex gap-1.5 pr-1">
-                  <button onClick={() => setSelectedChip(v => Math.max(1, v / 2))} disabled={isDealing || timer <= 3} className="bg-white/5 hover:bg-white/10 text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">½</button>
-                  <button onClick={() => setSelectedChip(v => v * 2)} disabled={isDealing || timer <= 3} className="bg-white/5 hover:bg-white/10 text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">×2</button>
+                  <button onClick={() => setSelectedChip(v => Math.max(1, v / 2))} disabled={isDealing || timer <= 3} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">½</button>
+                  <button onClick={() => setSelectedChip(v => v * 2)} disabled={isDealing || timer <= 3} className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">×2</button>
                 </div>
               </div>
             </div>
@@ -759,8 +794,8 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
             {/* Chip presets */}
             <div className="space-y-2 mt-3">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">Chips (INR)</span>
-                <button onClick={clearBets} disabled={isDealing || timer <= 3} className="text-[10px] font-bold text-white/40 hover:text-white cursor-pointer bg-transparent border-0 transition-colors disabled:opacity-40">Clear All</button>
+                <span className="text-[10px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[2px]">Chips (INR)</span>
+                <button onClick={clearBets} disabled={isDealing || timer <= 3} className="text-[10px] font-bold text-slate-900 dark:text-white/40 hover:text-slate-900 dark:text-white cursor-pointer bg-transparent border-0 transition-colors disabled:opacity-40">Clear All</button>
               </div>
               <div className="flex gap-3">
                 {chipPresets.map((chip, idx) => {
@@ -789,13 +824,13 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
                         }
                       }}
                       title="Double-click to edit coin value"
-                      className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-[11px] text-white cursor-pointer border-0 relative select-none z-[9999] transition-opacity duration-300 ${chip.bg} ${selectedChip === chip.value ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}
+                      className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-[11px] text-slate-900 dark:text-white cursor-pointer border-0 relative select-none z-[9999] transition-opacity duration-300 ${chip.bg} ${selectedChip === chip.value ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}
                     >
                       {/* Dashed inner circle */}
                       <div className="absolute inset-1.5 rounded-full border-[1.5px] border-dashed border-black/30 pointer-events-none" />
                       {/* Selection ring */}
                       {selectedChip === chip.value && (
-                        <div className="absolute -inset-1 rounded-full border-2 border-white/20 pointer-events-none" />
+                        <div className="absolute -inset-1 rounded-full border-2 border-black/20 dark:border-white/20 pointer-events-none" />
                       )}
                       {label}
                     </motion.div>
@@ -815,7 +850,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
                 { label: '½', el: '½', fn: halfBets },
               ].map(({ label, el, fn }) => (
                 <button key={label} onClick={fn} disabled={isDealing || placedBets}
-                  className="flex flex-col items-center justify-center gap-1 h-12 rounded-xl bg-[#1a1b26] hover:bg-[#232433] text-white/50 hover:text-white transition-all cursor-pointer border-none disabled:opacity-40">
+                  className="flex flex-col items-center justify-center gap-1 h-12 rounded-xl bg-[#1a1b26] hover:bg-[#232433] text-slate-900 dark:text-white/50 hover:text-slate-900 dark:text-white transition-all cursor-pointer border-none disabled:opacity-40">
                   <span className="text-sm font-medium">{el}</span>
                   <span className="text-[7px] font-black uppercase tracking-widest">{label}</span>
                 </button>
@@ -823,7 +858,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
             </div>
 
             {/* Live Multiplayer Bets */}
-            <div className="flex-1 flex flex-col mt-3 border-t border-white/5 pt-3 min-h-[140px]">
+            <div className="flex-1 flex flex-col mt-3 border-t border-black/10 dark:border-white/5 pt-3 min-h-[140px]">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[10px] font-black text-[#5e8ea6] uppercase tracking-[1px]">LIVE MULTIPLAYER BETS</span>
                 <span className="text-[10px] font-black text-[#3de796] flex items-center gap-1.5 uppercase tracking-[1px]">
@@ -842,12 +877,12 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
                 {[
                   { name: 'PLAYER POOL', color: 'border-red-900/30 text-red-500', val: 727083, pct: 33 },
                   { name: 'TIE POOL', color: 'border-emerald-900/30 text-emerald-500', val: 8289, pct: 0 },
-                  { name: 'BANKER POOL', color: 'border-zinc-800 text-white', val: 1446873, pct: 67 }
+                  { name: 'BANKER POOL', color: 'border-slate-300 dark:border-zinc-800 text-slate-900 dark:text-white', val: 1446873, pct: 67 }
                 ].map(p => (
                   <div key={p.name} className={`flex flex-col items-center justify-center py-2 bg-[#1a1b26]/50 border ${p.color} rounded-lg`}>
                     <span className={`text-[7px] font-black uppercase tracking-widest ${p.color.split(' ')[1]}`}>{p.name}</span>
-                    <span className="text-[11px] font-black text-white mt-1">₹{p.val.toLocaleString('en-IN')}</span>
-                    <span className="text-[7px] font-bold text-white/40 mt-0.5">({p.pct}%)</span>
+                    <span className="text-[11px] font-black text-slate-900 dark:text-white mt-1">₹{p.val.toLocaleString('en-IN')}</span>
+                    <span className="text-[7px] font-bold text-slate-900 dark:text-white/40 mt-0.5">({p.pct}%)</span>
                   </div>
                 ))}
               </div>
@@ -856,15 +891,15 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
               
               <div className="space-y-0.5 overflow-y-auto flex-1 relative pr-1 scrollbar-thin scrollbar-thumb-white/10">
                 {liveWagers.length>0?liveWagers.map(w=>(
-                  <div key={w.id} className="flex items-center text-[10px] bg-transparent py-1.5 border-b border-white/[0.02]" style={{animation:'wagerIn 0.2s ease-out'}}>
-                    <span className="w-20 text-white/70 font-black tracking-wider">{w.phone}</span>
+                  <div key={w.id} className="flex items-center text-[10px] bg-transparent py-1.5 border-b border-black/[0.05] dark:border-white/[0.02]" style={{animation:'wagerIn 0.2s ease-out'}}>
+                    <span className="w-20 text-slate-900 dark:text-white/70 font-black tracking-wider">{w.phone}</span>
                     <span className="w-12 text-[#5e8ea6] text-[8px] font-black text-center">BET ON</span>
                     <span className="w-12 flex items-center justify-center">
                       <div className={`w-3.5 h-3.5 rounded-full shadow-lg ${w.sel==='player'?'bg-[#3b82f6] shadow-[#3b82f6]/50':w.sel==='banker'?'bg-[#ef4444] shadow-[#ef4444]/50':'bg-[#10b981] shadow-[#10b981]/50'}`} />
                     </span>
                     <span className="flex-1 text-right font-black text-[#3de796] text-[11px]">₹{w.amt.toLocaleString('en-IN')}</span>
                   </div>
-                )):<div className="text-[10px] text-white/20 italic py-2">Waiting for wagers...</div>}
+                )):<div className="text-[10px] text-slate-900 dark:text-white/20 italic py-2">Waiting for wagers...</div>}
               </div>
             </div>
 
@@ -876,7 +911,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
               whileTap={!isDealing && !placedBets && totalBet > 0 && timer > 3 && gamePhase !== 'result' ? { scale: 0.97 } : {}}
               className={`w-full py-4 rounded-2xl font-black text-[13px] tracking-[2px] border-0 cursor-pointer transition-all mt-4
                 ${isDealing || placedBets || totalBet === 0 || timer <= 3 || gamePhase === 'result'
-                  ? 'bg-[#1a1b26] text-white/20 cursor-not-allowed shadow-none'
+                  ? 'bg-[#1a1b26] text-slate-900 dark:text-white/20 cursor-not-allowed shadow-none'
                   : 'bg-[#3de796] hover:bg-[#3de796]/90 text-[#0d1f17] shadow-lg shadow-[#3de796]/20'}`}
             >
               {isDealing ? (
@@ -891,23 +926,23 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
           /* Autoplay tab */
           <div className="flex flex-col flex-1 gap-4 mt-2">
             <div className="space-y-3">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">Number of Bets</span>
-              <div className="bg-[#1a1b26] border border-white/5 rounded-2xl p-2 pl-4 flex items-center gap-3">
+              <span className="text-[10px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[2px]">Number of Bets</span>
+              <div className="bg-[#1a1b26] border border-black/10 dark:border-white/5 rounded-2xl p-2 pl-4 flex items-center gap-3">
                 <input type="number" disabled={isAutoplayRunning} value={numberOfBets} onChange={e => setNumberOfBets(e.target.value)}
-                  className="bg-transparent border-0 py-1.5 px-0 text-white font-black text-sm outline-none w-full" />
+                  className="bg-transparent border-0 py-1.5 px-0 text-slate-900 dark:text-white font-black text-sm outline-none w-full" />
                 <div className="flex gap-1.5 pr-1">
                   {['10','20','50'].map(n => (
                     <button key={n} onClick={() => { playClick(); setNumberOfBets(n); }} disabled={isAutoplayRunning}
-                      className="bg-white/5 hover:bg-white/10 text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">{n}</button>
+                      className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white/70 w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-black border-0 cursor-pointer disabled:opacity-40 transition-colors">{n}</button>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 bg-[#1a1b26] p-4 rounded-2xl border border-white/5 mt-2">
-              {[['Wagered', `₹${totalWagered.toFixed(2)}`, 'text-white'], ['Profit', `${totalProfit >= 0 ? '+' : ''}₹${totalProfit.toFixed(2)}`, totalProfit >= 0 ? 'text-[#3de796]' : 'text-[#ef4444]'], ['Left', isAutoplayRunning ? autoBetsRemaining : numberOfBets, 'text-white/70']].map(([lbl, val, cls]) => (
+            <div className="grid grid-cols-3 gap-3 bg-[#1a1b26] p-4 rounded-2xl border border-black/10 dark:border-white/5 mt-2">
+              {[['Wagered', `₹${totalWagered.toFixed(2)}`, 'text-slate-900 dark:text-white'], ['Profit', `${totalProfit >= 0 ? '+' : ''}₹${totalProfit.toFixed(2)}`, totalProfit >= 0 ? 'text-[#3de796]' : 'text-[#ef4444]'], ['Left', isAutoplayRunning ? autoBetsRemaining : numberOfBets, 'text-slate-900 dark:text-white/70']].map(([lbl, val, cls]) => (
                 <div key={lbl} className="text-center space-y-1.5">
-                  <span className="text-[9px] font-black text-white/40 uppercase tracking-[2px] block">{lbl}</span>
+                  <span className="text-[9px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[2px] block">{lbl}</span>
                   <span className={`font-black text-[13px] ${cls}`}>{val}</span>
                 </div>
               ))}
@@ -917,7 +952,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
 
             <button onClick={handleAutoplay} disabled={!isAutoplayRunning && totalBet === 0}
               className={`w-full py-4 rounded-2xl font-black text-[13px] tracking-[2px] border-0 cursor-pointer transition-all disabled:opacity-50 mt-4 
-                ${isAutoplayRunning ? 'bg-[#ef4444] hover:bg-[#dc2626] text-white shadow-lg shadow-[#ef4444]/20' : 'bg-[#3de796] hover:bg-[#3de796]/90 text-[#0d1f17] shadow-lg shadow-[#3de796]/20'}`}>
+                ${isAutoplayRunning ? 'bg-[#ef4444] hover:bg-[#dc2626] text-slate-900 dark:text-white shadow-lg shadow-[#ef4444]/20' : 'bg-[#3de796] hover:bg-[#3de796]/90 text-[#0d1f17] shadow-lg shadow-[#3de796]/20'}`}>
               {isAutoplayRunning ? `STOP (${autoBetsRemaining} left)` : 'START AUTOPLAY'}
             </button>
           </div>
@@ -930,7 +965,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
 
         {/* Top bar */}
         <div className="flex items-center justify-between mb-2">
-          <div className="bg-[#141622] border border-white/5 rounded-xl px-4 py-2 flex items-center gap-2 text-[10px] font-black text-text-muted">
+          <div className="bg-slate-50 dark:bg-[#141622] border border-black/10 dark:border-white/5 rounded-xl px-4 py-2 flex items-center gap-2 text-[10px] font-black text-slate-500 dark:text-text-muted">
             TOTAL BET
             <span className="text-[#3de796]">₹{totalBet.toFixed(2)}</span>
           </div>
@@ -939,7 +974,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
           <div className="flex items-center gap-3">
             <div className="text-[9px] font-black tracking-widest uppercase drop-shadow-md text-right leading-tight"
               style={{ color: isDealing || gamePhase === 'result' ? '#f97316' : timer<=3 ? '#ef4444' : '#a826ff' }}>
-              <div className="text-[7px] text-white/40 mb-0.5">STATUS</div>
+              <div className="text-[7px] text-slate-900 dark:text-white/40 mb-0.5">STATUS</div>
               {isDealing ? 'DEALING CARDS' : gamePhase === 'result' ? 'ROUND OVER' : timer<=3 ? 'BETS CLOSED' : 'ACCEPTING BETS'}
             </div>
           </div>
@@ -963,14 +998,14 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
           {/* Top-Centered Deck with Reshuffle Button */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center gap-2.5">
             <div className="relative">
-              <div className="absolute -inset-1 bg-black/40 rounded-[6px] blur-sm pointer-events-none" />
+              <div className="absolute -inset-1 bg-black/15 dark:bg-black/40 rounded-[6px] blur-sm pointer-events-none" />
               <Deck dealing={isDealing} shuffling={shuffling} />
             </div>
             <button
               onClick={handleReshuffle}
               disabled={isDealing || shuffling}
               title="Reshuffle Deck"
-              className="w-8 h-8 rounded-full bg-[#141622]/90 border border-white/10 hover:border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-8 h-8 rounded-full bg-slate-50 dark:bg-[#141622]/90 border border-black/15 dark:border-white/10 hover:border-black/20 dark:border-white/20 flex items-center justify-center text-slate-900 dark:text-white/70 hover:text-slate-900 dark:text-white hover:bg-black/10 dark:bg-white/10 transition-all cursor-pointer shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <RefreshCw size={13} className={shuffling ? "animate-spin" : ""} />
             </button>
@@ -986,7 +1021,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
             {/* Player Hand */}
             <div className="flex flex-col items-center gap-3 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-[3px]">Player</span>
+                <span className="text-[9px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[3px]">Player</span>
                 {showScores && dealtCards.player.every(c => c.flipped) && (
                   <ScoreBadge score={playerScore} winner={winner} side="player" />
                 )}
@@ -996,8 +1031,8 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
               <div className={`flex gap-2 p-3 rounded-2xl border-2 transition-all duration-500 ${
                 winner === 'player' ? 'border-red-400/60 shadow-xl shadow-red-500/20' :
                 winner === 'tie' ? 'border-yellow-400/30' :
-                winner ? 'border-white/10' : 'border-white/[0.06]'
-              } bg-black/20 backdrop-blur-sm`}>
+                winner ? 'border-black/15 dark:border-white/10' : 'border-white/[0.06]'
+              } bg-black/5 dark:bg-black/20 backdrop-blur-sm`}>
                 {/* Show dealt cards + empty slots */}
                 {[0, 1, 2].map(idx => {
                   const card = dealtCards.player[idx];
@@ -1047,13 +1082,13 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
                 {/* Text overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
                   {isDealing || gamePhase === 'result' ? (
-                    <span className="font-mono font-black text-white/50 text-[10px] tracking-widest mt-0.5">VS</span>
+                    <span className="font-mono font-black text-slate-900 dark:text-white/50 text-[10px] tracking-widest mt-0.5">VS</span>
                   ) : (
                     <>
-                      <span className="font-mono font-black text-white leading-none text-[18px]">
+                      <span className="font-mono font-black text-slate-900 dark:text-white leading-none text-[18px]">
                         {`${timer<10?'0':''}${timer}`}
                       </span>
-                      <span className="text-[7px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Sec</span>
+                      <span className="text-[7px] text-slate-900 dark:text-white/40 font-bold uppercase tracking-widest mt-0.5">Sec</span>
                     </>
                   )}
                 </div>
@@ -1065,7 +1100,7 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
             {/* Banker Hand */}
             <div className="flex flex-col items-center gap-3 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-[3px]">Banker</span>
+                <span className="text-[9px] font-black text-slate-900 dark:text-white/40 uppercase tracking-[3px]">Banker</span>
                 {showScores && dealtCards.banker.every(c => c.flipped) && (
                   <ScoreBadge score={bankerScore} winner={winner} side="banker" />
                 )}
@@ -1074,8 +1109,8 @@ export default function Baccarat({ token, playableBalance, setPlayableBalance, i
               <div className={`flex gap-2 p-3 rounded-2xl border-2 transition-all duration-500 ${
                 winner === 'banker' ? 'border-[#3de796]/60 shadow-xl shadow-[#3de796]/20' :
                 winner === 'tie' ? 'border-yellow-400/30' :
-                winner ? 'border-white/10' : 'border-white/[0.06]'
-              } bg-black/20 backdrop-blur-sm`}>
+                winner ? 'border-black/15 dark:border-white/10' : 'border-white/[0.06]'
+              } bg-black/5 dark:bg-black/20 backdrop-blur-sm`}>
                 {[0, 1, 2].map(idx => {
                   const card = dealtCards.banker[idx];
                   if (!card) {
